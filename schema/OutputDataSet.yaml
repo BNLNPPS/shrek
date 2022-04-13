@@ -1,0 +1,18 @@
+#
+# Partial schema for input data set block
+#
+type: map
+mapping:
+  OutputDataSet:
+    type: map
+    mapping:
+      name:
+        type: str
+      comment:
+        type: str
+      merge:
+        type: bool
+      filelist:
+        type: seq
+        sequence:
+          - type: str

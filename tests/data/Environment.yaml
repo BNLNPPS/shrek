@@ -1,0 +1,16 @@
+#
+# An environment block contains a map of user-defined parameters
+# which will be exposed as environment variables within the job-
+# execution script.  The fields below are provided as examples.
+#
+Environment:
+  name: jobname
+  id: 
+    - 12345
+    - 67890
+  vertex: 1.2345
+  generator: Pythia8.123
+  primes:  (1, 3, 5, 7, 11)
+  
+  
+  

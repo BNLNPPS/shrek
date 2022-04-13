@@ -1,0 +1,11 @@
+type: map
+mapping:
+  Initialize: 
+    type: str
+  JobCommands: 
+    type: str
+    nul: False
+  Finalize: 
+     type: str
+
+  
