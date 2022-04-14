@@ -5,7 +5,7 @@ import os
 def test_environment_block():
 
     yaml   = "tests/data/Parameters.yaml"
-    schema = ["schema/Parameters.yaml"]
+    schema = ["schema/Parameters.yaml","tests/schema/Parameters.yaml"]
 
     assert(os.path.exists( yaml ) )
     for s in schema:
@@ -20,7 +20,7 @@ def test_environment_block():
 def test_inputdataset_block():
 
     yaml   = "tests/data/InputDataSet.yaml"
-    schema = ["schema/InputDataSet.yaml"]
+    schema = ["schema/InputDataSet.yaml","tests/schema/InputDataSet.yaml"]
 
     assert(os.path.exists( yaml ) )
     for s in schema:
@@ -34,7 +34,7 @@ def test_inputdataset_block():
 def test_outputdataset_block():
 
     yaml   = "tests/data/OutputDataSet.yaml"
-    schema = ["schema/OutputDataSet.yaml"]
+    schema = ["schema/OutputDataSet.yaml","tests/schema/OutputDataSet.yaml"]
 
     assert(os.path.exists( yaml ) )
     for s in schema:
@@ -48,7 +48,7 @@ def test_outputdataset_block():
 def test_UserCommands_block():
 
     yaml   = "tests/data/UserCommands.yaml"
-    schema = ["schema/UserCommands.yaml"]
+    schema = ["schema/UserCommands.yaml","tests/schema/UserCommands.yaml"]
 
     assert(os.path.exists( yaml ) )
     for s in schema:

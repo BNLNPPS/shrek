@@ -1,0 +1,10 @@
+#
+# Partial schema for input data set block
+#
+
+type: map
+mapping:
+  OutputDataSet:
+    include: output_dataset
+
+
