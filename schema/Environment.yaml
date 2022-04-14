@@ -1,8 +1,14 @@
 #
 # Partial schema for environment block
 #
+
+schema;parameter_map:
+  type: map
+  allowempty: true
+
 type: map
 mapping:
   Environment:
-    type: map
-    allowempty: True
+     include: parameter_map
+
+  

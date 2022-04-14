@@ -1,9 +1,7 @@
 #
 # Partial schema for input data set block
 #
-type: map
-mapping:
-  OutputDataSet:
+schema;output_dataset:
     type: map
     mapping:
       name:
@@ -16,3 +14,10 @@ mapping:
         type: seq
         sequence:
           - type: str
+
+type: map
+mapping:
+  OutputDataSet:
+    include: output_dataset
+
+
