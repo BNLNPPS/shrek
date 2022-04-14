@@ -45,7 +45,7 @@ def test_outputdataset_block():
 
 
 # pykwalify -d tests/data/UserCommands.yaml -s schema/UserCommands.yaml
-def test_UserCommands_block():
+def test_usercommands_block():
 
     yaml   = "tests/data/UserCommands.yaml"
     schema = ["schema/UserCommands.yaml","tests/schema/UserCommands.yaml"]
@@ -59,7 +59,7 @@ def test_UserCommands_block():
 
 
 # pykwalify -d tests/data/JobDefinition.yaml -s schema/JobDefinition.yaml
-def test_JobDefinition_block():
+def test_jobdefinition_block():
 
     yaml   = "tests/data/JobDefinition.yaml"
     schema = ["schema/Parameters.yaml",
