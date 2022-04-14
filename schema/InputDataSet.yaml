@@ -27,8 +27,8 @@ schema;input_dataset:
         sequence:
           - type: str
 
-type: map
-mapping:
-  InputDataSet:
-     include: input_dataset
+#type: map
+#mapping:
+#  InputDataSet:
+#     include: input_dataset
 

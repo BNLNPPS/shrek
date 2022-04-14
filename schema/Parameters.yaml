@@ -6,9 +6,9 @@ schema;parameter_map:
   type: map
   allowempty: true
 
-type: map
-mapping:
-  Parameters: 
-     include: parameter_map
+#type: map
+#mapping:
+#  Parameters: 
+#     include: parameter_map
 
   

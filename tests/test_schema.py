@@ -59,14 +59,18 @@ def test_UserCommands_block():
 
 
 # pykwalify -d tests/data/JobDefinition.yaml -s schema/JobDefinition.yaml
-#def test_JobDefinition_block():
-#
-#    yaml   = "tests/data/JobDefinition.yaml"
-#    schema = ["schema/JobDefinition.yaml"]
-#
-#    assert(os.path.exists( yaml ) )
-#    for s in schema:
-#        assert(os.path.exists(s))
-#    
-#    c = Core( source_file=yaml, schema_files=schema)
-#    c.validate(raise_exception=True)
+def test_JobDefinition_block():
+
+    yaml   = "tests/data/JobDefinition.yaml"
+    schema = ["schema/Parameters.yaml",
+              "schema/InputDataSet.yaml",
+              "schema/OutputDataSet.yaml",
+              "schema/UserCommands.yaml",
+              "schema/JobDefinition.yaml"]
+
+    assert(os.path.exists( yaml ) )
+    for s in schema:
+        assert(os.path.exists(s))
+    
+    c = Core( source_file=yaml, schema_files=schema)
+    c.validate(raise_exception=True)

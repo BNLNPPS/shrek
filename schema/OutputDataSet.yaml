@@ -15,9 +15,9 @@ schema;output_dataset:
         sequence:
           - type: str
 
-type: map
-mapping:
-  OutputDataSet:
-    include: output_dataset
+#type: map
+#mapping:
+#  OutputDataSet:
+#    include: output_dataset
 
 

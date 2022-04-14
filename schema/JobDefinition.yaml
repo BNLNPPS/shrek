@@ -1,0 +1,15 @@
+type: map
+mapping:
+   Parameters:
+      include: parameter_map
+   InputDataSet:
+      include: input_dataset
+   OutputDataSet:
+      include: output_dataset
+   Initialize:
+      include: initialization_block
+   JobCommands:
+      include: jobcommands_block
+   Finalize:
+      include: finalization_block 
+     

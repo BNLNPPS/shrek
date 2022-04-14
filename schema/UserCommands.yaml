@@ -10,13 +10,13 @@ schema;finalization_block:
   type: str
  
 
-type: map
-mapping:
-  Initialize: 
-     include: initialization_block
-  JobCommands: 
-     include: jobcommands_block
-  Finalize: 
-     include: finalization_block 
+#type: map
+#mapping:
+#  Initialize: 
+#     include: initialization_block
+#  JobCommands: 
+#     include: jobcommands_block
+#  Finalize: 
+#     include: finalization_block 
 
   
