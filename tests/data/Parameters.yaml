@@ -3,7 +3,7 @@
 # which will be exposed as environment variables within the job-
 # execution script.  The fields below are provided as examples.
 #
-Environment:
+Parameters:
   name: jobname
   id: 
     - 12345

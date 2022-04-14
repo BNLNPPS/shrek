@@ -8,7 +8,7 @@ schema;parameter_map:
 
 type: map
 mapping:
-  Environment:
+  Parameters: 
      include: parameter_map
 
   

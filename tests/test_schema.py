@@ -1,11 +1,11 @@
 from pykwalify.core import Core
 import os
 
-# pykwalify -d tests/data/EnvironmentBlock.yaml -s schema/Environment.yaml
+# pykwalify -d tests/data/EnvironmentBlock.yaml -s schema/Parameters.yaml
 def test_environment_block():
 
-    yaml   = "tests/data/Environment.yaml"
-    schema = ["schema/Environment.yaml"]
+    yaml   = "tests/data/Parameters.yaml"
+    schema = ["schema/Parameters.yaml"]
 
     assert(os.path.exists( yaml ) )
     for s in schema:
@@ -56,3 +56,17 @@ def test_UserCommands_block():
     
     c = Core( source_file=yaml, schema_files=schema)
     c.validate(raise_exception=True)
+
+
+# pykwalify -d tests/data/JobDefinition.yaml -s schema/JobDefinition.yaml
+#def test_JobDefinition_block():
+#
+#    yaml   = "tests/data/JobDefinition.yaml"
+#    schema = ["schema/JobDefinition.yaml"]
+#
+#    assert(os.path.exists( yaml ) )
+#    for s in schema:
+#        assert(os.path.exists(s))
+#    
+#    c = Core( source_file=yaml, schema_files=schema)
+#    c.validate(raise_exception=True)
