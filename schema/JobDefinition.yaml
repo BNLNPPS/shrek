@@ -13,11 +13,17 @@ mapping:
    OutputDataSets:
       type: seq
       sequence:
-        - include: output_dataset
+        - include: output_dataset   
    Initialize:
       include: initialization_block
    JobCommands:
       include: jobcommands_block
    Finalize:
       include: finalization_block 
+
+   LocalInit:
+      include: initialization_block
+   LocalFinalize:
+      include: finalization_block 
      
+
