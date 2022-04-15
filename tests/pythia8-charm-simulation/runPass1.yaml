@@ -8,12 +8,12 @@ Parameters:
   rngSeeds: ( 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 )
 
 
-OutputDataSet:
-  name: Pythia8CharmG4Hits
-  comment: |-
-    Pythia8 events
-  filelist:
-     - "required:*.root"
+OutputDataSets:
+  - name: Pythia8CharmG4Hits
+    comment: |-
+      Pythia8 events
+    filelist:
+       - "required:*.root"
 
 Initialize: |-
   # ...

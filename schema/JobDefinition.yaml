@@ -10,8 +10,10 @@ mapping:
       type: seq
       sequence:
         - include: secondary_dataset
-   OutputDataSet:
-      include: output_dataset
+   OutputDataSets:
+      type: seq
+      sequence:
+        - include: output_dataset
    Initialize:
       include: initialization_block
    JobCommands:

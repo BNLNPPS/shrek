@@ -14,10 +14,10 @@ SecondaryDataSets:
   - comment: |-
       Primary input from the runPass1.yaml file
 
-OutputDataSet:
-  name: Pythia8CharmPileupG4Hits
-  comment: |-
-     Charm events plus minbias pileup
+OutputDataSets:
+  - name: Pythia8CharmPileupG4Hits
+    comment: |-
+       Charm events plus minbias pileup
 
 Initialize: |-
   # ...
