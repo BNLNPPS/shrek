@@ -6,6 +6,10 @@ mapping:
       type: seq
       sequence:
         - include: input_dataset
+   SecondaryDataSets:
+      type: seq
+      sequence:
+        - include: secondary_dataset
    OutputDataSet:
       include: output_dataset
    Initialize:
