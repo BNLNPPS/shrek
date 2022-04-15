@@ -2,8 +2,10 @@ type: map
 mapping:
    Parameters:
       include: parameter_map
-   InputDataSet:
-      include: input_dataset
+   InputDataSets:
+      type: seq
+      sequence:
+        - include: input_dataset
    OutputDataSet:
       include: output_dataset
    Initialize:

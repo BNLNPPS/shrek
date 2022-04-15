@@ -16,15 +16,23 @@ Parameters:
   #
 #
 #
-InputDataSet:
-  name: primaryDataSet
-  comment: This is a user-defined comment block meant to document what the dataset is
-  altname: alternateDatasetName
-  nFilesPerJob: 1
-  match: "*"
-  nSkip: 0
-  nFiles: all
-  local: False
+InputDataSets:
+  - name: primaryDataSet
+    comment: This is a user-defined comment block meant to document what the dataset is
+    altname: alternateDatasetName
+    nFilesPerJob: 1
+    match: "*"
+    nSkip: 0
+    nFiles: all
+    local: False
+  - name: primaryDataSet2
+    comment: This is a user-defined comment block meant to document what the dataset is
+    altname: alternateDatasetName
+    nFilesPerJob: 1
+    match: "*"
+    nSkip: 0
+    nFiles: all
+    local: False
 #  localFiles:
 #    - /path/or/pattern/match/to/file.txt
 #    - /path/or/pattern/match/to/files*
