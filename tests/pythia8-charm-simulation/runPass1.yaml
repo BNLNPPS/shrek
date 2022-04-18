@@ -5,7 +5,7 @@ Parameters:
     This is a test job definition 
   nJobs:   10   # create 10 jobs
   nEvents: 100  # 100 events per job
-  rngSeeds: ( 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 )
+  rngSeeds: ( 10  11  12  13  14  15  16  17  18  19 )
 
 
 OutputDataSets:
