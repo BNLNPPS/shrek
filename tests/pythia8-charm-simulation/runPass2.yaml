@@ -6,12 +6,12 @@ Parameters:
  
 InputDataSets:
   - name: Pythia8CharmG4Hits
-  - comment: |-
+    comment: |-
       Primary input from the runPass1.yaml file
 
 SecondaryDataSets:
   - name: Pythia8MinbiasG4Hits
-  - comment: |-
+    comment: |-
       Primary input from the runPass1.yaml file
 
 OutputDataSets:
