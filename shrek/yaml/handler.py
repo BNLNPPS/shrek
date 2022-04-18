@@ -4,7 +4,9 @@ class Handler:
 
     def __init__(self,options=None):
 
-        self.syntax  = {}        
+        self.syntax  = {}
+        self.result_  = {}
+        
         #              Tag      Class which handles tag
         # ===================================================
         self.addToken( 'Parameters'  ,      None )
@@ -25,9 +27,12 @@ class Handler:
 
     def traverse(self,dictionary):
         for key, value in dictionary.items():
-            action = self.syntax[key]
+            action = self.syntax[key] # Key Error is serious...
             if action:
-                action( key, value )
+                self.result_[key] = action( key, value )
+
+    def result(self,key):
+        return self.result_[key]
 
 
             
