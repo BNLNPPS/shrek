@@ -1,4 +1,5 @@
 import sys
+import pprint
 
 class Handler:
 
@@ -9,21 +10,22 @@ class Handler:
         
         #              Tag      Class which handles tag
         # ===================================================
-        self.addToken( 'Parameters'  ,      None )
-        self.addToken( 'InputDataSets',     None )
-        self.addToken( 'SecondaryDataSets', None )
-        self.addToken( 'OutputDataSets',    None )
-        self.addToken( 'Initialize',        None )
-        self.addToken( 'LocalInit',         None )
-        self.addToken( 'Finalize',          None )
-        self.addToken( 'LocalFinalize',     None )
-        self.addToken( 'JobCommands',       None )
+        self.addToken( 'Parameters'  ,      None, None )
+        self.addToken( 'InputDataSets',     None, [] )
+        self.addToken( 'SecondaryDataSets', None, [] )
+        self.addToken( 'OutputDataSets',    None, [] )
+        self.addToken( 'Initialize',        None, None )
+        self.addToken( 'LocalInit',         None, None )
+        self.addToken( 'Finalize',          None, None )
+        self.addToken( 'LocalFinalize',     None, None )
+        self.addToken( 'JobCommands',       None, None )
 
         self.actor = None
 
     # Register action to a given structure
-    def addToken(self,token,handler):
-        self.syntax[ token ] = handler;
+    def addToken(self,token,handler,default_):
+        self.syntax[ token ] = handler
+        self.result_[ token ] = default_
 
     def traverse(self,dictionary):
         for key, value in dictionary.items():
@@ -32,7 +34,8 @@ class Handler:
                 self.result_[key] = action( key, value )
 
     def result(self,key):
-        return self.result_[key]
+        myresult = self.result_[key]            
+        return myresult
 
 
             

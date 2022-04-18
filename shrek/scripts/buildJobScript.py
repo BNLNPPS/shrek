@@ -5,113 +5,24 @@ import argparse
 import pprint
 
 from shrek.yaml.handler import Handler
-from shrek.yaml.parameters import ParameterBlock
-from shrek.yaml.codeblock import CodeBlock
-from shrek.yaml.outputds import OutputDS
-from shrek.yaml.inputds import InputDS
-from shrek.yaml.secondaryds import SecondaryDS
+from shrek.yaml.parameters import ParameterBlock, buildParameterBlock
+from shrek.yaml.codeblock import CodeBlock, buildCodeBlock
+from shrek.yaml.outputds import OutputDS, buildOutputList 
+from shrek.yaml.inputds import InputDS, buildInputList
+from shrek.yaml.secondaryds import SecondaryDS, buildSecondaryList
 
 handler = Handler()
-
-#_______________________________________________________________________________________
-myinit = CodeBlock()
-mylocalinit = CodeBlock()
-myscript = CodeBlock()
-myfinal = CodeBlock()
-mylocalfinal = CodeBlock()
-
-def initialize(key, block ):
-    myinit.block = block
-
-def initializelocal(key, block ):
-    mylocalinit.block = block
-
-
-def jobcommands(key,block):
-    myscript.block = block
-
-def finalize(key,block):
-    myfinal.block=block
-
-def finalizelocal(key,block):
-    mylocalfinal.block = block
-
-
-handler.addToken( 'Initialize',  initialize )
-handler.addToken( 'LocalInit', initializelocal )
-handler.addToken( 'JobCommands', jobcommands )
-handler.addToken( 'Finalize', finalize )
-handler.addToken( 'LocalFinalize', finalizelocal )
-
-#_______________________________________________________________________________________
-myparameters = ParameterBlock()
-
-def parameters( key, params ):
-    output = \
-"""
-# Job parameters block
-"""
-    for k, v in params.items():
-        output = output + "export %s=%s\n"%(k,str(v))
-
-    myparameters.params = output
-    return output
-
-handler.addToken( 'Parameters', parameters )
-#_______________________________________________________________________________________
-myoutlist = []
-def outputs(key, dslist ):
-    for ds in dslist:
-        o = OutputDS()
-        for (k,v) in ds.items():
-            if k=="name": o.name = v
-            if k=="comment": o.comment = v
-            if k=="merge": o.merge = v
-            if k=="filelist": o.filelist = v
-        myoutlist.append(o)
-handler.addToken( 'OutputDataSets', outputs )
-#_______________________________________________________________________________________
-myinputs = []
-def inputs(key, dslist ):
-    for ds in dslist:
-        i = InputDS()
-        for (k,v) in ds.items():
-            if k=='name': i.name = v
-            if k=='comment': i.comment = v
-            if k=='altname': i.altname = v
-            if k=='nFilesPerJob': i.nFilesPerJob = v
-            if k=='match' : i.match = v
-            if k=='nSkip': i.nSkip = v
-            if k=='nFiles': i.nFiles = str(v) # number or "ALL"
-            if k=='local': i.local = v
-            if k=='localFiles': i.localFiles = v
-        myinputs.append(i)
-handler.addToken( 'InputDataSets', inputs )
-
-
-mysecondaries = []
-def secondaries(key, dslist ):
-    for ds in dslist:
-        i = SecondaryDS()
-        for (k,v) in ds.items():
-            if k=='name': i.name = v
-            if k=='comment': i.comment = v
-            if k=='altname': i.altname = v
-            if k=='nFilesPerJob': i.nFilesPerJob = v
-            if k=='match' : i.match = v
-            if k=='nSkip': i.nSkip = v
-            if k=='nFiles': i.nFiles = str(v) # number or "ALL"
-            if k=='local': i.local = v
-            if k=='localFiles': i.localFiles = v
-        mysecondaries.append(i)
-
-handler.addToken( 'SecondaryDataSets', secondaries)        
-#_______________________________________________________________________________________
-
+handler.addToken( 'Parameters', buildParameterBlock, None )
+handler.addToken( 'InputDataSets', buildInputList, [] )
+handler.addToken( 'OutputDataSets', buildOutputList, [] )
+handler.addToken( 'SecondaryDataSets', buildSecondaryList, [] )
+handler.addToken( 'Initialize', buildCodeBlock, None )
+handler.addToken( 'InitLocal', buildCodeBlock, None )
+handler.addToken( 'JobCommands', buildCodeBlock, None )
+handler.addToken( 'Finalize', buildCodeBlock, None )
+handler.addToken( 'LocalFinalize', buildCodeBlock, None )
 
 #_______________________________________________________________________________________        
-
-
 
 parser = argparse.ArgumentParser(description='Build job script from yaml')
 parser.add_argument('yaml', metavar='YAML', type=str, 
@@ -126,12 +37,22 @@ with open(args.yaml, "r") as stream:
     definition = yaml.safe_load(stream)   
     handler.traverse( definition )
 
+    myparameters  = handler.result('Parameters')
+    myinputs      = handler.result('InputDataSets')
+    myoutlist     = handler.result('OutputDataSets')
+    mysecondaries = handler.result('SecondaryDataSets')
+    mylocalinit   = handler.result('LocalInit')
+    myinit        = handler.result('Initialize')
+    myscript      = handler.result('JobCommands')
+    myfinal       = handler.result('Finalize')
+    mylocalfinal  = handler.result('LocalFinalize')
 
-#
-# Convention is that the PanDA will pass certain parameters
-# through the command line
-#
-print( \
+
+    #
+    # Convention is that the PanDA will pass certain parameters
+    # through the command line
+    #
+    print( \
 """
 
 # Script command line parameters
@@ -149,38 +70,38 @@ fi
 """
 )
 
-#
-# Build and output environment block
-#
-print(myparameters.params)
+    #
+    # Build and output environment block
+    #
+    print(myparameters.params)
 
-#
-# Data set names
-#
-for (i,ds) in enumerate(myinputs):
-    print("# Input DS %s [%i/%i]"%(ds.name,i+1,len(myinputs)))
-    print("export inputDS%i_name=%s"%(i+1,ds.name) )
+    #
+    # Data set names
+    #
+    for (i,ds) in enumerate(myinputs):
+        print("# Input DS %s [%i/%i]"%(ds.name,i+1,len(myinputs)))
+        print("export inputDS%i_name=%s"%(i+1,ds.name) )
 
-print("")    
+    print("")    
 
-for (i,ds) in enumerate(mysecondaries):
-    print("# Secondary DS %s [%i/%i]"%(ds.name,i+1,len(myinputs)))
-    print("export secondaryDS%i_name=%s"%(i+1,ds.name) )    
+    for (i,ds) in enumerate(mysecondaries):
+        print("# Secondary DS %s [%i/%i]"%(ds.name,i+1,len(myinputs)))
+        print("export secondaryDS%i_name=%s"%(i+1,ds.name) )    
 
-#
-# Worker node initialization
-#
-if myinit.block:
-    print( myinit.block )
+    #
+    # Worker node initialization
+    #
+    if myinit.block:
+        print( myinit.block )
 
-#
-# Worker node execution script
-#
-if myscript.block:
-    print( myscript.block )
+    #
+    # Worker node execution script
+    #
+    if myscript.block:
+        print( myscript.block )
 
-#
-# Worker node finalization
-#
-if myfinal.block:
-    print( myfinal.block )
+    #
+    # Worker node finalization
+    #
+    if myfinal.block:
+        print( myfinal.block )
