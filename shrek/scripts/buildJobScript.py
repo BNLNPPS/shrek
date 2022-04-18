@@ -5,14 +5,15 @@ import argparse
 import pprint
 
 from shrek.yaml.handler import Handler
+from shrek.yaml.parameters import ParameterBlock
+from shrek.yaml.codeblock import CodeBlock
+from shrek.yaml.outputds import OutputDS
+from shrek.yaml.inputds import InputDS
+from shrek.yaml.secondaryds import SecondaryDS
 
 handler = Handler()
 
 #_______________________________________________________________________________________
-class CodeBlock:
-    def __init__(self):
-        self.block = None
-
 myinit = CodeBlock()
 mylocalinit = CodeBlock()
 myscript = CodeBlock()
@@ -43,9 +44,6 @@ handler.addToken( 'Finalize', finalize )
 handler.addToken( 'LocalFinalize', finalizelocal )
 
 #_______________________________________________________________________________________
-class ParameterBlock:
-    def __init__(self):
-        self.params = ""
 myparameters = ParameterBlock()
 
 def parameters( key, params ):
@@ -61,12 +59,6 @@ def parameters( key, params ):
 
 handler.addToken( 'Parameters', parameters )
 #_______________________________________________________________________________________
-class OutputDS:
-    def __init__(self):
-        self.name = None
-        self.comment = None
-        self.merge = False
-        self.filelist = []        
 myoutlist = []
 def outputs(key, dslist ):
     for ds in dslist:
@@ -79,19 +71,6 @@ def outputs(key, dslist ):
         myoutlist.append(o)
 handler.addToken( 'OutputDataSets', outputs )
 #_______________________________________________________________________________________
-class InputDS:
-    def __init__(self):
-        self.name = None
-        self.comment = None
-        self.altname = None
-        self.nFilesPerJob = None
-        self.match = None
-        self.nSkip = None
-        self.nFiles = None
-        self.local = None
-        self.localFiles = None
-    def str(self):
-        return "%s n=s"%( self.name, str(self.nFiles) )
 myinputs = []
 def inputs(key, dslist ):
     for ds in dslist:
@@ -109,17 +88,7 @@ def inputs(key, dslist ):
         myinputs.append(i)
 handler.addToken( 'InputDataSets', inputs )
 
-class SecondaryDS:
-    def __init__(self):
-        self.name = None
-        self.comment = None
-        self.altname = None
-        self.nFilesPerJob = None
-        self.match = None
-        self.nSkip = None
-        self.nFiles = None
-        self.local = None
-        self.localFiles = None
+
 mysecondaries = []
 def secondaries(key, dslist ):
     for ds in dslist:
