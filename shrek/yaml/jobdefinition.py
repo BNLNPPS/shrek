@@ -1,7 +1,13 @@
 class JobDefinition:
     def __init__(self,filename,definition):
+        
+        self.name       = None
+        self.numInputs  = 0
+        self.numSecondaries = 0
+        self.numOutputs = 0
         self.filename   = filename # name of the job definition file
         self.definition = definition
+
         self.parameters = None
         self.inputs = []
         self.secondaries = []
