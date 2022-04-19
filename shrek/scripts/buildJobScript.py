@@ -25,21 +25,13 @@ handler.addToken( 'Finalize', buildCodeBlock, None )
 handler.addToken( 'LocalFinalize', buildCodeBlock, None )
 
 #_______________________________________________________________________________________
+def buildJobDefinition( yaml_, tag_ ):
 
-def main():
-
-    parser = argparse.ArgumentParser(description='Build job script from yaml')
-    parser.add_argument('yaml', metavar='YAML', type=str, 
-                                        help='input filename')
-
-    parser.add_argument('--tag', type=str, help='production tag' )
-    args = parser.parse_args()
-    
-    with open(args.yaml, "r") as stream:
+    with open(yaml_, "r") as stream:
 
         definition = yaml.safe_load(stream)
 
-        job = JobDefinition( args.yaml, definition )
+        job = JobDefinition( yaml_, definition )
     
         handler.traverse( definition )
 
@@ -53,6 +45,26 @@ def main():
         job.finish      = handler.result('Finalize')
         job.localfinish = handler.result('LocalFinalize')
 
+        return job
+
+
+    
+    
+
+def main():
+
+    parser = argparse.ArgumentParser(description='Build job script from yaml')
+    parser.add_argument('yaml', metavar='YAML', type=str, 
+                                        help='input filename')
+    parser.add_argument('--tag', type=str, help='production tag' )
+    args = parser.parse_args()
+
+    job = buildJobDefinition( args.yaml, args.tag )
+
+    if job == None:
+        print("Job not valid... probably no yaml file?")
+        
+    else:
         #
         # Convention is that the PanDA will pass certain parameters
         # through the command line
@@ -111,7 +123,8 @@ fi
         if job.finish.block:
             print( job.finish.block )
 
-
+    
+    
 
 if __name__ == '__main__':
     main()
