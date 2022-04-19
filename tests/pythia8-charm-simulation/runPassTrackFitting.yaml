@@ -1,0 +1,28 @@
+Parameters:
+  name: Pythia8CharmTrackFitting
+  build: mdc2.8
+  comment: |-
+    This is a test job definition
+ 
+InputDataSets:
+  - name: Pythia8CharmTrackingSeeds
+    comment: |-
+      Results from the track finding pass
+  - name: Pythia8CharmCalibrationData
+    comment: |-
+       Results from the calibration pass
+
+OutputDataSets:
+  - name: Pythia8CharmTrackingDST
+    comment: |-
+       Charm events plus minbias pileup
+
+Initialize: |-
+  # ...
+
+JobCommands: |-
+  # ... This is a fake simulation ...
+
+Finalize: |-
+  # ...
+

@@ -1,0 +1,28 @@
+Parameters:
+  name: Pythia8CharmPhysicsDST
+  build: mdc2.8
+  comment: |-
+    This is a test job definition
+ 
+InputDataSets:
+  - name: Pythia8CharmTrackingDST
+    comment: |-
+      Results from the track fittinh pass
+  - name: Pythia8CharmCalorimeterDST
+    comment: |-
+       Results from the calorimeter pass
+
+OutputDataSets:
+  - name: Pythia8CharmPhysicsDST
+    comment: |-
+       Charm events plus minbias pileup... physics results
+
+Initialize: |-
+  # ...
+
+JobCommands: |-
+  # ... This is a fake simulation ...
+
+Finalize: |-
+  # ...
+
