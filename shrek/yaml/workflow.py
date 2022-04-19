@@ -9,6 +9,7 @@ class Workflow:
         self.jobs_out = defaultdict(list) # list of jobs keyed by output
         self.inputs   = {}                # keys contain list of all inputs       
         self.outputs  = {}                # keys contain list of all outputs
+        self.edges    = []                # list of edges
 
     def addJob(self,job):
         self.jobs.append(job)
