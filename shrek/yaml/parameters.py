@@ -8,4 +8,9 @@ def buildParameterBlock(key,params):
         output = output + "export %s=%s\n"%(k,str(v))
     p = ParameterBlock()
     p.params = output
+
+    # And extend this class
+    for (k,v) in params.items():
+        setattr(p, k, v)
+        
     return p
