@@ -1,4 +1,4 @@
-import networks
+import networkx
 from shrek.yaml.config import Config
 from collections import defaultdict
 
