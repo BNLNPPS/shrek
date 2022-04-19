@@ -1,6 +1,8 @@
-import networkx
+import networkx as nx
 from shrek.yaml.config import Config
 from collections import defaultdict
+import pprint
+import matplotlib.pyplot as plt
 
 # Assumes that jobs are static once added to the workflow graph
 
@@ -14,10 +16,14 @@ class WorkflowGraph:
         self.inputs   = {}                # keys contain list of all inputs       
         self.outputs  = {}                # keys contain list of all outputs
         self.edges    = []                # list of edges (cached)
+        self.dsedges  = []
+        self.graph    = None
 
     def addJob(self,job):
 
         self.edges = [] # invalidate edge cache
+        self.dsedges = []
+        self.graph = None # invalidate graph cache
         
         self.jobs.append(job)
         self.jobsmap[ job.name ] = job
@@ -32,10 +38,12 @@ class WorkflowGraph:
 
     def buildEdges(self):
         """
-        Builds edges based on the current set of jobs and returns them
+        Builds edges based on the current set of jobs and returns them.
+        Nodes are the *names* of jobs.
+
         """
 
-        if len(self.edges) > 0:
+        if  len(self.edges) > 0:
             return self.edges
        
         inputs_list  = self.inputs.keys()
@@ -46,14 +54,52 @@ class WorkflowGraph:
             # Loop over all outputs on this job
             for out in ojob.outputs:
 
+                print(out.name)
+
                 # Get the list of jobs which use this output as an input
-                for ijob in self.jobs_in[out]:
+                for ijob in self.jobs_in[out.name]:
 
                     self.edges.append( (ojob.name, ijob.name) )
+                    self.dsedges.append( out.name )
 
+        return self.edges
 
-                   
+    def buildDiGraph(self):
+
+        if self.graph:
+            return self.graph
+
+        # Construct the directed graph from the list of edges, defined from output --> input
+        edges = self.buildEdges()
+        dsedges = self.dsedges      # buidEdges should return a tuple here...
+
+        self.graph = nx.DiGraph()
+        for edge, dset in zip(edges, dsedges):
+            self.graph.add_edge( edge[0], edge[1], dataset=dset )
+
+        #
+        # Append some job descriptions to the nodes
+        #
+        #for i in enumerate(self.graph.nodes):
+        #    job = self.jobsmap[ str( self.graph.nodes[i] ) ]
+        #    self.graph.nodes[i]["comment"] = job.parameters.comment
+        #    self.graph.nodes[i]["build"]   = job.parameters.build
         
+        #for node in self.graph.nodes:
+            #job = self.jobsmap[ str(node) ]
+            #node["comment"] = job.parameters.comment
+            #node["build"]   = job.parameters.build
+            
+        return self.graph
+
+    def drawDiGraph(self):
+
+        graph = self.buildDiGraph()
+        subax1 = plt.subplot(121)
+        nx.draw(graph, with_labels=True, font_weight='bold')
+        plt.show()
+
+            
             
         
 
