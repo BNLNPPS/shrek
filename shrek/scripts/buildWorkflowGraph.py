@@ -3,7 +3,8 @@
 import yaml
 import argparse
 import pprint
-import networkx
+import networkx as nx
+import pydot
 
 from shrek.yaml.handler import Handler
 from shrek.yaml.parameters import ParameterBlock, buildParameterBlock
@@ -24,7 +25,6 @@ def buildWorkflowGraph( yamllist, tag_ ):
         job = buildJobDefinition( yaml_, tag_ )        
         workflow.addJob( job )
 
-    #graph = workflow.buildDiGraph()
     return workflow
     
 
@@ -34,9 +34,18 @@ def main():
     parser.add_argument('yaml', metavar='YAML', type=str, nargs="+",
                                         help='input filename')
     parser.add_argument('--tag', type=str, help='production tag' )
+    parser.add_argument('--png', type=str, help='name of the png file to produce', default=None)
     args = parser.parse_args()
 
-    buildWorkflowGraph( args.yaml, args.tag )
+    wfg = buildWorkflowGraph( args.yaml, args.tag )
+
+    if args.png:
+        graph = wfg.buildDiGraph()
+        dot = nx.drawing.nx_pydot.to_pydot(graph)
+
+        dot.write_png( args.png )
+
+            
     
 if __name__ == '__main__':
     main()
