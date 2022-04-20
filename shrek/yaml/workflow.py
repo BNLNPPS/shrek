@@ -2,7 +2,6 @@ import networkx as nx
 from shrek.yaml.config import Config
 from collections import defaultdict
 import pprint
-import matplotlib.pyplot as plt
 
 # Assumes that jobs are static once added to the workflow graph
 
@@ -92,15 +91,6 @@ class WorkflowGraph:
             
         return self.graph
 
-    def drawDiGraph(self):
-
-        graph = self.buildDiGraph()
-        subax1 = plt.subplot(121)
-        nx.draw(graph, with_labels=True, font_weight='bold')
-        plt.show()
-
-            
-            
         
 
         
