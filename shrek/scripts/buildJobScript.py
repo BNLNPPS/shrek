@@ -12,25 +12,28 @@ from shrek.yaml.inputds import InputDS, buildInputList
 from shrek.yaml.secondaryds import SecondaryDS, buildSecondaryList
 from shrek.yaml.jobdefinition import JobDefinition
 
-
-handler = Handler()
-handler.addToken( 'Parameters', buildParameterBlock, None )
-handler.addToken( 'InputDataSets', buildInputList, [] )
-handler.addToken( 'OutputDataSets', buildOutputList, [] )
-handler.addToken( 'SecondaryDataSets', buildSecondaryList, [] )
-handler.addToken( 'Initialize', buildCodeBlock, None )
-handler.addToken( 'InitLocal', buildCodeBlock, None )
-handler.addToken( 'JobCommands', buildCodeBlock, None )
-handler.addToken( 'Finalize', buildCodeBlock, None )
-handler.addToken( 'LocalFinalize', buildCodeBlock, None )
+def getHandler():
+    handler = Handler()
+    handler.addToken( 'Parameters', buildParameterBlock, None )
+    handler.addToken( 'InputDataSets', buildInputList, [] )
+    handler.addToken( 'OutputDataSets', buildOutputList, [] )
+    handler.addToken( 'SecondaryDataSets', buildSecondaryList, [] )
+    handler.addToken( 'Initialize', buildCodeBlock, None )
+    handler.addToken( 'InitLocal', buildCodeBlock, None )
+    handler.addToken( 'JobCommands', buildCodeBlock, None )
+    handler.addToken( 'Finalize', buildCodeBlock, None )
+    handler.addToken( 'LocalFinalize', buildCodeBlock, None )
+    return handler
 
 #_______________________________________________________________________________________
 def buildJobDefinition( yaml_, tag_ ):
 
     with open(yaml_, "r") as stream:
 
-        definition = yaml.safe_load(stream)
+        handler = getHandler()
 
+        definition = yaml.safe_load(stream)
+        
         job = JobDefinition( yaml_, definition )
     
         handler.traverse( definition )
