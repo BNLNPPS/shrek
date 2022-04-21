@@ -1,0 +1,8 @@
+Parameters:
+  name: generate_some
+  comment: |-
+    https://panda-wms.readthedocs.io/en/latest/client/pchain.html#more-complicated-chain
+
+OutputDataSets:
+  - name: generate_some/outDS
+  

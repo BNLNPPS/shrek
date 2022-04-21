@@ -1,0 +1,11 @@
+Parameters:
+  name: make_signal
+  comment: |-
+    https://panda-wms.readthedocs.io/en/latest/client/pchain.html#more-complicated-chain
+
+InputDataSets:
+  - name: signal
+
+OutputDataSets:
+  - name: make_signal/outDS
+  

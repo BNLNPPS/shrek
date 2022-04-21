@@ -1,0 +1,12 @@
+Parameters:
+  name: make_background_1
+  comment: |-
+    https://panda-wms.readthedocs.io/en/latest/client/pchain.html#more-complicated-chain
+
+InputDataSets:
+  - name: background
+
+OutputDataSets:
+  - name: make_background_1/outDS
+  
+
