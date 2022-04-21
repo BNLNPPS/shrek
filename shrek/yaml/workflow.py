@@ -53,8 +53,6 @@ class WorkflowGraph:
             # Loop over all outputs on this job
             for out in ojob.outputs:
 
-                print(out.name)
-
                 # Get the list of jobs which use this output as an input
                 for ijob in self.jobs_in[out.name]:
 
