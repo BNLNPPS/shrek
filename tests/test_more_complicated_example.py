@@ -56,20 +56,27 @@ def test_workflow_inputs():
     assert(make_background_1['type'] == "string")
     assert(make_background_1['default'] == "background")    
 
-    
-
 def test_workflow_outputs():
     wf = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     outputs = dict_["outputs"]
     pprint.pprint(outputs)
-
     
 def test_workflow_class():
     wf = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     class_ = dict_["class"]
     assert(class_ == 'Workflow')
+
+
+def test_workflow_steps():
+    wf = commonWorkflow()
+    dict_ = yaml.safe_load( str(wf) )
+    steps = dict_["steps"]
+    for step in ["make_signal","make_background_1","make_background_2","pre_mix","combine","generate_some"]:
+        mystep = steps[step]
+        
+    
 
     
 
