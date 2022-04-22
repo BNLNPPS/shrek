@@ -145,6 +145,7 @@ def cwl_steps( wfgraph ):
         job = wfgraph.jobsmap[ name ]
         steps += "\n  %s:"% name
         steps += "\n    run: prun"
+        steps += "\n    in:"
 
         # Input blocks
         secondary = []
@@ -152,24 +153,24 @@ def cwl_steps( wfgraph ):
         inDS = False
         for (i,IN) in enumerate(job.inputs):
             if i==0:
-                steps += "\n      opt_inDS: %s"%IN.name
+                steps += "\n        opt_inDS: %s"%IN.name
                 inDS = True
             else:
                 secondary.append(IN.name)
                 secondary.append(None) # TODO 
         if len(secondary):
-            steps += "\n      opt_inSecondaryDSs: %s"%str(secondary)
+            steps += "\n        opt_inSecondaryDSs: %s"%str(secondary)
             # TODO: types
 
         # Exec block
-        steps += "\n      opt_exec:"
-        steps += "\n        default: %s.sh" % ( job.name )
+        steps += "\n        opt_exec:"
+        steps += "\n          default: %s.sh" % ( job.name )
         for (i,IN) in enumerate(job.inputs):
             if i==0: steps += " %IN"
             else   : steps += " %%IN%i"%(i+1)
 
-        steps += "\n      opt_args:"
-        steps += "\n        default: " + cwl_opt_args(job)
+        steps += "\n        opt_args:"
+        steps += "\n          default: " + cwl_opt_args(job)
             
         
 
@@ -189,7 +190,6 @@ def buildCommonWorkflow( yamllist, tag_ ):
     wfg.buildEdges()
     wfg.buildDiGraph()
 
-    print(wfg.edges)
 
     output = ""
     output += cwl_header()
@@ -198,8 +198,8 @@ def buildCommonWorkflow( yamllist, tag_ ):
     output += cwl_outputs( wfg )
     output += cwl_steps( wfg )
 
-    print("...")
-    print(output)
+    return output
+
     
 def main():
 
@@ -212,7 +212,9 @@ def main():
     #  print(args.yaml)
 
 
-    buildCommonWorkflow( args.yaml, args.tag )
+    wf = buildCommonWorkflow( args.yaml, args.tag )
+
+    print(wf)
 
 
 if __name__ == '__main__':

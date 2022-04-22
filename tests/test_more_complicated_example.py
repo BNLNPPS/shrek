@@ -22,3 +22,9 @@ def commonWorkflow():
 
 def test_create_the_workflow():
     wf = commonWorkflow()
+    assert(wf != None)
+
+def test_we_should_be_able_to_parse_the_workflow():
+    wf = commonWorkflow()
+    print(wf)
+    yaml.safe_load( str(wf) )
