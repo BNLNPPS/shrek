@@ -75,6 +75,9 @@ def test_workflow_steps():
     steps = dict_["steps"]
     for step in ["make_signal","make_background_1","make_background_2","pre_mix","combine","generate_some"]:
         mystep = steps[step]
+        assert( mystep["run"]=="prun" )
+        x = mystep["in"]
+        y = mystep["out"]
         
     
 
