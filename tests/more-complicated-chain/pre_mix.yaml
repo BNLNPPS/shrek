@@ -5,7 +5,9 @@ Parameters:
 
 InputDataSets:
   - name: make_signal/outDS
+    match: def.zip
   - name: make_background_1/outDS
+    match: xyz.pool
     nFilesPerJob: 2
 
 OutputDataSets:

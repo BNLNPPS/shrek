@@ -151,17 +151,25 @@ def cwl_steps( wfgraph ):
         # Input blocks
         secondary = []
         types     = []
+        ntypes    = 0
         inDS = False
         for (i,IN) in enumerate(job.inputs):
             if i==0:
                 steps += "\n        opt_inDS: %s"%IN.name
+                if IN.match:
+                    steps += "\n        opt_inDsType: %s"%IN.match
                 inDS = True
             else:
                 secondary.append(IN.name)
-                secondary.append(None) # TODO 
+                if IN.match:
+                    types.append(IN.match)
+                    ntypes = ntypes + 1
+                else:
+                    types.append("*")
         if len(secondary):
             steps += "\n        opt_inSecondaryDSs: %s"%str(secondary)
-            # TODO: types
+        if ntypes>0:
+            steps += "\n        opt_inSecondaryDsTypes: [%s]"% ','.join( types )
 
         # Exec block
         steps += "\n        opt_exec:"
