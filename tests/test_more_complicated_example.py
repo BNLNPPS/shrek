@@ -43,7 +43,6 @@ def test_workflow_has_expected_fields():
     for f in fields:
         x = dict_[f]
 
-
 def test_workflow_inputs():
     wf = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
@@ -68,7 +67,6 @@ def test_workflow_class():
     class_ = dict_["class"]
     assert(class_ == 'Workflow')
 
-
 def test_workflow_steps():
     wf = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
@@ -78,6 +76,73 @@ def test_workflow_steps():
         assert( mystep["run"]=="prun" )
         x = mystep["in"]
         y = mystep["out"]
+
+def test_workflow_make_signal():
+    wf = commonWorkflow()
+    dict_ = yaml.safe_load( str(wf) )
+    steps = dict_["steps"]
+    mystep=steps['make_signal']
+    assert( mystep["run"]=="prun" )
+    x = mystep["in"]
+    for field in ["opt_inDS","opt_exec","opt_args"]:
+        xx = x[field]
+    y = mystep["out"]
+
+def test_workflow_make_background_1():
+    wf = commonWorkflow()
+    dict_ = yaml.safe_load( str(wf) )
+    steps = dict_["steps"]
+    mystep=steps['make_background_1']
+    assert( mystep["run"]=="prun" )
+    x = mystep["in"]
+    for field in ["opt_inDS","opt_exec","opt_args"]:
+        xx = x[field]    
+    y = mystep["out"]
+    
+def test_workflow_pre_mix():
+    wf = commonWorkflow()
+    dict_ = yaml.safe_load( str(wf) )
+    steps = dict_["steps"]
+    mystep=steps['pre_mix']
+    assert( mystep["run"]=="prun" )
+    x = mystep["in"]
+    for field in ["opt_inDS","opt_inDsType","opt_secondaryDSs","opt_secondaryDSsTypes","opt_exec","opt_args"]:
+        xx = x[field]        
+    y = mystep["out"]
+    
+def test_workflow_make_background_2():
+    wf = commonWorkflow()
+    dict_ = yaml.safe_load( str(wf) )
+    steps = dict_["steps"]
+    mystep=steps['make_background_2']
+    assert( mystep["run"]=="prun" )
+    x = mystep["in"]
+    for field in ["opt_inDS","opt_secondaryDSs","opt_secondaryDSsTypes","opt_exec","opt_args"]:
+        xx = x[field]            
+    y = mystep["out"]        
+
+def test_workflow_generate_some():
+    wf = commonWorkflow()
+    dict_ = yaml.safe_load( str(wf) )
+    steps = dict_["steps"]
+    mystep=steps['generate_some']
+    assert( mystep["run"]=="prun" )
+    x = mystep["in"]
+    for field in ["opt_exec","opt_args"]:
+        xx = x[field]        
+    y = mystep["out"]    
+def test_workflow_combine():
+    wf = commonWorkflow()
+    dict_ = yaml.safe_load( str(wf) )
+    steps = dict_["steps"]
+    mystep=steps['combine']
+    assert( mystep["run"]=="prun" )
+    x = mystep["in"]
+    for field in ["opt_inDS","opt_inDsType","opt_secondaryDSs","opt_secondaryDSsTypes","opt_exec","opt_args"]:
+        xx = x[field]            
+    y = mystep["out"]        
+   
+
         
     
 
