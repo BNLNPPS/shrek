@@ -6,7 +6,17 @@ Parameters:
 InputDataSets:
   - name: background
 
+JobCommands: |-
+  #
+  echo ${IN[@]}           > opq.root
+  echo ${#IN[@]} ${IN[@]} > xyz.pool
+
 OutputDataSets:
   - name: make_background_1/outDS
+    comment: |-
+      Yields two required files
+    filelist: 
+      - "required: opq.root"
+      - "required: xyz.pool"
   
 

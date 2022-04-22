@@ -6,7 +6,16 @@ Parameters:
 InputDataSets:
   - name: make_signal/outDS
   - name: make_background_1/outDS
+    nFilesPerJob: 2
 
 OutputDataSets:
   - name: pre_mix/outDS
+    comment: |-
+      Yields a single required file
+    filelist:
+      - "required: klm.root"
+
+JobCommands: |-
+  # When we have multiple (m) inputs, they are mapped onto arrays IN1..INm
+  echo ${IN1[@]} ${IN2[@]} > klm.root
   

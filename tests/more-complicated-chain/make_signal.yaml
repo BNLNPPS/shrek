@@ -8,4 +8,13 @@ InputDataSets:
 
 OutputDataSets:
   - name: make_signal/outDS
+    comment: |-
+      Output DS yields two required files...
+    filelist:
+      - "required: abc.dat"
+      - "required: def.zip"
   
+JobCommands: |-
+  # Input %IN is mapped onto a bash array
+  echo ${IN[@]} > abc.dat
+  echo 123      > def.zip

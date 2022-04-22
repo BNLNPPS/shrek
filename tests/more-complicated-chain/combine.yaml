@@ -6,7 +6,18 @@ Parameters:
 InputDataSets:
   - name: make_signal/outDS
   - name: pre_mix/outDS
+    nFilesPerJob: 2
   - name: make_background_2/outDS
+    nFilesPerJob: 5
 
 OutputDataSets:
   - name: combine/outDS
+    filelist:
+    - "required: aaa.root"
+
+JobCommands: |-
+  # echo %IN %IN2 %IN3 > aaa.root
+  echo ${IN1[@]} >  aaa.root
+  echo ${IN2[@]} >> aaa.root
+  echo ${IN3[@]} >> aaa.root
+  

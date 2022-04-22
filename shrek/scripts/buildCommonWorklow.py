@@ -121,6 +121,19 @@ def cwl_outputs( wfgraph ):
 
     return outputs
 
+
+def cwl_opt_args( job ):
+    params = job.parameters
+
+    optargs = ""
+
+    for par in [ "nJobs", "nFilesPerJob", "nGBperJob" ]:
+        val = getattr(params,par,None)
+        if val:
+            optargs += " --%s %s "%( par, str(val))
+            
+    return optargs
+
 def cwl_steps( wfgraph ):
     steps=""
     G = wfgraph.graph
@@ -154,6 +167,9 @@ def cwl_steps( wfgraph ):
         for (i,IN) in enumerate(job.inputs):
             if i==0: steps += " %IN"
             else   : steps += " %%IN%i"%(i+1)
+
+        steps += "\n      opt_args:"
+        steps += "\n        default: " + cwl_opt_args(job)
             
         
 
