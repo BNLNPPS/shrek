@@ -8,6 +8,7 @@ InputDataSets:
   - name: generate_some/outDS
     comment: PanDA specifies this as a secondary DS
     nFilesPerJob: 2
+    match: gen.root
 
 OutputDataSets:
   - name: make_background_2/outDS

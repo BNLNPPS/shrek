@@ -167,9 +167,9 @@ def cwl_steps( wfgraph ):
                 else:
                     types.append("*")
         if len(secondary):
-            steps += "\n        opt_inSecondaryDSs: %s"%str(secondary)
+            steps += "\n        opt_secondaryDSs: %s"%str(secondary)
         if ntypes>0:
-            steps += "\n        opt_inSecondaryDsTypes: [%s]"% ','.join( types )
+            steps += "\n        opt_secondaryDsTypes: [%s]"% ','.join( types )
 
         # Exec block
         steps += "\n        opt_exec:"

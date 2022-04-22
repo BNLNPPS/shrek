@@ -106,7 +106,7 @@ def test_workflow_pre_mix():
     mystep=steps['pre_mix']
     assert( mystep["run"]=="prun" )
     x = mystep["in"]
-    for field in ["opt_inDS","opt_inDsType","opt_secondaryDSs","opt_secondaryDSsTypes","opt_exec","opt_args"]:
+    for field in ["opt_inDS","opt_inDsType","opt_secondaryDSs","opt_secondaryDsTypes","opt_exec","opt_args"]:
         xx = x[field]        
     y = mystep["out"]
     
@@ -117,7 +117,7 @@ def test_workflow_make_background_2():
     mystep=steps['make_background_2']
     assert( mystep["run"]=="prun" )
     x = mystep["in"]
-    for field in ["opt_inDS","opt_secondaryDSs","opt_secondaryDSsTypes","opt_exec","opt_args"]:
+    for field in ["opt_inDS","opt_secondaryDSs","opt_secondaryDsTypes","opt_exec","opt_args"]:
         xx = x[field]            
     y = mystep["out"]        
 
@@ -138,7 +138,7 @@ def test_workflow_combine():
     mystep=steps['combine']
     assert( mystep["run"]=="prun" )
     x = mystep["in"]
-    for field in ["opt_inDS","opt_inDsType","opt_secondaryDSs","opt_secondaryDSsTypes","opt_exec","opt_args"]:
+    for field in ["opt_inDS","opt_inDsType","opt_secondaryDSs","opt_secondaryDsTypes","opt_exec","opt_args"]:
         xx = x[field]            
     y = mystep["out"]        
    
