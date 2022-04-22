@@ -58,11 +58,13 @@ class: Workflow
     """
     return h
 def cwl_requirements( multipleInput=True):
-    r = ""
-    if multipleInput:
-        r += """
-MultipleInputFeatureRequirement: {}
-        """
+    r = "\nrequirements:"
+    count = 0
+    if multipleInput:        
+        r += "\n  MultipleInputFeatureRequirement: {}"
+        count += 1
+    if 0==count:
+        r=""
     return r
 
 def cwl_inputs( wfgraph ):
@@ -138,7 +140,7 @@ def cwl_steps( wfgraph ):
     steps=""
     G = wfgraph.graph
 
-    steps += "\nstep:"
+    steps += "\nsteps:"
     count = 0
     for node in nx.topological_sort(G):
         name = str(node)
