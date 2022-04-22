@@ -148,7 +148,6 @@ def cwl_steps( wfgraph ):
         steps += "\n  %s:"% name
         steps += "\n    run: prun"
         steps += "\n    in:"
-
         # Input blocks
         secondary = []
         types     = []
@@ -173,9 +172,9 @@ def cwl_steps( wfgraph ):
 
         steps += "\n        opt_args:"
         steps += "\n          default: " + cwl_opt_args(job)
-            
-        
 
+        
+        steps += "\n    out: [outDS]" # by convention...
         steps += "\n"
         
 
