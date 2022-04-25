@@ -1,10 +1,31 @@
 from pykwalify.core import Core
 import os
 import yaml
+import pprint
+import pytest
+import glob
+
+from shrek.scripts.buildJobScript import buildJobDefinition
+from shrek.scripts.buildWorkflowGraph import buildWorkflowGraph
+from shrek.scripts.buildCommonWorklow import buildCommonWorkflow
+
+jobDefinitions = glob.glob( "tests/pythia8-charm-simulation/*.yaml" )
+
+def commonWorkflow():
+    yamls = [
+        "tests/more-complicated-chain/combine.yaml",
+        "tests/more-complicated-chain/generate_some.yaml",
+        "tests/more-complicated-chain/make_background_1.yaml",
+        "tests/more-complicated-chain/make_background_2.yaml",
+        "tests/more-complicated-chain/make_signal.yaml",
+        "tests/more-complicated-chain/pre_mix.yaml"
+        ]
+
+    return buildCommonWorkflow( yamls, "sP-TEST" )    
 
 #________________________________________________________________________
-def test_run_pass1_yaml_must_be_valid():
-    yaml_ = "tests/pythia8-charm-simulation/runPass1.yaml"
+
+def validateAgainstSchema( yaml_ ):
     schema = ["schema/Parameters.yaml",
               "schema/InputDataSet.yaml",
               "schema/OutputDataSet.yaml",
@@ -14,29 +35,16 @@ def test_run_pass1_yaml_must_be_valid():
     assert(os.path.exists( yaml_ ) )
     for s in schema:
         assert(os.path.exists(s))
-    
+
     c = Core( source_file=yaml_, schema_files=schema)
-    c.validate(raise_exception=True)
+    c.validate(raise_exception=True)        
 
     with open(yaml_,"r") as stream:
         definition = yaml.safe_load(stream)
+        
 
 #________________________________________________________________________
+@pytest.mark.parametrize( 'yaml_', jobDefinitions )
 
-def test_run_pass2_yaml_must_be_valid():
-    yaml_ = "tests/pythia8-charm-simulation/runPass2.yaml"
-    schema = ["schema/Parameters.yaml",
-              "schema/InputDataSet.yaml",
-              "schema/OutputDataSet.yaml",
-              "schema/UserCommands.yaml",
-              "schema/JobDefinition.yaml"]
-
-    assert(os.path.exists( yaml_ ) )
-    for s in schema:
-        assert(os.path.exists(s))
-    
-    c = Core( source_file=yaml_, schema_files=schema)
-    c.validate(raise_exception=True)
-
-    with open(yaml_,"r") as stream:
-        definition = yaml.safe_load(stream)    
+def test_validate_against_schema( yaml_ ):
+    validateAgainstSchema( yaml_ )
