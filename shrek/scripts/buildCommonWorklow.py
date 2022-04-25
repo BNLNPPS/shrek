@@ -49,7 +49,7 @@ def buildListOfWorkflowInputJobs( G ):
     injobs = []
     for n in G:
         np = numberOfPredecessors(n,G)
-        print(str(n)+" "+str(np))
+        #print(str(n)+" "+str(np))
         if np==0:
             name = str(n)
             injobs.append( str(n) )
@@ -229,14 +229,18 @@ def main():
     parser = argparse.ArgumentParser(description='Build job script from yaml')
     parser.add_argument('yaml', metavar='YAML', type=str, nargs="+",
                                         help='input filename')
-    parser.add_argument('--tag', type=str, help='production tag' )
+    parser.add_argument('--tag',  type=str, help='production tag' )
+    parser.add_argument('--dump', action='store_true')
+    parser.set_defaults(dump=False)
+    
     args = parser.parse_args()
 
     validateJobDefinitions( args.yaml )
 
     wf = buildCommonWorkflow( args.yaml, args.tag )
 
-    print(wf)
+    if args.dump:
+        print(wf)
 
 
 if __name__ == '__main__':
