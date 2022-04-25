@@ -2,10 +2,12 @@ Parameters:
   name: Pythia8CharmSimulation
   build: mdc2.8
   comment: |-
-    This is a test job definition 
+    Generate Pythia8 Charm Events and run through F4A
   nJobs:   10   # create 10 jobs
   nEvents: 100  # 100 events per job
-  rngSeeds: ( 10  11  12  13  14  15  16  17  18  19 )
+  macro: Fun4All_G4_HF_pp_signal.C
+  flavor: Charm  
+  runnumber: 1234567890
 
 
 OutputDataSets:
@@ -16,10 +18,19 @@ OutputDataSets:
        - "required:*.root"
 
 Initialize: |-
-  # ...
+  ls
 
 JobCommands: |-
-  # ... This is a fake simulation ...
+  # Initialize sPHENIX software environment
+  source /opt/sphenix/core/bin/sphenix_setup.sh ${build}
+
+  rn=$( printf "%010d" $runnumber )
+  sn=$( printf "%05d"  $shrek_job_index )
+
+  filename=G4Hits-${flavor}-${rn}-${sn}.root
+
+  root.exe -q -b ${macro}\($nEvents,\"${flavor}\",\"${filename}\",\"\",\".\"\)
+
 
 Finalize: |-
-  # ...
+  ls
