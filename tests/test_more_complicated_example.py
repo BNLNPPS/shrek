@@ -2,6 +2,7 @@ from pykwalify.core import Core
 import os
 import yaml
 import pprint
+import pytest
 
 from shrek.scripts.buildJobScript import buildJobDefinition
 from shrek.scripts.buildWorkflowGraph import buildWorkflowGraph
@@ -143,7 +144,20 @@ def test_workflow_combine():
     y = mystep["out"]        
    
 
-        
+@pytest.mark.xfail( reason="Not quite ready for the PanDA..." )
+def test_panda_should_validate_the_workflow():
+    cwl = commonWorkflow()
+    name='panda_should_validate_this.cwl'
+    with open( name, 'w' ) as f:
+        f.write(cwl)
+    with open( 'dummy.yaml', 'w' ) as f:
+        f.write('# dummy')
+
+    testds = 'user.%s.thisisatestoftheemergencybroadcastsystemthisisonlyatest'%( os.getlogin() )
+
+    ret = os.system( "pchain --cwl %s --yaml %s --check --outDS %s"%(name,'dummy.yaml',testds) )
+    assert( 0 == ret )
+    
     
 
     
