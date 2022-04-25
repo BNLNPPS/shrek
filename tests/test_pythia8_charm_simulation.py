@@ -57,3 +57,7 @@ def test_validate_against_schema( yaml_ ):
 @pytest.mark.parametrize( 'yaml_', jobDefinitions )
 def test_build_the_runtime_script( yaml_ ):
     buildTheJobRuntimeScript( yaml_ )
+
+#________________________________________________________________________
+def test_create_the_workflow():
+    buildCommonWorkflow( jobDefinitions, 'sP22aa-TEST' )
