@@ -144,7 +144,7 @@ def test_workflow_combine():
     y = mystep["out"]        
    
 
-@pytest.mark.xfail( reason="Not quite ready for the PanDA..." )
+@pytest.mark.panda
 def test_panda_should_validate_the_workflow():
     cwl = commonWorkflow()
     name='panda_should_validate_this.cwl'
