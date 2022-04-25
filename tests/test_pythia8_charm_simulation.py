@@ -5,11 +5,13 @@ import pprint
 import pytest
 import glob
 
+from shrek.scripts.buildJobScript import buildJobScript
 from shrek.scripts.buildJobScript import buildJobDefinition
 from shrek.scripts.buildWorkflowGraph import buildWorkflowGraph
 from shrek.scripts.buildCommonWorklow import buildCommonWorkflow
 
 jobDefinitions = glob.glob( "tests/pythia8-charm-simulation/*.yaml" )
+
 
 def commonWorkflow():
     yamls = [
@@ -41,10 +43,17 @@ def validateAgainstSchema( yaml_ ):
 
     with open(yaml_,"r") as stream:
         definition = yaml.safe_load(stream)
-        
+
+#________________________________________________________________________
+def buildTheJobRuntimeScript( yaml_, tag = 'sP22aa-TEST' ):
+    script = buildJobScript( yaml_, tag )
+    
 
 #________________________________________________________________________
 @pytest.mark.parametrize( 'yaml_', jobDefinitions )
-
 def test_validate_against_schema( yaml_ ):
     validateAgainstSchema( yaml_ )
+
+@pytest.mark.parametrize( 'yaml_', jobDefinitions )
+def test_build_the_runtime_script( yaml_ ):
+    buildTheJobRuntimeScript( yaml_ )
