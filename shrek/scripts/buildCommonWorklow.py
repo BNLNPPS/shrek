@@ -6,6 +6,9 @@ import pprint
 import networkx as nx
 import pydot
 
+from pykwalify.core import Core
+import glob
+
 from shrek.yaml.handler import Handler
 from shrek.yaml.parameters import ParameterBlock, buildParameterBlock
 from shrek.yaml.codeblock import CodeBlock, buildCodeBlock
@@ -17,6 +20,17 @@ from shrek.yaml.workflow import WorkflowGraph
 
 from shrek.scripts.buildJobScript import buildJobDefinition
 from shrek.scripts.buildWorkflowGraph import buildWorkflowGraph
+
+def validate( yaml_ ):
+    # schema definitions
+    schema = glob.glob("schema/*.yaml")
+    # Ensure job definition files match schema
+    c = Core( source_file=yaml_, schema_files=schema)
+    c.validate(raise_exception=True)
+
+def validateJobDefinitions( jdfs ):
+    for jdf in jdfs:
+        validate(jdf)
 
 def numberOfPredecessors( node, graph ):
     count=0
@@ -218,8 +232,7 @@ def main():
     parser.add_argument('--tag', type=str, help='production tag' )
     args = parser.parse_args()
 
-    #  print(args.yaml)
-
+    validateJobDefinitions( args.yaml )
 
     wf = buildCommonWorkflow( args.yaml, args.tag )
 
