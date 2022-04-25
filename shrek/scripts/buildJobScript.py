@@ -121,7 +121,9 @@ fi
         # Worker node finalization
         #
         if job.finish.block:
-            output += job.finish.block 
+            output += job.finish.block
+
+    return output
 
      
 
