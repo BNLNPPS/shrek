@@ -55,30 +55,22 @@ def buildJobDefinition( yaml_, tag_ ):
 
         return job
 
+def buildJobScript( yaml_, tag_ ):
 
-    
-    
+    job = buildJobDefinition( yaml_, tag_ )
 
-def main():
-
-    parser = argparse.ArgumentParser(description='Build job script from yaml')
-    parser.add_argument('yaml', metavar='YAML', type=str, 
-                                        help='input filename')
-    parser.add_argument('--tag', type=str, help='production tag' )
-    args = parser.parse_args()
-
-    job = buildJobDefinition( args.yaml, args.tag )
+    output = ""
 
     if job == None:
         print("Job not valid... probably no yaml file?")
+        return None
         
     else:
         #
         # Convention is that the PanDA will pass certain parameters
         # through the command line
         #
-        print( \
-"""
+        output +="""
 
 # Script command line parameters
 
@@ -93,46 +85,55 @@ if [ "$3" ]; then
 fi
 
 """
-)
+
 
         #
         # Build and output environment block
         #
-        print(job.parameters.params)
+        output += job.parameters.params
 
         #
         # Data set names
         #
         for (i,ds) in enumerate(job.inputs):
-            print("# Input DS %s [%i/%i]"%(ds.name,i+1,len(job.inputs)))
-            print("export inputDS%i_name=%s"%(i+1,ds.name) )
+            output += "# Input DS %s [%i/%i]"%(ds.name,i+1,len(job.inputs))
+            output += "export inputDS%i_name=%s"%(i+1,ds.name) 
 
-        print("")    
+
 
         for (i,ds) in enumerate(job.secondaries):
-            print("# Secondary DS %s [%i/%i]"%(ds.name,i+1,len(job.inputs)))
-            print("export secondaryDS%i_name=%s"%(i+1,ds.name) )    
+            output += "# Secondary DS %s [%i/%i]"%(ds.name,i+1,len(job.inputs))
+            output += "export secondaryDS%i_name=%s"%(i+1,ds.name) 
 
             #
             # Worker node initialization
             #
         if job.init.block:
-            print( job.init.block )
+            output += job.init.block 
 
         #
         # Worker node execution script
         #
         if job.commands.block:
-            print( job.commands.block )
+            output += job.commands.block 
 
         #
         # Worker node finalization
         #
         if job.finish.block:
-            print( job.finish.block )
+            output += job.finish.block 
 
-    
-    
+     
+
+def main():
+
+    parser = argparse.ArgumentParser(description='Build job script from yaml')
+    parser.add_argument('yaml', metavar='YAML', type=str, 
+                                        help='input filename')
+    parser.add_argument('--tag', type=str, help='production tag' )
+    args = parser.parse_args()
+
+    print( buildJobScript( args.yaml, args.tag ) )
 
 if __name__ == '__main__':
     main()
