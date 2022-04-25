@@ -1,8 +1,14 @@
 from pykwalify.core import Core
 import os
 import yaml
+import glob
 
 from shrek.yaml.handler import Handler
+
+#
+# The test data files should all pass the schema
+#
+
 
 # pykwalify -d tests/data/EnvironmentBlock.yaml -s schema/Parameters.yaml
 def test_environment_block():
@@ -69,7 +75,8 @@ def test_jobdefinition_block():
               "schema/InputDataSet.yaml",
               "schema/OutputDataSet.yaml",
               "schema/UserCommands.yaml",
-              "schema/JobDefinition.yaml"]
+              "schema/JobDefinition.yaml"
+              ]
 
     assert(os.path.exists( yaml_ ) )
     for s in schema:
@@ -87,4 +94,17 @@ def test_yaml_handler():
 
         definition = yaml.safe_load(stream)
         handler.traverse( definition )
+
+def test_more_complicated_example_definitions_match_schema():
+    schema = ["schema/Parameters.yaml",
+              "schema/InputDataSet.yaml",
+              "schema/OutputDataSet.yaml",
+              "schema/UserCommands.yaml",
+              "schema/JobDefinition.yaml"
+              ]
+
+    for yaml_ in glob.glob( 'tests/more-comlicated-example/*.yaml' ):
+        c = Core( source_file=yaml_, schema_files=schema)
+        c.validate(raise_exception=True)
+
 
