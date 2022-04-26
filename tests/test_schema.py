@@ -75,6 +75,7 @@ def test_jobdefinition_block():
               "schema/InputDataSet.yaml",
               "schema/OutputDataSet.yaml",
               "schema/UserCommands.yaml",
+              "schema/ResourceMap.yaml",
               "schema/JobDefinition.yaml"
               ]
 
@@ -100,6 +101,7 @@ def test_more_complicated_example_definitions_match_schema():
               "schema/InputDataSet.yaml",
               "schema/OutputDataSet.yaml",
               "schema/UserCommands.yaml",
+              "schema/ResourceMap.yaml",
               "schema/JobDefinition.yaml"
               ]
 

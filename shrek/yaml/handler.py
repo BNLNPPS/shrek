@@ -19,6 +19,7 @@ class Handler:
         self.addToken( 'Finalize',          None, None )
         self.addToken( 'LocalFinalize',     None, None )
         self.addToken( 'JobCommands',       None, None )
+        self.addToken( 'Resources',         None, [] )
 
         self.actor = None
 
