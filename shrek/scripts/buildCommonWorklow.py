@@ -108,7 +108,7 @@ def cwl_inputs( wfgraph ):
     inputs += "\n"
     
     if 0==count:
-        inputs = "\ninputs: {}"
+        inputs = "\ninputs: []"
             
     return inputs
 
