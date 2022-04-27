@@ -2,6 +2,7 @@ Parameters:
   name: make_signal
   comment: |-
     https://panda-wms.readthedocs.io/en/latest/client/pchain.html#more-complicated-chain
+  nFilesPerJob: 5
 
 InputDataSets:
   - name: signal
