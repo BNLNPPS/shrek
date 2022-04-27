@@ -1,0 +1,12 @@
+Parameters:
+  name: bottom
+  comment: |-
+    https://panda-wms.readthedocs.io/en/latest/client/pchain.html#more-complicated-chain
+
+InputDataSets:
+  - name: top/outDS
+
+OutputDataSets:
+  - name: bottom/outDS
+    filelist: 
+      - "required: results.root" 

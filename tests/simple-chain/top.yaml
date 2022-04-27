@@ -1,0 +1,13 @@
+Parameters:
+  name: top
+  comment: |-
+    Simple chain from panda examples...
+    https://panda-wms.readthedocs.io/en/latest/client/pchain.html#simple-task-chain
+  nJobs: 3
+
+OutputDataSets:
+  - name: top/outDS
+    filelist:
+      - "required: seed.txt"
+
+
