@@ -9,6 +9,9 @@ Parameters:
   flavor: Charm  
   runnumber: 1234567890
 
+Resources:
+  - file: ../MDC2/submit/HF_pp200_signal/pass1/rundir/*
+
 
 OutputDataSets:
   - name: Pythia8CharmG4Hits
