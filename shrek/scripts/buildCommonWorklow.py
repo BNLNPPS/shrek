@@ -146,7 +146,7 @@ def cwl_opt_args( job ):
     for par in [ "nJobs", "nFilesPerJob", "nGBperJob" ]:
         val = getattr(params,par,None)
         if val:
-            optargs += " --%s %s "%( par, str(val))
+            optargs += ' --%s %s '%( par, str(val))
             
     return optargs
 
@@ -192,8 +192,10 @@ def cwl_steps( wfgraph ):
             if i==0: steps += " %IN"
             else   : steps += " %%IN%i"%(i+1)
 
-        steps += "\n        opt_args:"
-        steps += "\n          default: " + cwl_opt_args(job)
+        optargs = cwl_opt_args(job)
+        if len(optargs.strip()) > 0:
+            steps += "\n        opt_args:"
+            steps += '\n          default: "%s"' % optargs
 
         
         steps += "\n    out: [outDS]" # by convention...
