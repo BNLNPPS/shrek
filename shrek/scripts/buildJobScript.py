@@ -77,15 +77,15 @@ def buildJobScript( yaml_, tag_ ):
 
 # Script command line parameters
 
-export shrek_job_index=$1
-if [ "$2" ]; then
-   export shrek_input_files=( `echo $2 | tr "," " "` )
-   export shrek_number_input_files=${#shrek_input_files[@]}
-fi
-if [ "$3" ]; then
-   export shrek_secondary_files=( `echo $3 | tr "," " "` )
-   export shrek_number_secondary_files=${#shrek_input_files[@]}
-fi
+#export shrek_job_index=$1
+#if [ "$2" ]; then
+#   export shrek_input_files=( `echo $2 | tr "," " "` )
+#   export shrek_number_input_files=${#shrek_input_files[@]}
+#fi
+#if [ "$3" ]; then
+#   export shrek_secondary_files=( `echo $3 | tr "," " "` )
+#   export shrek_number_secondary_files=${#shrek_input_files[@]}
+#fi
 
 """
 
