@@ -49,6 +49,7 @@ def buildJobDefinition( yaml_, tag_ ):
         job.commands    = handler.result('JobCommands')
         job.finish      = handler.result('Finalize')
         job.localfinish = handler.result('LocalFinalize')
+        job.resources   = handler.result('Resources')
 
         job.name           = job.parameters.name
         job.numInputs      = len( job.inputs )

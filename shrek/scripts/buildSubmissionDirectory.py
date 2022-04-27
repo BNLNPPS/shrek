@@ -5,6 +5,8 @@ import argparse
 import pydot
 import os
 import pathlib
+import shutil
+import glob
 
 from shrek.scripts.buildJobScript import buildJobScript
 from shrek.scripts.buildCommonWorklow import buildCommonWorkflow
@@ -33,7 +35,7 @@ def buildSubmissionDirectory( tag, jdfs_ ):
             print('[PanDA submission directory created %s]'%s)            
             break
 
-    # Build job scripts
+    # Build job scripts and stage into directory
     for jdf in jdfs:
         stem = pathlib.Path(jdf).stem        
         (job, script) = buildJobScript( jdf, tag )
@@ -42,14 +44,24 @@ def buildSubmissionDirectory( tag, jdfs_ ):
         assert(script)
         assert(job)
 
-        os.mkdir( subdir + '/__' + name )        
-        
         with open( subdir + '/' + name + '.sh', 'w' ) as f:
             f.write('# Stage resources into working directory\n')
             f.write('mv __%s/* .\n'%name)
             f.write(script)
 
+        # Create a subdirectory for job resources
+        print (job.resources)
+        if len(job.resources):
+            
+            jobdir = subdir + '/__' + name
+            os.mkdir( jobdir )
 
+            for r in job.resources:
+                if r.type=='file':
+                    print("copy %s --> %s"%(r.url,jobdir))
+                    for f in glob.glob(r.url):
+                        shutil.copy( f, jobdir )
+        
 
     # Build CWL for PanDA submission
     cwf = buildCommonWorkflow( jdfs, tag )
