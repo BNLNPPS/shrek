@@ -92,41 +92,39 @@ fi
         #
         if job.parameters:
             if job.parameters.params:
-                output += job.parameters.params
+                output += job.parameters.params + '\n\n'
 
         #
         # Data set names
         #
         for (i,ds) in enumerate(job.inputs):
-            output += "# Input DS %s [%i/%i]"%(ds.name,i+1,len(job.inputs))
-            output += "export inputDS%i_name=%s"%(i+1,ds.name) 
-
-
+            output += "# Input DS %s [%i/%i]\n"%(ds.name,i+1,len(job.inputs))
+            output += "export inputDS%i_name=%s\n"%(i+1,ds.name) 
 
         for (i,ds) in enumerate(job.secondaries):
-            output += "# Secondary DS %s [%i/%i]"%(ds.name,i+1,len(job.inputs))
-            output += "export secondaryDS%i_name=%s"%(i+1,ds.name) 
+            output += "# Secondary DS %s [%i/%i]\n"%(ds.name,i+1,len(job.inputs))
+            output += "export secondaryDS%i_name=%s\n"%(i+1,ds.name) 
 
         #
         # Worker node initialization
         #
         if job.init:
             if job.init.block:
-                output += job.init.block 
+                output += job.init.block + '\n'
 
         #
         # Worker node execution script
         #
         if job.commands:
             if job.commands.block:
-                output += job.commands.block 
+                output += job.commands.block + '\n'
 
         #
         # Worker node finalization
         #
         if job.finish:
             if job.finish.block:
-                output += job.finish.block
+                output += job.finish.block + '\n'
 
     return ( job, output )
 
