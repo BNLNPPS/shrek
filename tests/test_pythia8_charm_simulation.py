@@ -32,6 +32,7 @@ def validateAgainstSchema( yaml_ ):
               "schema/InputDataSet.yaml",
               "schema/OutputDataSet.yaml",
               "schema/UserCommands.yaml",
+              "schema/ResourceMap.yaml",
               "schema/JobDefinition.yaml"]
 
     assert(os.path.exists( yaml_ ) )
