@@ -139,14 +139,26 @@ def cwl_outputs( wfgraph ):
 
 
 def cwl_opt_args( job ):
-    params = job.parameters
 
     optargs = ""
 
-    for par in [ "nJobs", "nFilesPerJob", "nGBperJob" ]:
+    # From job parameters...
+    params = job.parameters    
+    for par in [ "nJobs", "nFilesPerJob", "nGBPerJob" ]:
         val = getattr(params,par,None)
         if val:
             optargs += ' --%s %s '%( par, str(val))
+
+    # From outputs...
+    outputs = []
+    for output in job.outputs:
+        for f in output.filelist:
+            (opt,out) = f.split(':')
+            outputs.append(f)
+            #print(opt)
+            #print(out)
+    if len(outputs)>0:
+        optargs += ' --outputs ' + ','.join(outputs) + ' '
             
     return optargs
 
