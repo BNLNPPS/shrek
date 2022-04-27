@@ -90,7 +90,9 @@ fi
         #
         # Build and output environment block
         #
-        output += job.parameters.params
+        if job.parameters:
+            if job.parameters.params:
+                output += job.parameters.params
 
         #
         # Data set names
@@ -105,25 +107,28 @@ fi
             output += "# Secondary DS %s [%i/%i]"%(ds.name,i+1,len(job.inputs))
             output += "export secondaryDS%i_name=%s"%(i+1,ds.name) 
 
-            #
-            # Worker node initialization
-            #
-        if job.init.block:
-            output += job.init.block 
+        #
+        # Worker node initialization
+        #
+        if job.init:
+            if job.init.block:
+                output += job.init.block 
 
         #
         # Worker node execution script
         #
-        if job.commands.block:
-            output += job.commands.block 
+        if job.commands:
+            if job.commands.block:
+                output += job.commands.block 
 
         #
         # Worker node finalization
         #
-        if job.finish.block:
-            output += job.finish.block
+        if job.finish:
+            if job.finish.block:
+                output += job.finish.block
 
-    return output
+    return ( job, output )
 
      
 

@@ -11,7 +11,7 @@ from shrek.scripts.buildCommonWorklow import buildCommonWorkflow
 
 def jobDirectoryName( tag ):
     for i in range(0,20):
-        yield "job-submission-%s.%i"%(tag,i)
+        yield "job-submission-%s;%i"%(tag,i)
     assert( 0 == "Past maximum number of submission directories for single production... clean up please.")
 
 
@@ -30,16 +30,26 @@ def buildSubmissionDirectory( tag, jdfs_ ):
         else:
             subdir = s            
             os.mkdir( subdir )
+            print('[PanDA submission directory created %s]'%s)            
             break
 
     # Build job scripts
     for jdf in jdfs:
         stem = pathlib.Path(jdf).stem        
-        script = buildJobScript( jdf, tag )
-        print( jdf )
+        (job, script) = buildJobScript( jdf, tag )
+        name = job.parameters.name
+
         assert(script)
-        with open( subdir + '/' + stem + '.sh', 'w' ) as f:
+        assert(job)
+
+        os.mkdir( subdir + '/__' + name )        
+        
+        with open( subdir + '/' + name + '.sh', 'w' ) as f:
+            f.write('# Stage resources into working directory\n')
+            f.write('mv __%s/* .\n'%name)
             f.write(script)
+
+
 
     # Build CWL for PanDA submission
     cwf = buildCommonWorkflow( jdfs, tag )
