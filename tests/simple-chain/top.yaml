@@ -10,4 +10,6 @@ OutputDataSets:
     filelist:
       - "required: seed.txt"
 
+JobCommands: |-
+  echo $1 > seed.txt
 

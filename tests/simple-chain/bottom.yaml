@@ -10,3 +10,6 @@ OutputDataSets:
   - name: bottom/outDS
     filelist: 
       - "required: results.root" 
+
+JobCommands: |-
+  echo ${IN1[@]} > results.root
