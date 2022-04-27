@@ -149,16 +149,37 @@ def cwl_opt_args( job ):
         if val:
             optargs += ' --%s %s '%( par, str(val))
 
-    # From outputs...
+    # From output filelist
     outputs = []
     for output in job.outputs:
         for f in output.filelist:
             (opt,out) = f.split(':')
             out = out.strip()
-            outputs.append(out)
+            outputs.append(out)               
 
     if len(outputs)>0:
         optargs += ' --outputs ' + ','.join(outputs) + ' '
+
+    # From input (secondary) data sets
+    inputs = []
+    count = 0
+    for inp in job.inputs:
+        DSn = '%{DS' + str(count) + '}'
+        count += 1
+        INn = '%IN' + str(count)
+        if count==1: continue # Skip the principle dataset 
+        name = inp.name
+        nfpj = inp.nFilesPerJob
+        if nfpj == None:
+            nfpj = 1
+        inputs.append( INn + ':' + str(nfpj) + ':' + DSn )
+
+    if len(inputs)>0:
+        optargs = ' --secondaryDSs ' + ','.join(inputs)
+        
+        
+        
+    
             
     return optargs
 
