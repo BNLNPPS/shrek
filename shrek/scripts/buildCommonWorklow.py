@@ -154,9 +154,9 @@ def cwl_opt_args( job ):
     for output in job.outputs:
         for f in output.filelist:
             (opt,out) = f.split(':')
-            outputs.append(f)
-            #print(opt)
-            #print(out)
+            out = out.strip()
+            outputs.append(out)
+
     if len(outputs)>0:
         optargs += ' --outputs ' + ','.join(outputs) + ' '
             
