@@ -220,10 +220,11 @@ def cwl_steps( wfgraph ):
 
         # Exec block
         steps += "\n        opt_exec:"
-        steps += '\n          default: "%s.sh"' % ( job.name )
+        steps += '\n          default: "%s.sh ' % ( job.name )
         for (i,IN) in enumerate(job.inputs):
             if i==0: steps += " %IN"
             else   : steps += " %%IN%i"%(i+1)
+        steps += '"'
 
         optargs = cwl_opt_args(job)
         if len(optargs.strip()) > 0:
