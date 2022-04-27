@@ -10,6 +10,7 @@ from shrek.yaml.codeblock import CodeBlock, buildCodeBlock
 from shrek.yaml.outputds import OutputDS, buildOutputList 
 from shrek.yaml.inputds import InputDS, buildInputList
 from shrek.yaml.secondaryds import SecondaryDS, buildSecondaryList
+from shrek.yaml.resources import Resource, buildResourceList
 from shrek.yaml.jobdefinition import JobDefinition
 
 def getHandler():
@@ -23,6 +24,7 @@ def getHandler():
     handler.addToken( 'JobCommands', buildCodeBlock, None )
     handler.addToken( 'Finalize', buildCodeBlock, None )
     handler.addToken( 'LocalFinalize', buildCodeBlock, None )
+    handler.addToken( 'Resources', buildResourceList, [] )
     return handler
 
 #_______________________________________________________________________________________

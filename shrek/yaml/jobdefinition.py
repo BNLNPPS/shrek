@@ -17,5 +17,6 @@ class JobDefinition:
         self.commands = None # executable commands
         self.finish = None
         self.localfinish = None
+        self.resources = []
 
 
