@@ -3,16 +3,21 @@ Parameters:
   build: mdc2.8
   comment: |-
     This is a test job definition
+  macro: Fun4All_G4_pileup_pp.C
+  flavor: Charm  
+  nEvents: 100
  
 InputDataSets:
+
   - name: Pythia8CharmG4Hits
     comment: |-
       Primary input from the runPass1.yaml file
 
 SecondaryDataSets:
+
   - name: Pythia8MinbiasG4Hits
     comment: |-
-      Primary input from the runPass1.yaml file
+      Background events that are prestaged
 
 OutputDataSets:
   - name: Pythia8CharmPileupG4Hits
@@ -23,8 +28,27 @@ Initialize: |-
   # ...
 
 JobCommands: |-
-  # ... This is a fake simulation ...
+  # Initialize sPHENIX software environment
+  source /opt/sphenix/core/bin/sphenix_setup.sh ${build}
+
+  # Input file
+  mcin=${IN1[0]}
+  echo Signal: $mcin
+
+  # Build background list
+  for b in "${IN2[@]}"
+  do
+     echo $b >> background.list
+     echo Background: $b
+  done
+
+  root.exe -q -b ${macro}\(${nEvents},\"${mcin}\",\"background.list\",\".\",\"${flavor}\"\)
+
+
 
 Finalize: |-
   # ...
 
+
+Resources:
+  - file: ../MDC2/submit/HF_pp200_signal/pass2/rundir/*
