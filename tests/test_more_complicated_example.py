@@ -23,16 +23,17 @@ def commonWorkflow():
 #________________________________________________________________________
 
 def test_create_the_workflow():
-    wf = commonWorkflow()
+    (wf,ym) = commonWorkflow()
     assert(wf != None)
+    assert(ym != None)
 
 def test_we_should_be_able_to_parse_the_workflow():
-    wf = commonWorkflow()
+    (wf,ym) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     #pprint.pprint(dict_)
 
 def test_workflow_has_expected_fields():
-    wf = commonWorkflow()
+    (wf,ym) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     fields = [ "inputs",
                "outputs",
@@ -45,31 +46,28 @@ def test_workflow_has_expected_fields():
         x = dict_[f]
 
 def test_workflow_inputs():
-    wf = commonWorkflow()
+    (wf,ym) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     inputs = dict_["inputs"]
-    make_signal = inputs['make_signal_input']
-    assert( make_signal['type'] == "string" )
-    assert( make_signal['default'] == "signal" )    
+    make_signal = inputs['signal']
+    assert(make_signal == "string")
     
-    make_background_1 = inputs["make_background_1_input"]
-    assert(make_background_1['type'] == "string")
-    assert(make_background_1['default'] == "background")    
+    make_background_1 = inputs["background"]
+    assert(make_background_1=="string")
 
 def test_workflow_outputs():
-    wf = commonWorkflow()
+    (wf,ym) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     outputs = dict_["outputs"]
-    pprint.pprint(outputs)
     
 def test_workflow_class():
-    wf = commonWorkflow()
+    (wf,ym) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     class_ = dict_["class"]
     assert(class_ == 'Workflow')
 
 def test_workflow_steps():
-    wf = commonWorkflow()
+    (wf,ym) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     steps = dict_["steps"]
     for step in ["make_signal","make_background_1","make_background_2","pre_mix","combine","generate_some"]:
@@ -79,7 +77,7 @@ def test_workflow_steps():
         y = mystep["out"]
 
 def test_workflow_make_signal():
-    wf = commonWorkflow()
+    (wf,ym) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     steps = dict_["steps"]
     mystep=steps['make_signal']
@@ -90,7 +88,7 @@ def test_workflow_make_signal():
     y = mystep["out"]
 
 def test_workflow_make_background_1():
-    wf = commonWorkflow()
+    (wf,ym) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     steps = dict_["steps"]
     mystep=steps['make_background_1']
@@ -101,7 +99,7 @@ def test_workflow_make_background_1():
     y = mystep["out"]
     
 def test_workflow_pre_mix():
-    wf = commonWorkflow()
+    (wf,ym) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     steps = dict_["steps"]
     mystep=steps['pre_mix']
@@ -112,7 +110,7 @@ def test_workflow_pre_mix():
     y = mystep["out"]
     
 def test_workflow_make_background_2():
-    wf = commonWorkflow()
+    (wf,ym) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     steps = dict_["steps"]
     mystep=steps['make_background_2']
@@ -123,7 +121,7 @@ def test_workflow_make_background_2():
     y = mystep["out"]        
 
 def test_workflow_generate_some():
-    wf = commonWorkflow()
+    (wf,ym) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     steps = dict_["steps"]
     mystep=steps['generate_some']
@@ -133,7 +131,7 @@ def test_workflow_generate_some():
         xx = x[field]        
     y = mystep["out"]    
 def test_workflow_combine():
-    wf = commonWorkflow()
+    (wf,ym) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     steps = dict_["steps"]
     mystep=steps['combine']
@@ -146,12 +144,12 @@ def test_workflow_combine():
 
 @pytest.mark.panda
 def test_panda_should_validate_the_workflow():
-    cwl = commonWorkflow()
+    (cwl,yml) = commonWorkflow()
     name='panda_should_validate_this.cwl'
     with open( name, 'w' ) as f:
         f.write(cwl)
     with open( 'dummy.yaml', 'w' ) as f:
-        f.write('# dummy')
+        f.write(yml)
 
     testds = 'user.%s.thisisatestoftheemergencybroadcastsystemthisisonlyatest'%( os.getlogin() )
 

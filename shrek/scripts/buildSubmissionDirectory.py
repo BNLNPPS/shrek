@@ -64,11 +64,11 @@ def buildSubmissionDirectory( tag, jdfs_ ):
         
 
     # Build CWL for PanDA submission
-    cwf = buildCommonWorkflow( jdfs, tag )
+    ( cwf, yml ) = buildCommonWorkflow( jdfs, tag )
     with open( subdir + '/%s-workflow.cwl'%tag, 'w') as f:
         f.write( cwf )
     with open( subdir + '/%s-input.yaml'%tag, 'w') as f:
-        f.write( '# dummy' )
+        f.write( yml )
         
 def main():
 

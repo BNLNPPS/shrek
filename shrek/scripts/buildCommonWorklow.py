@@ -177,10 +177,6 @@ def cwl_opt_args( job ):
 
     if len(inputs)>0:
         optargs = ' --secondaryDSs ' + ','.join(inputs)
-        
-        
-        
-    
             
     return optargs
 
@@ -260,7 +256,9 @@ def buildCommonWorkflow( yamllist, tag_ ):
     output += cwl_outputs( wfg )
     output += cwl_steps( wfg )
 
-    return output
+    yaml = "# dummy yaml file"
+
+    return ( output, yaml )
 
     
 def main():

@@ -19,22 +19,22 @@ def commonWorkflow():
 #________________________________________________________________________
 
 def test_create_the_workflow():
-    wf = commonWorkflow()
-    assert(wf != None)
+    (wf,ym) = commonWorkflow()
+    assert(wf != None) # CWL
+    assert(ym != None) # yaml
 
 def test_we_should_be_able_to_parse_the_workflow():
-    wf = commonWorkflow()
-    dict_ = yaml.safe_load( str(wf) )
+    (wf,yml) = commonWorkflow()
+    dict_ = yaml.safe_load( str(wf) )  # workflow
 
-    
 def test_workflow_class():
-    wf = commonWorkflow()
+    (wf,yml) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     class_ = dict_["class"]
     assert(class_ == 'Workflow')
 
 def test_workflow_steps():
-    wf = commonWorkflow()
+    (wf,yml) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     steps = dict_["steps"]
     for step in ["top","bottom"]:
@@ -45,12 +45,12 @@ def test_workflow_steps():
 
 @pytest.mark.panda
 def test_panda_should_validate_the_workflow():
-    cwl = commonWorkflow()
+    (cwl,yml) = commonWorkflow()
     name='panda_should_validate_this.cwl'
     with open( name, 'w' ) as f:
         f.write(cwl)
     with open( 'dummy.yaml', 'w' ) as f:
-        f.write('# dummy')
+        f.write(yml)
 
     testds = 'user.%s.thisisatestoftheemergencybroadcastsystemthisisonlyatest'%( os.getlogin() )
 
