@@ -1,6 +1,7 @@
 class InputDS:
     def __init__(self):
         self.name = None
+        self.datasets = None
         self.comment = None
         self.altname = None
         self.nFilesPerJob = None
@@ -16,6 +17,7 @@ def buildInputList( key, dslist ):
         i = InputDS()
         for (k,v) in ds.items():
             if k=='name': i.name = v
+            if k=='datasets': i.datasets = v
             if k=='comment': i.comment = v
             if k=='altname': i.altname = v
             if k=='nFilesPerJob': i.nFilesPerJob = v

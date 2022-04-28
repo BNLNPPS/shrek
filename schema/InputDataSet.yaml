@@ -8,6 +8,8 @@ schema;input_dataset:
       name:
         type: str
         nul: False # but this does not appear to be enforced?
+      datasets:
+        type: str
       comment:
         type: str
       altname:
