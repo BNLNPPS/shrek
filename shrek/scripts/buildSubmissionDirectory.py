@@ -36,10 +36,17 @@ def buildSubmissionDirectory( tag, jdfs_ ):
             break
 
     # Build job scripts and stage into directory
+    input_jobs = []
     for jdf in jdfs:
         stem = pathlib.Path(jdf).stem        
         (job, script) = buildJobScript( jdf, tag )
-        name = job.parameters.name
+
+        # A job w/ no name will be treated as pure input
+        if job.parameters:
+            name = job.parameters.name
+        else:
+            input_jobs.append( job )
+            continue
 
         assert(script)
         assert(job)
