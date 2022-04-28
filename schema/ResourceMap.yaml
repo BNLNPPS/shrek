@@ -1,0 +1,14 @@
+schema;resource_map:
+  type: map
+  mapping:
+    file: 
+      type: str
+    directory:
+      type: str
+    repository:
+      type: map
+      mapping:
+        url: 
+          type: str
+        action:
+          type: str

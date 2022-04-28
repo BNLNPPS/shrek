@@ -1,0 +1,125 @@
+#
+# An environment block contains a map of user-defined parameters
+# which will be exposed as environment variables within the job-
+# execution script.  The fields below are provided as examples.
+#
+Parameters:
+  name: jobname
+  id: 
+    - 12345
+    - 67890
+  vertex: 1.2345
+  generator: Pythia8.123
+  primes:  (1, 3, 5, 7, 11)
+  
+  
+#
+#
+#
+InputDataSets:
+  - name: primaryDataSet
+    comment: This is a user-defined comment block meant to document what the dataset is
+    altname: alternateDatasetName
+    nFilesPerJob: 1
+    match: "*"
+    nSkip: 0
+    nFiles: all
+    local: False
+  - name: primaryDataSet2
+    comment: This is a user-defined comment block meant to document what the dataset is
+    altname: alternateDatasetName
+    nFilesPerJob: 1
+    match: "*"
+    nSkip: 0
+    nFiles: all
+    local: False
+
+SecondaryDataSets:
+  - name: 2ndDataSet
+    comment: This is a user-defined comment block meant to document what the dataset is
+    altname: alternateDatasetName
+    nFilesPerJob: 1
+    match: "*"
+    nSkip: 0
+    nFiles: all
+    local: False
+  - name: 2ndDataSet2
+    comment: This is a user-defined comment block meant to document what the dataset is
+    altname: alternateDatasetName
+    nFilesPerJob: 1
+    match: "*"
+    nSkip: 0
+    nFiles: all
+    local: False
+
+#  localFiles:
+#    - /path/or/pattern/match/to/file.txt
+#    - /path/or/pattern/match/to/files*
+
+
+#
+#
+#
+OutputDataSets:
+  - name: onlyOutputSet
+    comment: |-
+      This is a user-defined comment block meant to document
+      the output data set
+    merge: false
+    filelist:
+      - "required:requiredFile.root" 
+      - "required:*.log"
+      - "optional:optionalFile.root"
+      - "optional:*.daq"
+
+Initialize: |-
+  # Commands issued prior to job execution (e.g. link / copy macros from repository)
+  ls
+
+Finalize: |-
+  # Commands issued after job completion and before file management returns datasets
+  ls
+
+JobCommands: |-
+  # User command block... copied verbatim into the job execution script.
+  # Parameters defined w/in the Environment block are exposed as environment
+  # variables.
+  #
+  # NOTE: bash is the supported shell environment
+  #
+  echo $jobname $vertex $generator ${primes[@]}
+  #
+  # There are several special environment variables defined:
+  #
+  # Each input dataset exports its paramerters qualified by the name of the dataset.
+  # Optional parameters will be available iff they were defined in the yaml file.
+  # The local files will not be exported.  If provided, these files will be uploaded
+  # and the dataset will be created using these files.
+  #
+  # The file or files provided by the workflow management system will be available 
+  # in an array.
+  echo $primaryDataSet_name
+  echo N files ${#primaryDataSet_files[@]}
+  echo Files ${primaryDataSet_files[@]}
+  [[ -z $primaryDataSet_comment ]]      echo $primaryDataSet_comment
+  [[ -z $primaryDataSet_altname ]]      echo $primaryDataSet_altname
+  [[ -z $primaryDataSet_nFilesPerJob ]] echo $primaryDataSet_nFilesPerJob
+  [[ -z $primaryDataSet_match ]]        echo $primaryDataSet_match
+  [[ -z $primaryDataSet_nSkip ]]        echo $primaryDataSet_nSkip
+  [[ -z $primaryDataSet_nFiles ]]       echo $primaryDataSet_nFiles
+
+
+
+#
+Resources:
+  - file: test.dat
+  - file: /abs/path/to/file
+  - file:  rel/path/to/file
+  - directory: /abs/path/to/dir/
+  - directory:  rel/path/to/dir/
+  - repository:
+      url: https://github.com/sPHENIX-Collaboration/MDC2
+      action: git clone ${url}
+  - repository:
+      url: /path/to/a/tarball.tar.gz
+      action: tar xvzf ${url}

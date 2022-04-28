@@ -1,0 +1,39 @@
+Parameters:
+  name: Pythia8CharmSimulation
+  build: mdc2.8
+  comment: |-
+    Generate Pythia8 Charm Events and run through F4A
+  nJobs:   10   # create 10 jobs
+  nEvents: 100  # 100 events per job
+  macro: Fun4All_G4_HF_pp_signal.C
+  flavor: Charm  
+  runnumber: 1234567890
+
+Resources:
+  - file: ../MDC2/submit/HF_pp200_signal/pass1/rundir/*
+
+
+OutputDataSets:
+  - name: Pythia8CharmG4Hits
+    comment: |-
+      Pythia8 events
+    filelist:
+       - "required:*.root"
+
+Initialize: |-
+  ls
+
+JobCommands: |-
+  # Initialize sPHENIX software environment
+  source /opt/sphenix/core/bin/sphenix_setup.sh ${build}
+
+  rn=$( printf "%010d" $runnumber )
+  sn=$( printf "%05d"  $shrek_job_index )
+
+  filename=G4Hits-${flavor}-${rn}-${sn}.root
+
+  root.exe -q -b ${macro}\($nEvents,\"${flavor}\",\"${filename}\",\"\",\".\"\)
+
+
+Finalize: |-
+  ls

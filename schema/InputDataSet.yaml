@@ -1,0 +1,61 @@
+#
+# Partial schema for input data set block
+#
+
+schema;input_dataset:
+    type: map
+    mapping:
+      name:
+        type: str
+        nul: False # but this does not appear to be enforced?
+      datasets:
+        type: str
+      comment:
+        type: str
+      altname:
+        type: str
+      nFilesPerJob:
+        type: int
+      match:
+        type: str
+      nSkip:
+        type: int
+      nFiles:
+        type: text # may be number or ALL (all)
+      local:
+        type: bool
+      localFiles:
+        type: seq
+        sequence:
+          - type: str
+
+schema;secondary_dataset:
+    type: map
+    mapping:
+      name:
+        type: str
+        nul: False # but this does not appear to be enforced?
+      comment:
+        type: str
+      altname:
+        type: str
+      nFilesPerJob:
+        type: int
+      match:
+        type: str
+      nSkip:
+        type: int
+      nFiles:
+        type: text # may be number or ALL (all)
+      local:
+        type: bool
+      localFiles:
+        type: seq
+        sequence:
+          - type: str
+
+#type: map
+#mapping:
+#  InputDataSet:
+#     include: input_dataset
+

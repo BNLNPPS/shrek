@@ -1,0 +1,25 @@
+Parameters:
+  name: Pythia8CharmTrackFinding
+  build: mdc2.8
+  comment: |-
+    This is a test job definition
+ 
+InputDataSets:
+  - name: Pythia8CharmPileupG4Hits
+    comment: |-
+      Primary input from the runPass1.yaml file
+
+OutputDataSets:
+  - name: Pythia8CharmTrackingSeeds
+    comment: |-
+       Charm events plus minbias pileup
+
+Initialize: |-
+  # ...
+
+JobCommands: |-
+  # ... This is a fake simulation ...
+
+Finalize: |-
+  # ...
+

@@ -1,0 +1,10 @@
+#
+# Partial schema for environment block
+#
+
+type: map
+mapping:
+  Parameters: 
+     include: parameter_map
+
+  

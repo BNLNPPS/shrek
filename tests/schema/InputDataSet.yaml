@@ -1,0 +1,9 @@
+#
+# Partial schema for input data set block
+#
+
+type: map
+mapping:
+  InputDataSet:
+     include: input_dataset
+

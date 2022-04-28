@@ -1,0 +1,22 @@
+
+schema;initialization_block:
+  type: str
+
+schema;jobcommands_block:
+  type: str
+  nul: False
+
+schema;finalization_block:
+  type: str
+ 
+
+#type: map
+#mapping:
+#  Initialize: 
+#     include: initialization_block
+#  JobCommands: 
+#     include: jobcommands_block
+#  Finalize: 
+#     include: finalization_block 
+
+  

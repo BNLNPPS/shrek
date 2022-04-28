@@ -1,0 +1,16 @@
+#
+#
+#
+OutputDataSet:
+  name: onlyOutputSet
+  comment: |-
+    This is a user-defined comment block meant to document
+    the output data set
+  merge: false
+  filelist:
+    - "required:requiredFile.root" 
+    - "required:*.log"
+    - "optional:optionalFile.root"
+    - "optional:*.daq"
+        
+        

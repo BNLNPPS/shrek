@@ -1,0 +1,25 @@
+Parameters:
+  name: make_background_2
+  comment: |-
+    https://panda-wms.readthedocs.io/en/latest/client/pchain.html#more-complicated-chain
+
+InputDataSets:
+  - name: background
+  - name: generate_some/outDS
+    comment: PanDA specifies this as a secondary DS
+    nFilesPerJob: 2
+    match: gen.root
+
+OutputDataSets:
+  - name: make_background_2/outDS
+    filelist:
+      - "required: ooo.root"
+      - "required: jjj.txt"
+
+JobCommands: |-
+  # echo %IN > ooo.root; echo %IN2 > jjj.txt
+  echo ${IN1[@]} > ooo.root
+  echo ${IN2[@]} > jjj.txt
+
+ 
+

@@ -1,0 +1,23 @@
+Parameters:
+  name: make_background_1
+  comment: |-
+    https://panda-wms.readthedocs.io/en/latest/client/pchain.html#more-complicated-chain
+  nGBPerJob: 10 
+
+InputDataSets:
+  - name: background
+
+JobCommands: |-
+  #
+  echo ${IN[@]}           > opq.root
+  echo ${#IN[@]} ${IN[@]} > xyz.pool
+
+OutputDataSets:
+  - name: make_background_1/outDS
+    comment: |-
+      Yields two required files
+    filelist: 
+      - "required: opq.root"
+      - "required: xyz.pool"
+  
+

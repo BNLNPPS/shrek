@@ -1,0 +1,31 @@
+type: map
+mapping:
+   Parameters:
+      include: parameter_map
+   InputDataSets:
+      type: seq
+      sequence:
+        - include: input_dataset
+   SecondaryDataSets:
+      type: seq
+      sequence:
+        - include: secondary_dataset
+   OutputDataSets:
+      type: seq
+      sequence:
+        - include: output_dataset   
+   Initialize:
+      include: initialization_block
+   JobCommands:
+      include: jobcommands_block
+   Finalize:
+      include: finalization_block 
+   LocalInit:
+      include: initialization_block
+   LocalFinalize:
+      include: finalization_block      
+   Resources:
+      type: seq
+      sequence:
+      - include: resource_map
+

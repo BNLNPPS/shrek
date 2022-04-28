@@ -1,0 +1,18 @@
+Parameters:
+  name: generate_some
+  comment: |-
+    https://panda-wms.readthedocs.io/en/latest/client/pchain.html#more-complicated-chain
+  nJobs: 10
+
+OutputDataSets:
+  - name: generate_some/outDS
+    comment: |-
+      Single output file returned
+    filelist:
+      - "required:gen.root"
+
+JobCommands: |-
+  # echo %RNDM:10 > gen.root
+  # Each job should be assigned a unique job index
+  echo $jobindex > gen.root
+  
