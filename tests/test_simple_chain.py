@@ -54,7 +54,7 @@ def test_panda_should_validate_the_workflow():
 
     testds = 'user.%s.thisisatestoftheemergencybroadcastsystemthisisonlyatest'%( os.getlogin() )
 
-    ret = os.system( "pchain --cwl %s --yaml %s --check --outDS %s"%(name,'dummy.yaml',testds) )
+    ret = os.system( "pchain --cwl %s --yaml %s --check --outDS %s --vo wlcg --prodSourceLabel test --workingGroup sphenix"%(name,'dummy.yaml',testds) )
     assert( 0 == ret )
     
     
