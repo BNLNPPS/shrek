@@ -14,5 +14,5 @@ OutputDataSets:
 JobCommands: |-
   # echo %RNDM:10 > gen.root
   # Each job should be assigned a unique job index
-  echo $jobindex > gen.root
+  echo $uniqueId > gen.root
   
