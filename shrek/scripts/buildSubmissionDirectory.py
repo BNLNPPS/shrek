@@ -76,6 +76,12 @@ def buildSubmissionDirectory( tag, jdfs_ ):
         f.write( cwf )
     with open( subdir + '/%s-input.yaml'%tag, 'w') as f:
         f.write( yml )
+        f.write('\n')
+        for job in input_jobs:
+            for inp in job.inputs:
+                f.write('# %s %s %s\n'%(job.name,inp.name,inp.datasets))
+                f.write('%s: %s\n'%(inp.name,inp.datasets))
+                
         
 def main():
 
