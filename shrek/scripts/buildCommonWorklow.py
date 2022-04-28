@@ -204,7 +204,8 @@ def cwl_steps( wfgraph ):
             if i==0:
                 steps += "\n        opt_inDS: %s"%IN.name
                 if IN.match:
-                    steps += "\n        opt_inDsType: %s"%IN.match
+                    steps += "\n        opt_inDsType:"
+                    steps += "\n          default: %s"%IN.match
                 inDS = True
             else:
                 secondary.append(IN.name)
@@ -214,9 +215,10 @@ def cwl_steps( wfgraph ):
                 else:
                     types.append("*")
         if len(secondary):
-            steps += "\n        opt_secondaryDSs: %s"%str(secondary)
+            steps += "\n        opt_secondaryDSs: [%s]"% ','.join(secondary)
         if ntypes>0:
-            steps += "\n        opt_secondaryDsTypes: [%s]"% ','.join( types )
+            steps += "\n        opt_secondaryDsTypes:"
+            steps += "\n          default: [%s]"% ','.join( types )
 
         # Exec block
         steps += "\n        opt_exec:"
