@@ -102,9 +102,10 @@ def cwl_inputs( wfgraph ):
         job = wfgraph.jobsmap[jobname]
         for inp in job.inputs:
             count = count + 1
-            inputs += "\n  %s_input: "%jobname
-            inputs += "\n    type: string"
-            inputs += "\n    default: %s"%inp.name
+            inputs += "\n  %s: string"%inp.name
+#           inputs += "\n  %s_input: "%jobname
+#           inputs += "\n    type: string"
+#           inputs += "\n    default: %s"%inp.name
     inputs += "\n"
     
     if 0==count:
