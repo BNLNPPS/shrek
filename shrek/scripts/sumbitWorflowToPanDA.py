@@ -26,7 +26,7 @@ def main():
     parser.add_argument('--no-submit', dest='submit', action='store_false')
     parser.set_defaults(submit=False)
 
-    parser.add_argument('--vo', type=str, default='wlcg')
+    parser.add_argument('--vo', type=str, default= os.getenv('PANDA_AUTH_VO'))
     parser.add_argument('--prodSourceLabel', type=str, default='test')
     parser.add_argument('--workingGroup', type=str,default="sphenix")
     parser.add_argument('--user', type=str,default=getpass.getuser())
