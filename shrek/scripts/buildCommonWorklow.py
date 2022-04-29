@@ -21,6 +21,14 @@ from shrek.yaml.workflow import WorkflowGraph
 from shrek.scripts.buildJobScript import buildJobDefinition
 from shrek.scripts.buildWorkflowGraph import buildWorkflowGraph
 
+from math import ceil, log
+
+def ceil_power_of_10(n):
+    exp = log(n, 10)
+    exp = ceil(exp)
+    return 10**exp
+            
+
 def validate( yaml_ ):
     # schema definitions
     schema = glob.glob("schema/*.yaml")
@@ -220,6 +228,9 @@ def cwl_steps( wfgraph ):
         # Exec block
         steps += "\n        opt_exec:"
         steps += '\n          default: "%s.sh ' % ( job.name )
+        njobs = getattr(job.parameters,'nJobs',None)
+        if njobs:
+            steps += " %%RNDM:%i"%ceil_power_of_10(njobs)
         for (i,IN) in enumerate(job.inputs):
             if i==0: steps += " %IN"
             else   : steps += " %%IN%i"%(i+1)
