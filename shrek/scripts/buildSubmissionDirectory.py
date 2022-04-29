@@ -72,9 +72,11 @@ def buildSubmissionDirectory( tag, jdfs_ ):
 
     # Build CWL for PanDA submission
     ( cwf, yml ) = buildCommonWorkflow( jdfs, tag )
-    with open( subdir + '/%s-workflow.cwl'%tag, 'w') as f:
+    cwlfile = '%s-workflow.cwl'%tag
+    ymlfile = '%s-input.yaml'%tag    
+    with open( subdir + '/' + cwlfile, 'w') as f:
         f.write( cwf )
-    with open( subdir + '/%s-input.yaml'%tag, 'w') as f:
+    with open( subdir + '/' + ymlfile, 'w') as f:
         f.write( yml )
         f.write('\n')
         for job in input_jobs:
@@ -82,6 +84,7 @@ def buildSubmissionDirectory( tag, jdfs_ ):
                 f.write('# %s %s %s\n'%(job.name,inp.name,inp.datasets))
                 f.write('%s: %s\n'%(inp.name,inp.datasets))
                 
+    return (subdir,cwlfile,ymlfile)
         
 def main():
 
