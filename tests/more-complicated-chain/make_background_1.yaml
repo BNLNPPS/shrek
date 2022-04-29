@@ -9,8 +9,8 @@ InputDataSets:
 
 JobCommands: |-
   #
-  echo ${IN[@]}           > opq.root
-  echo ${#IN[@]} ${IN[@]} > xyz.pool
+  echo ${IN1[@]}           > opq.root
+  echo ${#IN1[@]} ${IN1[@]} > xyz.pool
 
 OutputDataSets:
   - name: make_background_1/outDS

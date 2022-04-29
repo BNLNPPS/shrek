@@ -17,5 +17,5 @@ OutputDataSets:
   
 JobCommands: |-
   # Input %IN is mapped onto a bash array
-  echo ${IN[@]} > abc.dat
-  echo 123      > def.zip
+  echo ${IN1[@]} > abc.dat
+  echo 123       > def.zip

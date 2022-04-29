@@ -51,7 +51,10 @@ def buildJobDefinition( yaml_, tag_ ):
         job.localfinish = handler.result('LocalFinalize')
         job.resources   = handler.result('Resources')
 
-        job.name           = job.parameters.name
+        if job.parameters:
+            job.name       = job.parameters.name
+        else:
+            job.name       = "input"    
         job.numInputs      = len( job.inputs )
         job.numSecondaries = len( job.secondaries )
         job.numOutputs     = len( job.outputs )
@@ -73,22 +76,19 @@ def buildJobScript( yaml_, tag_ ):
         # Convention is that the PanDA will pass certain parameters
         # through the command line
         #
-        output +="""
 
-# Script command line parameters
+        arg = 1
 
-#export shrek_job_index=$1
-#if [ "$2" ]; then
-#   export shrek_input_files=( `echo $2 | tr "," " "` )
-#   export shrek_number_input_files=${#shrek_input_files[@]}
-#fi
-#if [ "$3" ]; then
-#   export shrek_secondary_files=( `echo $3 | tr "," " "` )
-#   export shrek_number_secondary_files=${#shrek_input_files[@]}
-#fi
+        # Jobs with parameters will have RNDM%nJobs in their call sequence
+        if hasattr( job.parameters, 'nJobs' ):
+            output += 'export uniqueId = $%i\n'%arg
+            arg = arg + 1
 
-"""
-
+        # Successive arguements will accept inputs
+        for (i,ds) in enumerate(job.inputs):
+            output += "export IN%i_name=%s\n"%(i+1,ds.name)                         
+            output += 'export IN%i = (`echo $%i | tr "," " "`)\n'%(i+1,arg)
+            arg = arg + 1
 
         #
         # Build and output environment block
@@ -97,16 +97,6 @@ def buildJobScript( yaml_, tag_ ):
             if job.parameters.params:
                 output += job.parameters.params + '\n\n'
 
-        #
-        # Data set names
-        #
-        for (i,ds) in enumerate(job.inputs):
-            output += "# Input DS %s [%i/%i]\n"%(ds.name,i+1,len(job.inputs))
-            output += "export inputDS%i_name=%s\n"%(i+1,ds.name) 
-
-        for (i,ds) in enumerate(job.secondaries):
-            output += "# Secondary DS %s [%i/%i]\n"%(ds.name,i+1,len(job.inputs))
-            output += "export secondaryDS%i_name=%s\n"%(i+1,ds.name) 
 
         #
         # Worker node initialization

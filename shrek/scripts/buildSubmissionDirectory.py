@@ -4,6 +4,7 @@ import yaml
 import argparse
 import pydot
 import os
+import stat
 import pathlib
 import shutil
 import glob
@@ -11,6 +12,26 @@ import glob
 from shrek.scripts.buildJobScript import buildJobScript
 from shrek.scripts.buildCommonWorklow import buildCommonWorkflow
 
+def get_umask():
+    umask = os.umask(0)
+    os.umask(umask)
+    return umask
+
+def chmod_plus_x(path):
+    os.chmod(
+        path,
+        os.stat(path).st_mode |
+        (
+            (
+                stat.S_IXUSR |
+                stat.S_IXGRP |
+                stat.S_IXOTH
+            )
+        & ~get_umask()
+        )
+        )
+
+   
 def jobDirectoryName( tag ):
     for i in range(0,20):
         yield "job-submission-%s-%i"%(tag,i)
@@ -36,23 +57,35 @@ def buildSubmissionDirectory( tag, jdfs_ ):
             break
 
     # Build job scripts and stage into directory
+    input_jobs = []
     for jdf in jdfs:
         stem = pathlib.Path(jdf).stem        
         (job, script) = buildJobScript( jdf, tag )
-        name = job.parameters.name
+
+        # A job w/ no name will be treated as pure input
+        if job.parameters:
+            name = job.parameters.name
+        else:
+            input_jobs.append( job )
+            continue
 
         assert(script)
         assert(job)
 
         with open( subdir + '/' + name + '.sh', 'w' ) as f:
-            f.write('# Stage resources into working directory\n')
-            f.write('mv __%s/* .\n'%name)
+            f.write('#!/usr/bin/env bash')
+            if len(job.resources):            
+                f.write('# Stage resources into working directory\n')
+                f.write('mv __%s/* .\n'%name)                        
             f.write(script)
 
+        # Make script executable
+        chmod_plus_x(subdir + '/' + name + '.sh') 
+
+
         # Create a subdirectory for job resources
-        print (job.resources)
         if len(job.resources):
-            
+                        
             jobdir = subdir + '/__' + name
             os.mkdir( jobdir )
 
@@ -65,10 +98,19 @@ def buildSubmissionDirectory( tag, jdfs_ ):
 
     # Build CWL for PanDA submission
     ( cwf, yml ) = buildCommonWorkflow( jdfs, tag )
-    with open( subdir + '/%s-workflow.cwl'%tag, 'w') as f:
+    cwlfile = '%s-workflow.cwl'%tag
+    ymlfile = '%s-input.yaml'%tag    
+    with open( subdir + '/' + cwlfile, 'w') as f:
         f.write( cwf )
-    with open( subdir + '/%s-input.yaml'%tag, 'w') as f:
+    with open( subdir + '/' + ymlfile, 'w') as f:
         f.write( yml )
+        f.write('\n')
+        for job in input_jobs:
+            for inp in job.inputs:
+                f.write('# %s %s %s\n'%(job.name,inp.name,inp.datasets))
+                f.write('%s: %s\n'%(inp.name,inp.datasets))
+                
+    return (subdir,cwlfile,ymlfile)
         
 def main():
 
