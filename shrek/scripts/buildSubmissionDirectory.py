@@ -52,14 +52,13 @@ def buildSubmissionDirectory( tag, jdfs_ ):
         assert(job)
 
         with open( subdir + '/' + name + '.sh', 'w' ) as f:
-            f.write('# Stage resources into working directory\n')
-            f.write('mv __%s/* .\n'%name)
             f.write(script)
 
         # Create a subdirectory for job resources
-        print (job.resources)
         if len(job.resources):
-            
+            f.write('# Stage resources into working directory\n')
+            f.write('mv __%s/* .\n'%name)
+                        
             jobdir = subdir + '/__' + name
             os.mkdir( jobdir )
 
