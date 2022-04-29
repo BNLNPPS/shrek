@@ -47,8 +47,11 @@ def main():
     pchain . append('--cwl %s'%cwlfile )
     pchain . append('--yaml %s'%yamlfile )
 
-    pcheck = pchain
+    pcheck = []
+    for p in pchain: pcheck.append(p)
     pcheck .append ( '--check' )
+
+
 
     # Run pchain with --check option to validate against PanDA prior to submission
     #   output is captured
