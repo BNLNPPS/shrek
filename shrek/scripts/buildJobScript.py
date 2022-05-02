@@ -81,7 +81,7 @@ def buildJobScript( yaml_, tag_ ):
 
         # Jobs with parameters will have RNDM%nJobs in their call sequence
         if hasattr( job.parameters, 'nJobs' ):
-            output += 'export uniqueId = $%i\n'%arg
+            output += 'export uniqueId=$%i\n'%arg
             arg = arg + 1
 
         # Successive arguements will accept inputs
