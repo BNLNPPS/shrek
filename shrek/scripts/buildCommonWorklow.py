@@ -188,7 +188,7 @@ def cwl_opt_args( job ):
             
     return optargs
 
-def cwl_steps( wfgraph ):
+def cwl_steps( wfgraph, site ):
     steps=""
     G = wfgraph.graph
 
@@ -239,7 +239,7 @@ def cwl_steps( wfgraph ):
         optargs = cwl_opt_args(job)
         if len(optargs.strip()) > 0:
             steps += "\n        opt_args:"
-            steps += '\n          default: "%s"' % optargs
+            steps += '\n          default: "%s --site %s --avoidVP "' %(optargs,site)
 
         
         steps += "\n    out: [outDS]" # by convention...
@@ -253,7 +253,7 @@ def cwl_steps( wfgraph ):
 
     
 
-def buildCommonWorkflow( yamllist, tag_ ):
+def buildCommonWorkflow( yamllist, tag_, site ):
 
     wfg = buildWorkflowGraph( yamllist, tag_ )
     wfg.buildEdges()
@@ -265,7 +265,7 @@ def buildCommonWorkflow( yamllist, tag_ ):
     output += cwl_requirements()
     output += cwl_inputs( wfg )
     output += cwl_outputs( wfg )
-    output += cwl_steps( wfg )
+    output += cwl_steps( wfg, site )
 
     yaml = "# dummy yaml file"
 
