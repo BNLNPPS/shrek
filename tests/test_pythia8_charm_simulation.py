@@ -61,4 +61,5 @@ def test_build_the_runtime_script( yaml_ ):
 
 #________________________________________________________________________
 def test_create_the_workflow():
-    buildCommonWorkflow( jobDefinitions, 'sP22aa-TEST' )
+    buildCommonWorkflow( jobDefinitions, 'sP22aa-TEST', "BNL_OSG_SPHENIX" )        
+
