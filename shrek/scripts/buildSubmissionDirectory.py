@@ -38,7 +38,7 @@ def jobDirectoryName( tag ):
     assert( 0 == "Past maximum number of submission directories for single production... clean up please.")
 
 
-def buildSubmissionDirectory( tag, jdfs_ ):
+def buildSubmissionDirectory( tag, jdfs_, site ):
 
     # Make certain we have absolute path to job definition files
     jdfs = []
@@ -73,7 +73,7 @@ def buildSubmissionDirectory( tag, jdfs_ ):
         assert(job)
 
         with open( subdir + '/' + name + '.sh', 'w' ) as f:
-            f.write('#!/usr/bin/env bash')
+            f.write('#!/usr/bin/env bash\n\n')
             if len(job.resources):            
                 f.write('# Stage resources into working directory\n')
                 f.write('mv __%s/* .\n'%name)                        
@@ -97,7 +97,7 @@ def buildSubmissionDirectory( tag, jdfs_ ):
         
 
     # Build CWL for PanDA submission
-    ( cwf, yml ) = buildCommonWorkflow( jdfs, tag )
+    ( cwf, yml ) = buildCommonWorkflow( jdfs, tag, site )
     cwlfile = '%s-workflow.cwl'%tag
     ymlfile = '%s-input.yaml'%tag    
     with open( subdir + '/' + cwlfile, 'w') as f:
