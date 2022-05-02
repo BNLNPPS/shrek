@@ -26,18 +26,17 @@ def main():
     parser.add_argument('--no-submit', dest='submit', action='store_false')
     parser.set_defaults(submit=False)
 
-    parser.add_argument('--vo', type=str, default= os.getenv('PANDA_AUTH_VO'))
+    parser.add_argument('--vo', type=str, default='wlcg')
+    parser.add_argument('--site',type=str, default='BNL_OSG_SPHENIX')
     parser.add_argument('--prodSourceLabel', type=str, default='test')
     parser.add_argument('--workingGroup', type=str,default="sphenix")
     parser.add_argument('--user', type=str,default=getpass.getuser())
 
     args = parser.parse_args()
 
-    (subdir,cwlfile,yamlfile) = buildSubmissionDirectory( args.tag, args.yaml )
+    (subdir,cwlfile,yamlfile) = buildSubmissionDirectory( args.tag, args.yaml, args.site )
 
     pchain = [ "pchain" ]
-
-    #pchain = "cd %s; pchain " % subdir
 
     pchain . append( '--vo %s'%args.vo )
     pchain . append( '--workingGroup %s'%args.workingGroup )
@@ -50,7 +49,6 @@ def main():
     pcheck = []
     for p in pchain: pcheck.append(p)
     pcheck .append ( '--check' )
-
 
 
     # Run pchain with --check option to validate against PanDA prior to submission
