@@ -1,8 +1,6 @@
 Parameters:
   name: top
-  comment: |-
-    Simple chain from panda examples...
-    https://panda-wms.readthedocs.io/en/latest/client/pchain.html#simple-task-chain
+  comment: "Simple chain from panda examples"
   nJobs: 3
 
 OutputDataSets:
@@ -11,5 +9,6 @@ OutputDataSets:
       - "required: seed.txt"
 
 JobCommands: |-
-  echo $1 > seed.txt
+  echo $uniqueId > seed.txt
+  cp seed.txt /sphenix/u/sphnxpro/PanDa/
 

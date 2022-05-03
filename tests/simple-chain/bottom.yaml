@@ -1,7 +1,6 @@
 Parameters:
   name: bottom
-  comment: |-
-    https://panda-wms.readthedocs.io/en/latest/client/pchain.html#more-complicated-chain
+  comment: "Simple example from panda"
 
 InputDataSets:
   - name: top/outDS
@@ -13,3 +12,4 @@ OutputDataSets:
 
 JobCommands: |-
   echo ${IN1[@]} > results.root
+  cp results.root /sphenix/u/sphnxpro/PanDa/
