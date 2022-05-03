@@ -26,6 +26,10 @@ def main():
     parser.add_argument('--no-submit', dest='submit', action='store_false')
     parser.set_defaults(submit=False)
 
+    parser.add_argument('--check',    dest='check', action='store_true')
+    parser.add_argument('--no-check', dest='check', action='store_false')
+    parser.set_defaults(check=True)
+
     parser.add_argument('--vo', type=str, default='wlcg')
     parser.add_argument('--site',type=str, default='BNL_OSG_SPHENIX')
     parser.add_argument('--prodSourceLabel', type=str, default='test')
@@ -54,7 +58,9 @@ def main():
     # Run pchain with --check option to validate against PanDA prior to submission
     #   output is captured
     #   exit code is tested and exception raised if nonzero
-    pcheck_result = subprocess.run( ' '.join(pcheck), shell=True, cwd=os.path.abspath(subdir), capture_output=True, check=False )
+    pcheck_result = ""
+    if args.check:
+        pcheck_result = subprocess.run( ' '.join(pcheck), shell=True, cwd=os.path.abspath(subdir), capture_output=True, check=False )
 
     # We are now ready to submit the job.  First log everything to a tag file...
     # (can be updated to a local DB)
@@ -73,19 +79,38 @@ def main():
         f.write(taguuid)
         f.write('\ncheck:')
         f.write('\n')
-        f.write(str(pcheck_result.stdout))
-        f.write('\n')
-        f.write(str(pcheck_result.stderr))
+        if args.check:
+            f.write(str(pcheck_result.stdout))
+            f.write('\n')
+            f.write(str(pcheck_result.stderr))
+        else:
+            f.write('\n')            
+            f.write('no PanDA validation\n')
+            f.write('\n')            
+
+    if args.check:
+        if pcheck_result.returncode != 0:
+            print("PanDA did not validate the workflow.  Submission canceled.")
+            return
 
     pchain_result = None
-    if args.submit and pcheck_result.returncode==0:
+    if args.submit:
         pchain_result = subprocess.run( ' '.join(pchain), shell=True, cwd=os.path.abspath(subdir), capture_output=True, check=False )
+        utcnow = str(datetime.datetime.utcnow())
         with open( subdir + '/' + taguuid, 'a' ) as f:
             f.write('\nsubmit:')
+            f.write('\n'+utcnow)
             f.write('\n')
             f.write(str(pchain_result.stdout))
             f.write('\n')
             f.write(str(pchain_result.stderr))
+        print('Job submitted at '+utcnow+' UTC')
+
+    else:
+        print('To submit by hand:')
+        print('  cd %s'%subdir )
+        print('  %s'% ' '.join(pchain) )
+        
         
 
     
