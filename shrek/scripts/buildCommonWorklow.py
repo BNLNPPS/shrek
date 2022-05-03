@@ -239,7 +239,7 @@ def cwl_steps( wfgraph, site ):
         optargs = cwl_opt_args(job)
         if len(optargs.strip()) > 0:
             steps += "\n        opt_args:"
-            steps += '\n          default: "%s --site %s --avoidVP "' %(optargs,site)
+            steps += '\n          default: "%s --site %s --avoidVP --noBuild "' %(optargs,site)
 
         
         steps += "\n    out: [outDS]" # by convention...
