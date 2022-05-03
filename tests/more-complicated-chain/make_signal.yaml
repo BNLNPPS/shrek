@@ -1,7 +1,6 @@
 Parameters:
   name: make_signal
-  comment: |-
-    https://panda-wms.readthedocs.io/en/latest/client/pchain.html#more-complicated-chain
+  comment: more complicated chain
   nFilesPerJob: 5
 
 InputDataSets:
@@ -9,8 +8,7 @@ InputDataSets:
 
 OutputDataSets:
   - name: make_signal/outDS
-    comment: |-
-      Output DS yields two required files...
+    comment: Output DS yields two required files
     filelist:
       - "required: abc.dat"
       - "required: def.zip"

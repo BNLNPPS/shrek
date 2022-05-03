@@ -1,7 +1,7 @@
 Parameters:
   name: pre_mix
-  comment: |-
-    https://panda-wms.readthedocs.io/en/latest/client/pchain.html#more-complicated-chain
+  comment: more complicated chain
+
 
 InputDataSets:
   - name: make_signal/outDS
