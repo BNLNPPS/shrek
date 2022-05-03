@@ -87,7 +87,7 @@ def buildJobScript( yaml_, tag_ ):
         # Successive arguements will accept inputs
         for (i,ds) in enumerate(job.inputs):
             output += "export IN%i_name=%s\n"%(i+1,ds.name)                         
-            output += 'export IN%i = (`echo $%i | tr "," " "`)\n'%(i+1,arg)
+            output += 'export IN%i=(`echo $%i | tr "," " "`)\n'%(i+1,arg)
             arg = arg + 1
 
         #
