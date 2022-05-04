@@ -76,7 +76,7 @@ def buildSubmissionDirectory( tag, jdfs_, site ):
             f.write('#!/usr/bin/env bash\n\n')
             if len(job.resources):            
                 f.write('# Stage resources into working directory\n')
-                f.write('mv __%s/* .\n'%name)                        
+                f.write('cp -R __%s/* .\n'%name)                        
             f.write(script)
 
         # Make script executable
