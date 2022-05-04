@@ -232,8 +232,9 @@ def cwl_steps( wfgraph, site ):
         steps += "\n        opt_exec:"
         steps += '\n          default: "%s.sh ' % ( job.name )
         njobs = getattr(job.parameters,'nJobs',None)
-        if njobs:
-            steps += " %%RNDM:1" # Jobs uniquely defined starting with job ID=1
+
+        # Jobs uniquely defined starting with job ID=1
+        steps += " %RNDM:1" 
 
         for (i,IN) in enumerate(job.inputs):
             if i==0: steps += " %IN"
