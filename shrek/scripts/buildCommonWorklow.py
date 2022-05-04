@@ -57,7 +57,6 @@ def buildListOfWorkflowInputJobs( G ):
     injobs = []
     for n in G:
         np = numberOfPredecessors(n,G)
-        #print(str(n)+" "+str(np))
         if np==0:
             name = str(n)
             injobs.append( str(n) )
@@ -164,10 +163,14 @@ def cwl_opt_args( job ):
         for f in output.filelist:
             (opt,out) = f.split(':')
             out = out.strip()
-            outputs.append(out)               
+            outputs.append(out)
 
     if len(outputs)>0:
         optargs += ' --outputs ' + ','.join(outputs) + ' '
+    else:
+        print('SHREK[warning]: '+ job.name+' ill-defined no output files specified')
+        print('SHREK[warning]: this will likely cause problems, but continuing ...')
+
 
     # From input (secondary) data sets
     inputs = []
