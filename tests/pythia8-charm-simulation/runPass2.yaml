@@ -1,31 +1,18 @@
 Parameters:
   name: Pythia8CharmPileup
   build: mdc2.8
-  comment: |-
-    This is a test job definition
+  comment: This is a test job definition
   macro: Fun4All_G4_pileup_pp.C
   flavor: Charm  
   nEvents: 100
  
 InputDataSets:
-
   - name: Pythia8CharmG4Hits
-    comment: |-
-      Primary input from the runPass1.yaml file
-
-SecondaryDataSets:
-
-  - name: Pythia8MinbiasG4Hits
-    comment: |-
-      Background events that are prestaged
+    comment:  Primary input from the runPass1.yaml file
 
 OutputDataSets:
   - name: Pythia8CharmPileupG4Hits
-    comment: |-
-       Charm events plus minbias pileup
-
-Initialize: |-
-  # ...
+    comment: Charm events plus minbias pileup
 
 JobCommands: |-
   # Initialize sPHENIX software environment
@@ -35,20 +22,12 @@ JobCommands: |-
   mcin=${IN1[0]}
   echo Signal: $mcin
 
-  # Build background list
-  for b in "${IN2[@]}"
-  do
-     echo $b >> background.list
-     echo Background: $b
-  done
+  mv condor_Charm_3MHz-0000000004-00000.bkglist background.list
 
   root.exe -q -b ${macro}\(${nEvents},\"${mcin}\",\"background.list\",\".\",\"${flavor}\"\)
 
 
 
-Finalize: |-
-  # ...
-
-
 Resources:
   - file: ../MDC2/submit/HF_pp200_signal/pass2/rundir/*
+  - file: /sphenix/sim/sim01/sphnxpro/MDC2/HF_pp200_signal/PileUp/log/condor_Charm_3MHz-0000000004-00000.bkglist
