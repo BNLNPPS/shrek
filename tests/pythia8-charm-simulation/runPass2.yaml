@@ -7,12 +7,14 @@ Parameters:
   nEvents: 100
  
 InputDataSets:
-  - name: Pythia8CharmG4Hits
+  - name: Pythia8CharmSimulation/outDS
     comment:  Primary input from the runPass1.yaml file
 
 OutputDataSets:
-  - name: Pythia8CharmPileupG4Hits
+  - name: Pythia8CharmPileup/outDS
     comment: Charm events plus minbias pileup
+    filelist:
+    - "required:*.root"
 
 JobCommands: |-
   # Initialize sPHENIX software environment
