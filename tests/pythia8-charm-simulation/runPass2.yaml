@@ -26,8 +26,13 @@ JobCommands: |-
 
   mv condor_Charm_3MHz-0000000004-00000.bkglist background.list
 
-  root.exe -q -b ${macro}\(${nEvents},\"${mcin}\",\"background.list\",\".\",\"${flavor}\"\)
+  echo Signal: ${IN1[@]} > /sphenix/u/sphnxpro/PanDa/runPass2-${uniqueId}.input
+ 
+  root.exe -q -b ${macro}\(${nEvents},\"${mcin}\",\"background.list\",\".\",\"${flavor}\"\) >& runPass2-${uniqueId}.fun
 
+  printenv  >  /sphenix/u/sphnxpro/PanDa/runPass2-${uniqueId}.env
+  ls *.root >  /sphenix/u/sphnxpro/PanDa/runPass2-${uniqueId}.outputs
+  cp runPass1-${uniqueId}.fun /sphenix/u/sphnxpro/PanDa/
 
 
 Resources:
