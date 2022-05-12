@@ -171,6 +171,8 @@ def cwl_opt_args( job ):
             out = out.strip()
             outputs.append(out)
 
+    print(outputs)
+
     if len(outputs)>0:
         optargs += ' --outputs ' + ','.join(outputs) + ' '
     else:
@@ -193,7 +195,7 @@ def cwl_opt_args( job ):
         inputs.append( INn + ':' + str(nfpj) + ':' + DSn )
 
     if len(inputs)>0:
-        optargs = ' --secondaryDSs ' + ','.join(inputs)
+        optargs += ' --secondaryDSs ' + ','.join(inputs)
             
     return optargs
 
