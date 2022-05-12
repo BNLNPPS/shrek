@@ -91,9 +91,11 @@ def buildSubmissionDirectory( tag, jdfs_, site ):
 
             for r in job.resources:
                 if r.type=='file':
-                    print("copy %s --> %s"%(r.url,jobdir))
+                    print("link %s --> %s"%(r.url,jobdir))
                     for f in glob.glob(r.url):
-                        shutil.copy( f, jobdir )
+                        #shutil.copy( f, jobdir )
+                        head,tail = os.path.split( f )
+                        os.symlink( os.path.abspath(f), jobdir + '/' + tail )
         
 
     # Build CWL for PanDA submission
