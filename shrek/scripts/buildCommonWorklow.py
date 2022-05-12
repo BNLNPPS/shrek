@@ -151,11 +151,17 @@ def cwl_opt_args( job ):
     optargs = ""
 
     # From job parameters...
-    params = job.parameters    
-    for par in [ "nJobs", "nFilesPerJob", "nGBPerJob" ]:
-        val = getattr(params,par,None)
+    params = job.parameters
+    hasMaxAttempt = False
+    for par in [ "nJobs", "nFilesPerJob", "nGBPerJob", "maxAttempt" ]:
+        val = getattr(params,par,None)        
         if val:
+            if par=='maxAttempt': hasMaxAttempt = True
             optargs += ' --%s %s '%( par, str(val))
+
+    # Override annoying PanDA default...
+    if hasMaxAttempt == False:
+        optargs += ' --maxAttempt 1 '
 
     # From output filelist
     outputs = []
