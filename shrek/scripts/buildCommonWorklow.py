@@ -171,8 +171,6 @@ def cwl_opt_args( job ):
             out = out.strip()
             outputs.append(out)
 
-    print(outputs)
-
     if len(outputs)>0:
         optargs += ' --outputs ' + ','.join(outputs) + ' '
     else:
