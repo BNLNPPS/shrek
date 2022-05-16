@@ -197,7 +197,7 @@ def cwl_opt_args( job ):
             
     return optargs
 
-def cwl_steps( wfgraph, site ):
+def cwl_steps( wfgraph, site, args ):
     steps=""
     G = wfgraph.graph
 
@@ -264,7 +264,7 @@ def cwl_steps( wfgraph, site ):
 
     
 
-def buildCommonWorkflow( yamllist, tag_, site ):
+def buildCommonWorkflow( yamllist, tag_, site, args ):
 
     wfg = buildWorkflowGraph( yamllist, tag_ )
     wfg.buildEdges()
@@ -276,7 +276,7 @@ def buildCommonWorkflow( yamllist, tag_, site ):
     output += cwl_requirements()
     output += cwl_inputs( wfg )
     output += cwl_outputs( wfg )
-    output += cwl_steps( wfg, site )
+    output += cwl_steps( wfg, site, args )
 
     yaml = "# dummy yaml file"
 

@@ -47,7 +47,7 @@ def main():
         client = panda_api.get_api()
         client.hello()
 
-    (subdir,cwlfile,yamlfile) = buildSubmissionDirectory( args.tag, args.yaml, args.site )
+    (subdir,cwlfile,yamlfile) = buildSubmissionDirectory( args.tag, args.yaml, args.site, args )
 
     pchain = [ "pchain" ]
 

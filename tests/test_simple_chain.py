@@ -14,7 +14,7 @@ def commonWorkflow():
         "tests/simple-chain/bottom.yaml"
         ]
 
-    return buildCommonWorkflow( yamls, "sP-TEST", "BNL_OSG_SPHENIX" )    
+    return buildCommonWorkflow( yamls, "sP-TEST", "BNL_OSG_SPHENIX", None )    
 
 #________________________________________________________________________
 

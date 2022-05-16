@@ -23,7 +23,7 @@ def commonWorkflow():
         "tests/more-complicated-chain/pre_mix.yaml"
         ]
 
-    return buildCommonWorkflow( yamls, "sP-TEST", "BNL_OSG_SPHENIX" )    
+    return buildCommonWorkflow( yamls, "sP-TEST", "BNL_OSG_SPHENIX", None )    
 
 #________________________________________________________________________
 
@@ -61,5 +61,5 @@ def test_build_the_runtime_script( yaml_ ):
 
 #________________________________________________________________________
 def test_create_the_workflow():
-    buildCommonWorkflow( jobDefinitions, 'sP22aa-TEST', "BNL_OSG_SPHENIX" )        
+    commonWorkflow()
 
