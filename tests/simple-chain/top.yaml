@@ -10,5 +10,5 @@ OutputDataSets:
 
 JobCommands: |-
   echo $uniqueId > seed.txt
-  cp seed.txt /sphenix/u/sphnxpro/PanDa/
+  cp seed.txt /sphenix/u/sphnxpro/shrek/seed-${uniqueId}.txt
 
