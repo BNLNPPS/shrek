@@ -28,7 +28,11 @@ def main():
 
     parser.add_argument('--check',    dest='check', action='store_true')
     parser.add_argument('--no-check', dest='check', action='store_false')
-    parser.set_defaults(check=True)
+    parser.set_defaults(check=True)    
+    parser.add_argument('--handshake',    dest='handshake', action='store_true')
+    parser.add_argument('--no-handshake', dest='handshake', action='store_false')
+    parser.set_defaults(handshake=True)    
+
 
     parser.add_argument('--vo', type=str, default='wlcg')
     parser.add_argument('--site',type=str, default='BNL_OSG_SPHENIX')
@@ -37,6 +41,11 @@ def main():
     parser.add_argument('--user', type=str,default=getpass.getuser())
 
     args = parser.parse_args()
+
+    if args.handshake == True:
+        from pandaclient import panda_api
+        client = panda_api.get_api()
+        client.hello()
 
     (subdir,cwlfile,yamlfile) = buildSubmissionDirectory( args.tag, args.yaml, args.site )
 
