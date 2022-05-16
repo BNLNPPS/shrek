@@ -240,7 +240,7 @@ def cwl_steps( wfgraph, site ):
         njobs = getattr(job.parameters,'nJobs',None)
 
         # Jobs uniquely defined starting with job ID=1
-        steps += " %RNDM:1" 
+        steps += " %RNDM:0" 
 
         for (i,IN) in enumerate(job.inputs):
             if i==0: steps += " %IN"
