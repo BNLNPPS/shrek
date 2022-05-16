@@ -14,7 +14,7 @@ class InputDS:
 def buildInputList( key, dslist ):
     myinputs = []
     for ds in dslist:
-        i = InputDS()
+        i = InputDS()        
         for (k,v) in ds.items():
             if k=='name': i.name = v
             if k=='datasets': i.datasets = v
@@ -27,4 +27,10 @@ def buildInputList( key, dslist ):
             if k=='local': i.local = v
             if k=='localFiles': i.localFiles = v
         myinputs.append(i)
+        # Check requirements
+        if i.name == None:
+            print("Dataset with unspecified name")
+            assert(0)
+        if i.match == None:
+            print("Dataset %s mush specify matching files"%i.name)            
     return myinputs
