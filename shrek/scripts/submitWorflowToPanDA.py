@@ -19,13 +19,17 @@ from shrek.scripts.buildSubmissionDirectory import buildSubmissionDirectory
 def main():
 
     parser = argparse.ArgumentParser(description='Build job submission area')
-    parser.add_argument('yaml', metavar='YAML', type=str, nargs="+",
-                                        help='input filename')
+    parser.add_argument('yaml', metavar='YAML', type=str, nargs="+",help='input filename')
+
+    # 
     parser.add_argument('--tag',  type=str, help='production tag' )
+    parser.add_argument('--offset', type=int, dest='offset', help='job unique id offset')
+    parser.set_defaults(offset=0)
+
+    # 
     parser.add_argument('--submit',    dest='submit', action='store_true')
     parser.add_argument('--no-submit', dest='submit', action='store_false')
     parser.set_defaults(submit=False)
-
     parser.add_argument('--check',    dest='check', action='store_true')
     parser.add_argument('--no-check', dest='check', action='store_false')
     parser.set_defaults(check=True)    
@@ -33,7 +37,7 @@ def main():
     parser.add_argument('--no-handshake', dest='handshake', action='store_false')
     parser.set_defaults(handshake=True)    
 
-
+    #
     parser.add_argument('--vo', type=str, default='wlcg')
     parser.add_argument('--site',type=str, default='BNL_OSG_SPHENIX')
     parser.add_argument('--prodSourceLabel', type=str, default='test')

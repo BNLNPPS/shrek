@@ -18,7 +18,13 @@ def commonWorkflow():
         "tests/more-complicated-chain/pre_mix.yaml"
         ]
 
-    return buildCommonWorkflow( yamls, "sP-TEST", "BNL_OSG_SPHENIX", None )    
+    class Args:
+        offset = 0
+        site = "BNL_OSG_SPHENIX"
+        tag  = "sP-MORE-COMPLICATED-CHAIN-TEST"
+    args = Args()        
+
+    return buildCommonWorkflow( yamls, args.tag, args.site, args )    
 
 #________________________________________________________________________
 
