@@ -190,12 +190,16 @@ def cwl_opt_args( job ):
         nfpj = inp.nFilesPerJob
         # Handle principle (input) data set
         if count==1:
+            optargs += ' --forceStaged '
             if nfpj:
                 optargs += ' --nFilesPerJob='+str(nfpj)
             continue
+
+        # Secondaries only from this point...
         if nfpj == None:
             nfpj = 1
         inputs.append( INn + ':' + str(nfpj) + ':' + DSn )
+        optargs += ' --forceStagedSecondary '        
 
     if len(inputs)>0:
         optargs += ' --secondaryDSs ' + ','.join(inputs)
