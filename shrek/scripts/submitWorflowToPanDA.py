@@ -123,6 +123,11 @@ def main():
         print('To submit by hand:')
         print('  cd %s'%subdir )
         print('  %s'% ' '.join(pchain) )
+
+        with open( '%s/submit'%subdir, 'w' ) as doit:
+            doit.write( '#!/usr/bin/env bash\n')
+            doit.write( '%s\n'% ' '.join(pchain) )
+            
         
         
 
