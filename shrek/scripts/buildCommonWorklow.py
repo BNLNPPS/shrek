@@ -152,9 +152,10 @@ def cwl_opt_args( job ):
 
     # From job parameters...
     params = job.parameters
+    
     hasMaxAttempt = False
     for par in [ "nJobs", "nFilesPerJob", "nGBPerJob", "maxAttempt" ]:
-        val = getattr(params,par,None)        
+        val = getattr(params,par,None)
         if val:
             if par=='maxAttempt': hasMaxAttempt = True
             optargs += ' --%s %s '%( par, str(val))
@@ -184,10 +185,14 @@ def cwl_opt_args( job ):
     for inp in job.inputs:
         DSn = '%{DS' + str(count) + '}'
         count += 1
-        INn = '%IN' + str(count)
-        if count==1: continue # Skip the principle dataset 
-        name = inp.name
+        INn = 'IN' + str(count)
+        name = inp.name        
         nfpj = inp.nFilesPerJob
+        # Handle principle (input) data set
+        if count==1:
+            if nfpj:
+                optargs += ' --nFilesPerJob='+str(nfpj)
+            continue
         if nfpj == None:
             nfpj = 1
         inputs.append( INn + ':' + str(nfpj) + ':' + DSn )
