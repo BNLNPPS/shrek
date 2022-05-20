@@ -253,7 +253,7 @@ def cwl_steps( wfgraph, site, args ):
 
         # Exec block
         steps += "\n        opt_exec:"
-        steps += '\n          default: "%s.sh ' % ( job.name )
+        steps += '\n          default: "%s.sh >& _%s.log' % ( job.name, job.name )
         njobs = getattr(job.parameters,'nJobs',None)
 
         # Jobs have a unique identifier (starting at 1)
