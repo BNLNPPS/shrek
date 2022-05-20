@@ -182,6 +182,8 @@ def cwl_opt_args( job ):
     # From input (secondary) data sets
     inputs = []
     count = 0
+    hasInput = False
+    hasSecondary = False
     for inp in job.inputs:
         DSn = '%{DS' + str(count) + '}'
         count += 1
@@ -190,20 +192,26 @@ def cwl_opt_args( job ):
         nfpj = inp.nFilesPerJob
         # Handle principle (input) data set
         if count==1:
-            optargs += ' --forceStaged '
+            hasInput = True
             if nfpj:
                 optargs += ' --nFilesPerJob='+str(nfpj)
             continue
 
         # Secondaries only from this point...
+        hasSecondary = True
         if nfpj == None:
             nfpj = 1
         inputs.append( INn + ':' + str(nfpj) + ':' + DSn )
-        optargs += ' --forceStagedSecondary '        
 
     if len(inputs)>0:
         optargs += ' --secondaryDSs ' + ','.join(inputs)
-            
+
+    if hasInput:
+        optargs += ' --forceStaged '                
+
+    if hasSecondary:
+        optargs += ' --forceStagedSecondary '                
+        
     return optargs
 
 def cwl_steps( wfgraph, site, args ):
