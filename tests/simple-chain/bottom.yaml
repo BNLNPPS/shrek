@@ -5,6 +5,7 @@ Parameters:
 InputDataSets:
   - name: top/outDS
     nFilesPerJob: 1
+    match: seed.txt
 
 OutputDataSets:
   - name: bottom/outDS
