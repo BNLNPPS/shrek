@@ -20,10 +20,12 @@ def main():
 
     # Default configuration options
     defaults = {}
-    pandaOpts = {}
+    shrekOpts = {}
+    pandaOpts = {}    
     with open("shrek/config/site.yaml", "r") as stream:
         try:
             defaults = yaml.safe_load(stream)
+            shrekOpts = defaults['Shrek']
             pandaOpts = defaults['PanDA']
             print(pandaOpts)
         except yaml.YAMLError as exc:
@@ -64,7 +66,7 @@ def main():
         client = panda_api.get_api()
         client.hello()
 
-    (subdir,cwlfile,yamlfile) = buildSubmissionDirectory( args.tag, args.yaml, args.site, args )
+    (subdir,cwlfile,yamlfile) = buildSubmissionDirectory( args.tag, args.yaml, args.site, args, shrekOpts )
 
     pchain = [ "pchain" ]
 

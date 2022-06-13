@@ -38,7 +38,7 @@ def jobDirectoryName( tag, limit=20 ):
     assert( 0 == "Past maximum number of submission directories for single production... clean up please.")
 
 
-def buildSubmissionDirectory( tag, jdfs_, site, args ):
+def buildSubmissionDirectory( tag, jdfs_, site, args, opts ):
 
     # Make certain we have absolute path to job definition files
     jdfs = []
@@ -47,7 +47,7 @@ def buildSubmissionDirectory( tag, jdfs_, site, args ):
 
     # 
     subdir = ""
-    for s in jobDirectoryName( tag ):
+    for s in jobDirectoryName( tag, limit=opts['maxSubmit'] ):
         if os.path.exists( s ):
             print('[Skip existing submission directory %s]'%s)
         else:
