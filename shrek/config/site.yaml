@@ -1,0 +1,5 @@
+PanDA:
+  vo: wlcg
+  site: BNL_OSG_SPHENIX
+  prodSourceLabel: test
+  workingGroup: sphenix
