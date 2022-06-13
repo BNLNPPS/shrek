@@ -32,8 +32,8 @@ def chmod_plus_x(path):
         )
 
    
-def jobDirectoryName( tag ):
-    for i in range(0,20):
+def jobDirectoryName( tag, limit=20 ):
+    for i in range(0,limit):
         yield ".shrek-submit-%s-%i"%(tag,i)
     assert( 0 == "Past maximum number of submission directories for single production... clean up please.")
 
