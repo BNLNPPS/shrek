@@ -18,6 +18,21 @@ from shrek.scripts.buildSubmissionDirectory import buildSubmissionDirectory
 
 def main():
 
+    # Default configuration options
+    defaults = {}
+    shrekOpts = {}
+    pandaOpts = {}    
+    with open("shrek/config/site.yaml", "r") as stream:
+        try:
+            defaults = yaml.safe_load(stream)
+            shrekOpts = defaults['Shrek']
+            pandaOpts = defaults['PanDA']
+            print(pandaOpts)
+        except yaml.YAMLError as exc:
+            print(exc)
+                                    
+
+    #
     parser = argparse.ArgumentParser(description='Build job submission area')
     parser.add_argument('yaml', metavar='YAML', type=str, nargs="+",help='input filename')
 
@@ -38,11 +53,11 @@ def main():
     parser.set_defaults(handshake=True)    
 
     #
-    parser.add_argument('--vo', type=str, default='wlcg')
-    parser.add_argument('--site',type=str, default='BNL_OSG_SPHENIX')
-    parser.add_argument('--prodSourceLabel', type=str, default='test')
-    parser.add_argument('--workingGroup', type=str,default="sphenix")
-    parser.add_argument('--user', type=str,default=getpass.getuser())
+    parser.add_argument('--vo', type=str,              default=pandaOpts['vo'])
+    parser.add_argument('--site',type=str,             default=pandaOpts['site'])
+    parser.add_argument('--prodSourceLabel', type=str, default=pandaOpts['prodSourceLabel'])
+    parser.add_argument('--workingGroup', type=str,    default=pandaOpts['workingGroup'])
+    parser.add_argument('--user', type=str,            default=getpass.getuser())
 
     args = parser.parse_args()
 
@@ -51,7 +66,7 @@ def main():
         client = panda_api.get_api()
         client.hello()
 
-    (subdir,cwlfile,yamlfile) = buildSubmissionDirectory( args.tag, args.yaml, args.site, args )
+    (subdir,cwlfile,yamlfile) = buildSubmissionDirectory( args.tag, args.yaml, args.site, args, shrekOpts )
 
     pchain = [ "pchain" ]
 
@@ -127,11 +142,6 @@ def main():
         with open( '%s/submit'%subdir, 'w' ) as doit:
             doit.write( '#!/usr/bin/env bash\n')
             doit.write( '%s\n'% ' '.join(pchain) )
-            
-        
-        
-
-    
 
 if __name__ == '__main__':
     main()
