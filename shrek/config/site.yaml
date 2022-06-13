@@ -1,5 +1,6 @@
 Shrek:
   maxSubmit: 1000
+  submissionPrefix: ./submit/
 
 PanDA:
   vo: wlcg

@@ -32,9 +32,16 @@ def chmod_plus_x(path):
         )
 
    
-def jobDirectoryName( tag, limit=20 ):
+def jobDirectoryName( tag, opts ):
+    limit  = opts['maxSubmit']
+    prefix = opts['submissionPrefix']
+    # Make sure the prefix directory exists
+    if ( not os.path.exists( prefix ) ):
+        os.mkdir( prefix )
+    #
     for i in range(0,limit):
-        yield ".shrek-submit-%s-%i"%(tag,i)
+        yield "%s/%s-revision-%i"%(prefix,tag,i)
+
     assert( 0 == "Past maximum number of submission directories for single production... clean up please.")
 
 
@@ -47,7 +54,7 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts ):
 
     # 
     subdir = ""
-    for s in jobDirectoryName( tag, limit=opts['maxSubmit'] ):
+    for s in jobDirectoryName( tag, opts ):
         if os.path.exists( s ):
             print('[Skip existing submission directory %s]'%s)
         else:
