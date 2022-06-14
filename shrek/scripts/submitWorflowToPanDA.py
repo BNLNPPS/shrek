@@ -150,7 +150,7 @@ def main():
             print("WARN: git commit duplicate code?")
 
         sh.git.tag    ( '-a','-m "%s"'%message, '%s'%taguuid, _cwd=subdir )
-        sh.git.push   ( 'origin',                         _cwd=subdir )            
+        sh.git.push   (                                       _cwd=subdir )            
 
 
     else:
