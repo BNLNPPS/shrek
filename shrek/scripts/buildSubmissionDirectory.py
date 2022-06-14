@@ -124,7 +124,12 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts ):
     # Add all artefacts to the git repo
     message = '[Shrek submission tag %s]'%tag
     sh.git.add    ( '*', _cwd=subdir )
-    sh.git.commit ( '-m %s'%message,     _cwd=subdir )
+    try:
+        sh.git.commit ( '-m %s'%message,     _cwd=subdir )
+    except sh.ErrorReturnCode_1:
+        print("WARN: probably trying to submit duplicate code")
+    except sh.ErrorReturnCode:
+        print("WARN: unknown error during git commit ")
                 
     return (subdir,cwlfile,ymlfile)
         

@@ -10,7 +10,8 @@ import glob
 import getpass
 import uuid
 import datetime
-import subprocess
+import subprocess # TODO refactor subprocess --> sh
+import sh
 
 from shrek.scripts.buildJobScript import buildJobScript
 from shrek.scripts.buildCommonWorklow import buildCommonWorkflow
@@ -30,8 +31,7 @@ def main():
             print(pandaOpts)
         except yaml.YAMLError as exc:
             print(exc)
-                                    
-
+                                   
     #
     parser = argparse.ArgumentParser(description='Build job submission area')
     parser.add_argument('yaml', metavar='YAML', type=str, nargs="+",help='input filename')
@@ -121,6 +121,9 @@ def main():
             print("PanDA did not validate the workflow.  Submission canceled.")
             return
 
+    #
+    # Submit job to PanDA
+    #
     pchain_result = None
     if args.submit:
         pchain_result = subprocess.run( ' '.join(pchain), shell=True, cwd=os.path.abspath(subdir), capture_output=True, check=False )
@@ -132,7 +135,23 @@ def main():
             f.write(str(pchain_result.stdout))
             f.write('\n')
             f.write(str(pchain_result.stderr))
-        print('Job submitted at '+utcnow+' UTC')
+        #print('[Job submitted at '+utcnow+' UTC]')
+
+        message='[Shrek submission %s %s UTC]'%(taguuid,utcnow)
+        print(message)
+
+        # Make sure all artefacts were committed and push (will require git auth)
+        sh.git.add    ( '*',                              _cwd=subdir )
+        try:
+            sh.git.commit ( '-m %s'%message,                  _cwd=subdir )
+        except sh.ErrorReturnCode_1:
+            print("WARN: git commit duplicate code?")
+        except sh.ErrorReturnCode:
+            print("WARN: git commit duplicate code?")
+
+        sh.git.tag    ( '-a','-m "%s"'%message, '%s'%taguuid, _cwd=subdir )
+        sh.git.push   ( 'origin',                         _cwd=subdir )            
+
 
     else:
         print('To submit by hand:')
