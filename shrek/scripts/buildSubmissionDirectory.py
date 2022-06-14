@@ -8,6 +8,7 @@ import stat
 import pathlib
 import shutil
 import glob
+import sh
 
 from shrek.scripts.buildJobScript import buildJobScript
 from shrek.scripts.buildCommonWorklow import buildCommonWorkflow
@@ -38,12 +39,11 @@ def jobDirectoryName( tag, opts ):
     # Make sure the prefix directory exists
     if ( not os.path.exists( prefix ) ):
         os.mkdir( prefix )
-    #
-    for i in range(0,limit):
-        yield "%s/%s-revision-%i"%(prefix,tag,i)
 
-    assert( 0 == "Past maximum number of submission directories for single production... clean up please.")
+    # Submission directory
+    subdir = "%s/%s"%(prefix,tag)
 
+    yield subdir
 
 def buildSubmissionDirectory( tag, jdfs_, site, args, opts ):
 
@@ -55,13 +55,15 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts ):
     # 
     subdir = ""
     for s in jobDirectoryName( tag, opts ):
+
         if os.path.exists( s ):
-            print('[Skip existing submission directory %s]'%s)
-        else:
-            subdir = s            
-            os.mkdir( subdir )
-            print('[PanDA submission directory created %s]'%s)            
-            break
+            print('[Existing submission directory %s is cleared]'%s)
+            shutil.rmtree( s )
+                
+        subdir = s            
+        os.mkdir( subdir )
+        print('[PanDA submission directory %s]'%s)            
+        break
 
     # Build job scripts and stage into directory
     input_jobs = []
@@ -118,6 +120,11 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts ):
             for inp in job.inputs:
                 f.write('# %s %s %s\n'%(job.name,inp.name,inp.datasets))
                 f.write('%s: %s\n'%(inp.name,inp.datasets))
+
+    # Add all artefacts to the git repo
+    message = '[Shrek submission tag %s]'%tag
+    sh.git.add    ( '*', _cwd=subdir )
+    sh.git.commit ( '-m %s'%message,     _cwd=subdir )
                 
     return (subdir,cwlfile,ymlfile)
         

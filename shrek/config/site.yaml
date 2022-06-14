@@ -1,6 +1,6 @@
 Shrek:
   maxSubmit: 1000
-  submissionPrefix: ./submit/
+  submissionPrefix: ../sPHENIX-test-production/
 
 PanDA:
   vo: wlcg
