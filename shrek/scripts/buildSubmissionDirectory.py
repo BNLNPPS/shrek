@@ -9,6 +9,7 @@ import pathlib
 import shutil
 import glob
 import sh
+import networkx as nx
 
 from shrek.scripts.buildJobScript import buildJobScript
 from shrek.scripts.buildCommonWorklow import buildCommonWorkflow
@@ -52,7 +53,6 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts ):
     for jdf in jdfs_:
         jdfs.append( os.path.abspath( jdf ) )
 
-
     # 
     subdir = ""
     for s in jobDirectoryName( tag, opts ):
@@ -73,6 +73,7 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts ):
 
     # Build job scripts and stage into directory
     input_jobs = []
+    job_scripts = []
     for jdf in jdfs:
         stem = pathlib.Path(jdf).stem        
         (job, script) = buildJobScript( jdf, tag )
@@ -87,6 +88,8 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts ):
         assert(script)
         assert(job)
 
+        job_scripts.append( name + ".sh" )
+
         with open( subdir + '/' + name + '.sh', 'w' ) as f:
             f.write('#!/usr/bin/env bash\n\n')
             if len(job.resources):            
@@ -99,6 +102,7 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts ):
 
 
         # Create a subdirectory for job resources
+        job_resources = []
         if len(job.resources):
                         
             jobdir = subdir + '/__' + name
@@ -108,17 +112,20 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts ):
                 if r.type=='file':
                     print("link %s --> %s"%(r.url,jobdir))
                     for f in glob.glob(r.url):
-                        #shutil.copy( f, jobdir )
                         head,tail = os.path.split( f )
                         os.symlink( os.path.abspath(f), jobdir + '/' + tail )
+
+                        job_resources.append( os.path.abspath(f) )
         
 
     # Build CWL for PanDA submission
-    ( cwf, yml ) = buildCommonWorkflow( jdfs, tag, site, args )
+    ( cwf, yml, dgr ) = buildCommonWorkflow( jdfs, tag, site, args )
     cwlfile = '%s-workflow.cwl'%tag
-    ymlfile = '%s-input.yaml'%tag    
+    ymlfile = '%s-input.yaml'%tag
+    # Output common workflow
     with open( subdir + '/' + cwlfile, 'w') as f:
         f.write( cwf )
+    # Output inputs into the yaml file
     with open( subdir + '/' + ymlfile, 'w') as f:
         f.write( yml )
         f.write('\n')
@@ -126,6 +133,13 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts ):
             for inp in job.inputs:
                 f.write('# %s %s %s\n'%(job.name,inp.name,inp.datasets))
                 f.write('%s: %s\n'%(inp.name,inp.datasets))
+
+
+    # Create PNG from the digraph and store in the staging area along
+    # with a markdown file for display purposes
+    if dgr:
+        dot = nx.drawing.nx_pydot.to_pydot(dgr)
+        dot.write_png( "%s/workflow.png"%subdir )
 
     # Add all artefacts to the git repo
     message = '[Shrek submission tag %s]'%tag
@@ -136,6 +150,25 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts ):
         print("WARN: probably trying to submit duplicate code")
     except sh.ErrorReturnCode:
         print("WARN: unknown error during git commit ")
+
+
+    # Markdown documentation for this job...
+    with open("%s/README.md"%subdir,"w") as md:
+        md.write( "## SHREK Inputs\n")
+        for j in jdfs:
+            md.write( "- %s\n"%j )
+        md.write("## Generated scripts\n") # ... unclear input job vs normal ...
+        for s in job_scripts:
+            md.write("- %s\n"%s )
+        md.write("## Job resources\n")
+        for r in job_resources:
+            md.write("- %s\n"%r)
+        if 0==len(job_resources):
+            md.write("- none\n")
+
+        md.write( "## Job dependencies\n" )
+        md.write( "![Workflow graph](workflow.png)\n" )
+        
                 
     return (subdir,cwlfile,ymlfile)
         

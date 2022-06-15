@@ -17,7 +17,7 @@ from shrek.yaml.workflow import WorkflowGraph
 
 from shrek.scripts.buildJobScript import buildJobDefinition
 
-def buildWorkflowGraph( yamllist, tag_ ):
+def buildWorkflowGraph( yamllist, tag_, args_=None ):
 
     workflow = WorkflowGraph()
 

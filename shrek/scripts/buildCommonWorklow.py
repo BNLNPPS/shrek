@@ -286,7 +286,7 @@ def buildCommonWorkflow( yamllist, tag_, site, args ):
 
     wfg = buildWorkflowGraph( yamllist, tag_ )
     wfg.buildEdges()
-    wfg.buildDiGraph()
+    digraph = wfg.buildDiGraph()
 
 
     output = ""
@@ -298,7 +298,7 @@ def buildCommonWorkflow( yamllist, tag_, site, args ):
 
     yaml = "# dummy yaml file"
 
-    return ( output, yaml )
+    return ( output, yaml, digraph )
 
     
 def main():
@@ -314,7 +314,7 @@ def main():
 
     validateJobDefinitions( args.yaml )
 
-    wf = buildCommonWorkflow( args.yaml, args.tag )
+    (wf,yaml,dg) = buildCommonWorkflow( args.yaml, args.tag )
 
     if args.dump:
         print(wf)
