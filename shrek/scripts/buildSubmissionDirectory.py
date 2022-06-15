@@ -170,7 +170,7 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts ):
         md.write( "![Workflow graph](workflow.png)\n" )
 
         md.write( "## PanDA Monitoring\n" )
-        taskname = 'user.%s.%s*'%(args.user,opts['taguuid'])
+        taskname = 'user.%s.%s_*'%(args.user,opts['taguuid'])
         md.write( "[panda monitoring](https://panda-doma.cern.ch/tasks/?taskname=%s)\n"%taskname )
                         
     return (subdir,cwlfile,ymlfile)
