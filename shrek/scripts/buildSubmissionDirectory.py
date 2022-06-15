@@ -52,6 +52,7 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts ):
     for jdf in jdfs_:
         jdfs.append( os.path.abspath( jdf ) )
 
+
     # 
     subdir = ""
     for s in jobDirectoryName( tag, opts ):
@@ -64,6 +65,11 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts ):
         os.mkdir( subdir )
         print('[PanDA submission directory %s]'%s)            
         break
+
+    # Copy job description files to staging area
+    for j in jdfs:
+        print('[Copy %s to submission directory %s]'%(j,subdir))                    
+        sh.cp( j, subdir )
 
     # Build job scripts and stage into directory
     input_jobs = []
