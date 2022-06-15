@@ -66,6 +66,10 @@ def main():
         client = panda_api.get_api()
         client.hello()
 
+    taguuid = args.tag + '-' + str(uuid.uuid1())
+    shrekOpts['taguuid'] = taguuid
+        
+
     (subdir,cwlfile,yamlfile) = buildSubmissionDirectory( args.tag, args.yaml, args.site, args, shrekOpts )
 
     pchain = [ "pchain" ]
@@ -73,7 +77,7 @@ def main():
     pchain . append( '--vo %s'%args.vo )
     pchain . append( '--workingGroup %s'%args.workingGroup )
     pchain . append( '--prodSourceLabel %s'%args.prodSourceLabel )
-    taguuid = args.tag + '-' + str(uuid.uuid1())
+
     pchain . append('--outDS user.%s.%s'%( args.user, taguuid ) )
     pchain . append('--cwl %s'%cwlfile )
     pchain . append('--yaml %s'%yamlfile )
