@@ -129,6 +129,7 @@ def main():
     # Submit job to PanDA
     #
     pchain_result = None
+    utcnow = ""
     if args.submit:
         pchain_result = subprocess.run( ' '.join(pchain), shell=True, cwd=os.path.abspath(subdir), capture_output=True, check=False )
         utcnow = str(datetime.datetime.utcnow())
@@ -139,7 +140,7 @@ def main():
             f.write(str(pchain_result.stdout))
             f.write('\n')
             f.write(str(pchain_result.stderr))
-        #print('[Job submitted at '+utcnow+' UTC]')
+        print('[Job submitted at '+utcnow+' UTC]')
 
         message='[Shrek submission %s %s UTC]'%(taguuid,utcnow)
         print(message)
@@ -147,16 +148,35 @@ def main():
         # Make sure all artefacts were committed and push (will require git auth)
         sh.git.add    ( '*',                              _cwd=subdir )
         try:
-            sh.git.commit ( '-m %s'%message,                  _cwd=subdir )
+            sh.git.commit ( '-m "%s"'%message,                  _cwd=subdir )
         except sh.ErrorReturnCode_1:
             print("WARN: git commit duplicate code?")
         except sh.ErrorReturnCode:
             print("WARN: git commit duplicate code?")
 
-        sh.git.tag    ( '-a','-m "%s"'%message, '%s'%taguuid, _cwd=subdir )
+        #sh.git.tag    ( '-a','-m "%s"'%message, '%s'%taguuid, _cwd=subdir )
         sh.git.push   (                                       _cwd=subdir )
-        sh.git.push   ( 'origin', '%s'%taguuid,               _cwd=subdir )                    
+        #sh.git.push   ( 'origin', '%s'%taguuid,               _cwd=subdir )
 
+        # Hash for current commit
+        githash = sh.git('rev-parse', '--short', 'HEAD',         _cwd=subdir ) .rstrip()
+
+        # n.b. this line is too hardcoded for production / release... contains my github account...
+        # githashurl = 'https://github.com/klendathu2k/sPHENIX-test-production/commit/%s'%githash
+        githashurl = 'https://github.com/klendathu2k/sPHENIX-test-production/tree/%s/%s'%(githash,args.tag)
+
+        # Open readme file to place a oneliner table entry
+        print( shrekOpts['submissionPrefix'] + 'README.md' )
+        with open( shrekOpts['submissionPrefix'] + 'README.md', 'a' ) as readme:
+            update = '|%s|%s|[%s](%s)|\n'%(args.tag,utcnow,githash,githashurl)
+            readme.write( update )
+
+        sh.git.add    ( 'README.md',                          _cwd=shrekOpts['submissionPrefix'])
+        try:
+            sh.git.commit ( '-m "%s"'%message,                    _cwd=shrekOpts['submissionPrefix'])            
+            sh.git.push   (                                       _cwd=shrekOpts['submissionPrefix'])
+        except:
+            print ("Warning: README.md not updated" )
 
     else:
         print('To submit by hand:')

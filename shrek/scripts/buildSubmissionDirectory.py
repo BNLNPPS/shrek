@@ -74,9 +74,11 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts ):
     # Build job scripts and stage into directory
     input_jobs = []
     job_scripts = []
+    jobs = []
     for jdf in jdfs:
         stem = pathlib.Path(jdf).stem        
         (job, script) = buildJobScript( jdf, tag )
+        jobs.append(job)
 
         # A job w/ no name will be treated as pure input
         if job.parameters:
@@ -168,6 +170,18 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts ):
 
         md.write( "## Job dependencies\n" )
         md.write( "![Workflow graph](workflow.png)\n" )
+
+        for job in jobs:
+            md.write("- %s\n"%job.name )
+            if len(job.inputs) > 0:
+                md.write("  inputs:\n" )
+            for i in job.inputs:
+                md.write( "  - %s\n"%i.name )
+            md.write("\n  outputs:\n" )
+            for o in job.outputs:
+                md.write( "  - %s\n"%o.name )
+            
+
 
         md.write( "## PanDA Monitoring\n" )
         taskname = 'user.%s.%s_*'%(args.user,opts['taguuid'])
