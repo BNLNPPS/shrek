@@ -167,8 +167,11 @@ def main():
 
         # Open readme file to place a oneliner table entry
         print( shrekOpts['submissionPrefix'] + 'README.md' )
+
+        
+        
         with open( shrekOpts['submissionPrefix'] + 'README.md', 'a' ) as readme:
-            update = '|%s|%s|[%s](%s)|\n'%(args.tag,utcnow,githash,githashurl)
+            update = '|%s|%s|[%s](%s)|%s|\n'%(args.tag,utcnow,githash,githashurl,args.user)
             readme.write( update )
 
         sh.git.add    ( 'README.md',                          _cwd=shrekOpts['submissionPrefix'])
