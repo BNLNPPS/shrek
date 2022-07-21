@@ -1,6 +1,7 @@
 Shrek:
   maxSubmit: 1000
   submissionPrefix: ../sPHENIX-test-production/
+  defaultBranch: test
 
 PanDA:
   vo: wlcg

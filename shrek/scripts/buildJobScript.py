@@ -65,7 +65,7 @@ def buildJobScript( yaml_, tag_ ):
 
     job = buildJobDefinition( yaml_, tag_ )
 
-    output = ""
+    output = "echo $@\n"
 
     if job == None:
         print("Job not valid... probably no yaml file?")
@@ -77,7 +77,7 @@ def buildJobScript( yaml_, tag_ ):
         # through the command line
         #
 
-        arg = 1
+        arg = 1        
 
         # First parameter is a uniqueId
         output += 'export uniqueId=$%i\n'%arg

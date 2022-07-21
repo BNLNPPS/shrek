@@ -42,14 +42,14 @@ def main():
     parser.set_defaults(offset=0)
 
     # 
-    parser.add_argument('--submit',    dest='submit', action='store_true')
-    parser.add_argument('--no-submit', dest='submit', action='store_false')
+    parser.add_argument('--submit',    dest='submit', action='store_true', help="Job will be submitted to PanDA and archived to github")
+    parser.add_argument('--no-submit', dest='submit', action='store_false', help="Job is generated but not submitted or archived")
     parser.set_defaults(submit=False)
-    parser.add_argument('--check',    dest='check', action='store_true')
-    parser.add_argument('--no-check', dest='check', action='store_false')
+    parser.add_argument('--check',    dest='check', action='store_true', help="Job is checked against PanDA")
+    parser.add_argument('--no-check', dest='check', action='store_false', help="Job is not checked against PanDA")
     parser.set_defaults(check=True)    
-    parser.add_argument('--handshake',    dest='handshake', action='store_true')
-    parser.add_argument('--no-handshake', dest='handshake', action='store_false')
+    parser.add_argument('--handshake',    dest='handshake', action='store_true', help="Ensure that PanDA credentials are current")
+    parser.add_argument('--no-handshake', dest='handshake', action='store_false', help="Skip credential check")
     parser.set_defaults(handshake=True)    
 
     #
@@ -58,9 +58,10 @@ def main():
     parser.add_argument('--prodSourceLabel', type=str, default=pandaOpts['prodSourceLabel'])
     parser.add_argument('--workingGroup', type=str,    default=pandaOpts['workingGroup'])
     parser.add_argument('--user', type=str,            default=getpass.getuser())
+    parser.add_argument('--branch', type=str,          default=shrekOpts['defaultBranch'])
 
     args = parser.parse_args()
-
+   
     if args.handshake == True:
         from pandaclient import panda_api
         client = panda_api.get_api()
@@ -68,7 +69,6 @@ def main():
 
     taguuid = args.tag + '-' + str(uuid.uuid1())
     shrekOpts['taguuid'] = taguuid
-        
 
     (subdir,cwlfile,yamlfile) = buildSubmissionDirectory( args.tag, args.yaml, args.site, args, shrekOpts )
 
@@ -146,7 +146,7 @@ def main():
         print(message)
 
         # Make sure all artefacts were committed and push (will require git auth)
-        sh.git.add    ( '*',                              _cwd=subdir )
+        sh.git.add      ( '*',                                  _cwd=subdir )
         try:
             sh.git.commit ( '-m "%s"'%message,                  _cwd=subdir )
         except sh.ErrorReturnCode_1:

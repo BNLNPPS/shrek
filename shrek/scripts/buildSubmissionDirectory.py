@@ -58,6 +58,10 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts ):
     for s in jobDirectoryName( tag, opts ):
 
         if os.path.exists( s ):
+
+            # Submission directory should be on the requested branch
+            sh.git.checkout ( args.branch,                          _cwd=s )                        
+
             print('[Existing submission directory %s is cleared]'%s)
             shutil.rmtree( s )
                 
@@ -65,6 +69,9 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts ):
         os.mkdir( subdir )
         print('[PanDA submission directory %s]'%s)            
         break
+
+
+        
 
     # Copy job description files to staging area
     for j in jdfs:
