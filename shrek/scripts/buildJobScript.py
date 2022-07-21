@@ -65,7 +65,14 @@ def buildJobScript( yaml_, tag_ ):
 
     job = buildJobDefinition( yaml_, tag_ )
 
-    output = "echo $@\n"
+    output  = "echo $@\n"
+    output += "\n"        
+    output += "echo Executing on `hostname`\n"
+    output += "uname -a\n"
+    output += "lscpu | grep \^CPU\n"    
+    output += "free -h --giga\n"
+    output += "\n"    
+    
 
     if job == None:
         print("Job not valid... probably no yaml file?")
