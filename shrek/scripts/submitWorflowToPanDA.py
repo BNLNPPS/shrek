@@ -37,7 +37,7 @@ def main():
     parser.add_argument('yaml', metavar='YAML', type=str, nargs="+",help='input filename')
 
     # 
-    parser.add_argument('--tag',  type=str, help='production tag' )
+    parser.add_argument('--tag',  type=str, help='production tag', required=True )
     parser.add_argument('--offset', type=int, dest='offset', help='job unique id offset')
     parser.set_defaults(offset=0)
 
@@ -66,6 +66,7 @@ def main():
         from pandaclient import panda_api
         client = panda_api.get_api()
         client.hello()
+
 
     taguuid = args.tag + '-' + str(uuid.uuid1())
     shrekOpts['taguuid'] = taguuid
