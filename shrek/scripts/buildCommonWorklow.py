@@ -154,7 +154,7 @@ def cwl_opt_args( job ):
     params = job.parameters
     
     hasMaxAttempt = False
-    for par in [ "nJobs", "nFilesPerJob", "nGBPerJob", "maxAttempt" ]:
+    for par in [ "nJobs", "nFilesPerJob", "nGBPerJob", "maxAttempt", "memory", "dumpTaskParams" ]:
         val = getattr(params,par,None)
         if val:
             if par=='maxAttempt': hasMaxAttempt = True
