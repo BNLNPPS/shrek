@@ -50,7 +50,11 @@ def main():
     parser.set_defaults(check=True)    
     parser.add_argument('--handshake',    dest='handshake', action='store_true', help="Ensure that PanDA credentials are current")
     parser.add_argument('--no-handshake', dest='handshake', action='store_false', help="Skip credential check")
-    parser.set_defaults(handshake=True)    
+    parser.set_defaults(handshake=True)
+
+    parser.add_argument('--uuid',    dest='uuid', action='store_true',  help="Tag will be appended by UUID")
+    parser.add_argument('--no-uuid', dest='uuid', action='store_false', help="Tag will be appended by UUID")
+    parser.set_defaults(uuid=True)    
 
     #
     parser.add_argument('--vo', type=str,              default=pandaOpts['vo'])
@@ -68,7 +72,10 @@ def main():
         client.hello()
 
 
-    taguuid = args.tag + '-' + str(uuid.uuid1())
+    taguuid = args.tag
+    if args.uuid:
+        taguuid = taguuid + '-' + str(uuid.uuid1())
+
     shrekOpts['taguuid'] = taguuid
 
     (subdir,cwlfile,yamlfile) = buildSubmissionDirectory( args.tag, args.yaml, args.site, args, shrekOpts )
