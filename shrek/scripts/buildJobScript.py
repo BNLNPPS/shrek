@@ -97,6 +97,11 @@ def buildJobScript( yaml_, tag_ ):
             arg = arg + 1
 
         #
+        # Set the tag
+        #
+        output += 'export shrek_tag=%s\n'%(tag_)
+
+        #
         # Build and output environment block
         #
         if job.parameters:
