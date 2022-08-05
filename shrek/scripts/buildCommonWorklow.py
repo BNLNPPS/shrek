@@ -23,6 +23,9 @@ from shrek.scripts.buildWorkflowGraph import buildWorkflowGraph
 
 from math import ceil, log
 
+# List of user parameters which get translated into PANDA options
+PANDA_OPTS = [ "nJobs", "nFilesPerJob", "nGBPerJob", "maxAttempt", "memory", "dumpTaskParams", "maxWalltime" ]
+
 def ceil_power_of_10(n):
     exp = log(n, 10)
     exp = ceil(exp)
@@ -146,6 +149,7 @@ def cwl_outputs( wfgraph ):
     return outputs
 
 
+
 def cwl_opt_args( job ):
 
     optargs = ""
@@ -154,7 +158,7 @@ def cwl_opt_args( job ):
     params = job.parameters
     
     hasMaxAttempt = False
-    for par in [ "nJobs", "nFilesPerJob", "nGBPerJob", "maxAttempt", "memory", "dumpTaskParams" ]:
+    for par in PANDA_OPTS:
         val = getattr(params,par,None)
         if val:
             if par=='maxAttempt': hasMaxAttempt = True
