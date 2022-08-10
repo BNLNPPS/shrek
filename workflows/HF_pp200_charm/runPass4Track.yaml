@@ -1,0 +1,63 @@
+Parameters:
+  name: Pythia8Pass4Track
+  build: mdc2.8
+  comment: This is a test job definition
+  macro: Fun4All_G4_Trkr.C
+  flavor: Charm  
+  nEvents: 10
+  maxAttempt: 3
+
+InputDataSets:
+  - name: Pythia8Pass3Track/outDS
+    comment: Charm events plus minbias pileup
+    match: Pythia8Pass3Track.outDS.tar
+    nFilesPerJob: 1
+
+OutputDataSets:
+  - name: Pythia8Pass4Track/outDS
+    comment: Pythia8 events
+    filelist:
+       - "required:Pythia8Pass4Track.outDS.tar"
+
+Resources:
+  - file: ../MDC2/submit/HF_pp200_signal/pass4trk/rundir/*
+
+JobCommands: |-
+  echo START ${name} `date` 
+
+  # Initialize sPHENIX software environment
+  source /opt/sphenix/core/bin/sphenix_setup.sh -n ${build}
+
+  # Input file
+  mcin=${IN1[0]}
+  
+  echo ARGV:       $@       
+  echo inputs:     ${IN1[@]}  
+
+  tar xvf ${IN1[@]}
+
+  # arguments 
+  # $1: number of events
+  # $2: tkrk hits input file
+  # $3: output file
+  # $4: output dir
+  # $5: quark filter
+  # $6: run number
+  # $7: sequence
+
+  dst_track=`ls DST_TRKR_HIT*.root`
+  dst_truth=`ls DST_TRUTH_G4HIT*.root`
+  outfile=dst_pass4track_output.root
+
+  echo DST_TRUTH: $dst_truth
+
+  echo root.exe -q -b Fun4All_G4_Trkr.C\(${nEvents},\"${dst_track}\",\"${outfile}\",\"\",0,\".\"\)
+  root.exe -q -b Fun4All_G4_Trkr.C\(${nEvents},\"${dst_track}\",\"${outfile}\",\"\",0,\".\"\)
+
+  # NOTE: This packs all input files as well...
+  tar cvf Pythia8Pass4Track.outDS.tar *.root 
+  ls 
+
+  echo END   ${name} `date` 
+
+  cp _${name}.log /sphenix/u/sphnxpro/shrek/${shrek_tag}-${name}-${uniqueId}.log

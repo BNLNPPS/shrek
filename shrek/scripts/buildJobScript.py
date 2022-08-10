@@ -65,7 +65,14 @@ def buildJobScript( yaml_, tag_ ):
 
     job = buildJobDefinition( yaml_, tag_ )
 
-    output = ""
+    output  = "echo $@\n"
+    output += "\n"        
+    output += "echo Executing on `hostname`\n"
+    output += "uname -a\n"
+    output += "lscpu | grep \^CPU\n"    
+    output += "free -h --giga\n"
+    output += "\n"    
+    
 
     if job == None:
         print("Job not valid... probably no yaml file?")
@@ -77,7 +84,7 @@ def buildJobScript( yaml_, tag_ ):
         # through the command line
         #
 
-        arg = 1
+        arg = 1        
 
         # First parameter is a uniqueId
         output += 'export uniqueId=$%i\n'%arg
@@ -88,6 +95,11 @@ def buildJobScript( yaml_, tag_ ):
             output += "export IN%i_name=%s\n"%(i+1,ds.name)                         
             output += 'export IN%i=(`echo $%i | tr "," " "`)\n'%(i+1,arg)
             arg = arg + 1
+
+        #
+        # Set the tag
+        #
+        output += 'export shrek_tag=%s\n'%(tag_)
 
         #
         # Build and output environment block

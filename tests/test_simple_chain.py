@@ -25,22 +25,22 @@ def commonWorkflow():
 #________________________________________________________________________
 
 def test_create_the_workflow():
-    (wf,ym) = commonWorkflow()
+    (wf,ym,_) = commonWorkflow()
     assert(wf != None) # CWL
     assert(ym != None) # yaml
 
 def test_we_should_be_able_to_parse_the_workflow():
-    (wf,yml) = commonWorkflow()
+    (wf,yml,_) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )  # workflow
 
 def test_workflow_class():
-    (wf,yml) = commonWorkflow()
+    (wf,yml,_) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     class_ = dict_["class"]
     assert(class_ == 'Workflow')
 
 def test_workflow_steps():
-    (wf,yml) = commonWorkflow()
+    (wf,yml,_) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     steps = dict_["steps"]
     for step in ["top","bottom"]:

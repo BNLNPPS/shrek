@@ -29,17 +29,17 @@ def commonWorkflow():
 #________________________________________________________________________
 
 def test_create_the_workflow():
-    (wf,ym) = commonWorkflow()
+    (wf,ym,_) = commonWorkflow()
     assert(wf != None)
     assert(ym != None)
 
 def test_we_should_be_able_to_parse_the_workflow():
-    (wf,ym) = commonWorkflow()
+    (wf,ym,_) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     #pprint.pprint(dict_)
 
 def test_workflow_has_expected_fields():
-    (wf,ym) = commonWorkflow()
+    (wf,ym,_) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     fields = [ "inputs",
                "outputs",
@@ -52,7 +52,7 @@ def test_workflow_has_expected_fields():
         x = dict_[f]
 
 def test_workflow_inputs():
-    (wf,ym) = commonWorkflow()
+    (wf,ym,_) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     inputs = dict_["inputs"]
     make_signal = inputs['signal']
@@ -62,18 +62,18 @@ def test_workflow_inputs():
     assert(make_background_1=="string")
 
 def test_workflow_outputs():
-    (wf,ym) = commonWorkflow()
+    (wf,ym,_) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     outputs = dict_["outputs"]
     
 def test_workflow_class():
-    (wf,ym) = commonWorkflow()
+    (wf,ym,_) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     class_ = dict_["class"]
     assert(class_ == 'Workflow')
 
 def test_workflow_steps():
-    (wf,ym) = commonWorkflow()
+    (wf,ym,_) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     steps = dict_["steps"]
     for step in ["make_signal","make_background_1","make_background_2","pre_mix","combine","generate_some"]:
@@ -83,7 +83,7 @@ def test_workflow_steps():
         y = mystep["out"]
 
 def test_workflow_make_signal():
-    (wf,ym) = commonWorkflow()
+    (wf,ym,_) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     steps = dict_["steps"]
     mystep=steps['make_signal']
@@ -94,7 +94,7 @@ def test_workflow_make_signal():
     y = mystep["out"]
 
 def test_workflow_make_background_1():
-    (wf,ym) = commonWorkflow()
+    (wf,ym,_) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     steps = dict_["steps"]
     mystep=steps['make_background_1']
@@ -105,7 +105,7 @@ def test_workflow_make_background_1():
     y = mystep["out"]
     
 def test_workflow_pre_mix():
-    (wf,ym) = commonWorkflow()
+    (wf,ym,_) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     steps = dict_["steps"]
     mystep=steps['pre_mix']
@@ -116,7 +116,7 @@ def test_workflow_pre_mix():
     y = mystep["out"]
     
 def test_workflow_make_background_2():
-    (wf,ym) = commonWorkflow()
+    (wf,ym,_) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     steps = dict_["steps"]
     mystep=steps['make_background_2']
@@ -127,7 +127,7 @@ def test_workflow_make_background_2():
     y = mystep["out"]        
 
 def test_workflow_generate_some():
-    (wf,ym) = commonWorkflow()
+    (wf,ym,_) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     steps = dict_["steps"]
     mystep=steps['generate_some']
@@ -137,7 +137,7 @@ def test_workflow_generate_some():
         xx = x[field]        
     y = mystep["out"]    
 def test_workflow_combine():
-    (wf,ym) = commonWorkflow()
+    (wf,ym,_) = commonWorkflow()
     dict_ = yaml.safe_load( str(wf) )
     steps = dict_["steps"]
     mystep=steps['combine']

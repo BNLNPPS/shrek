@@ -10,6 +10,7 @@ class InputDS:
         self.nFiles = None
         self.local = None
         self.localFiles = None
+        self.reusable = None
 
 def buildInputList( key, dslist ):
     myinputs = []
@@ -26,6 +27,10 @@ def buildInputList( key, dslist ):
             if k=='nFiles': i.nFiles = str(v) # number or "ALL"
             if k=='local': i.local = v
             if k=='localFiles': i.localFiles = v
+            if k=='reusable':
+                print('reusable = ' + str(v) )
+                if v=='False': pass
+                if str(v)=='True' or str(v)=='true': i.reusable=True
         myinputs.append(i)
         # Check requirements
         if i.name == None:

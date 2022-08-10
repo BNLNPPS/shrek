@@ -23,6 +23,9 @@ from shrek.scripts.buildWorkflowGraph import buildWorkflowGraph
 
 from math import ceil, log
 
+# List of user parameters which get translated into PANDA options
+PANDA_OPTS = [ "nJobs", "nFiles", "nSkipFiles", "nFilesPerJob", "nGBPerJob", "maxAttempt", "memory", "dumpTaskParams", "maxWalltime", "nEventsPerFile", "cpuTimePerEvent" ]
+
 def ceil_power_of_10(n):
     exp = log(n, 10)
     exp = ceil(exp)
@@ -117,6 +120,25 @@ def cwl_inputs( wfgraph ):
     
     if 0==count:
         inputs = "\ninputs: []"
+    
+    return inputs
+
+def yml_inputs( wfgraph ):
+    inputs = ""
+
+    # Find jobs with no predecessors... these may have inputs registered to them.
+    G = wfgraph.graph
+
+    injobs = buildListOfWorkflowInputJobs(G)
+
+    count = 0 # count total number of input jobs
+    for jobname in injobs:
+        job = wfgraph.jobsmap[jobname]
+        for inp in job.inputs:
+            count = count + 1
+            #inputs += "\n  %s: string"%inp.name
+            if inp.datasets:
+                inputs += "%s: %s\n"%(inp.name,inp.datasets)
             
     return inputs
 
@@ -146,6 +168,7 @@ def cwl_outputs( wfgraph ):
     return outputs
 
 
+
 def cwl_opt_args( job ):
 
     optargs = ""
@@ -154,7 +177,7 @@ def cwl_opt_args( job ):
     params = job.parameters
     
     hasMaxAttempt = False
-    for par in [ "nJobs", "nFilesPerJob", "nGBPerJob", "maxAttempt" ]:
+    for par in PANDA_OPTS:
         val = getattr(params,par,None)
         if val:
             if par=='maxAttempt': hasMaxAttempt = True
@@ -181,15 +204,25 @@ def cwl_opt_args( job ):
 
     # From input (secondary) data sets
     inputs = []
+    reusableStreams = []
     count = 0
     hasInput = False
     hasSecondary = False
     for inp in job.inputs:
-        DSn = '%{DS' + str(count) + '}'
+
+        # Name of the dataset
+        DSname = 'DS' + str(count)
+        DSn = '%{DS' + str(count) + '}'       
         count += 1
+
+        # Stream name
         INn = 'IN' + str(count)
+        if inp.reusable:
+            reusableStreams.append( INn )
+        
         name = inp.name        
         nfpj = inp.nFilesPerJob
+
         # Handle principle (input) data set
         if count==1:
             hasInput = True
@@ -205,6 +238,10 @@ def cwl_opt_args( job ):
 
     if len(inputs)>0:
         optargs += ' --secondaryDSs ' + ','.join(inputs)
+
+    #print('Reusable streams: ' + str(reusableStreams) )
+    if len(reusableStreams)>0:
+        optargs += ' --reusableSecondary ' + ','.join(reusableStreams)
 
     if hasInput:
         optargs += ' --forceStaged '                
@@ -286,7 +323,7 @@ def buildCommonWorkflow( yamllist, tag_, site, args ):
 
     wfg = buildWorkflowGraph( yamllist, tag_ )
     wfg.buildEdges()
-    wfg.buildDiGraph()
+    digraph = wfg.buildDiGraph()
 
 
     output = ""
@@ -296,9 +333,10 @@ def buildCommonWorkflow( yamllist, tag_, site, args ):
     output += cwl_outputs( wfg )
     output += cwl_steps( wfg, site, args )
 
-    yaml = "# dummy yaml file"
+    yaml = ""
+    yaml += yml_inputs( wfg )
 
-    return ( output, yaml )
+    return ( output, yaml, digraph )
 
     
 def main():
@@ -314,7 +352,7 @@ def main():
 
     validateJobDefinitions( args.yaml )
 
-    wf = buildCommonWorkflow( args.yaml, args.tag )
+    (wf,yaml,dg) = buildCommonWorkflow( args.yaml, args.tag )
 
     if args.dump:
         print(wf)

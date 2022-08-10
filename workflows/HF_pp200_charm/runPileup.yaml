@@ -1,0 +1,89 @@
+Parameters:
+  name: Pythia8CharmPileup
+  build: mdc2.8
+  comment: This is a test job definition
+  macro: Fun4All_G4_Pileup_pp.C
+  flavor: Charm  
+  nEvents: 10
+  maxAttempt: 5
+  memory: 8192
+ 
+InputDataSets:
+  - name: Pythia8CharmSignal
+    datasets: user.jwebb2.sP22q-signal_000_Pythia8CharmSimulation
+    match: Pythia8CharmSimulation.outDS.tar
+    nFilesPerJob: 1
+  - name: Pythia8Background
+    datasets: user.jwebb2.sP22q-background_000_Pythia8MinbSimulation
+    reusable: true
+    match: Pythia8MinbSimulation.outDS.tar
+    nFilesPerJob: 50
+
+OutputDataSets:
+  - name: Pythia8CharmPileup/outDS
+    comment: Charm events plus minbias pileup
+    filelist:
+    - "required:Pythia8Pileup.outDS.tar"
+
+Resources:
+  - file: ../MDC2/submit/HF_pp200_signal/pass2/rundir/*
+
+JobCommands: |-
+  echo START ${name} `date` 
+
+  # Initialize sPHENIX software environment
+  source /opt/sphenix/core/bin/sphenix_setup.sh -n ${build}
+
+  which root
+  root --version
+  root-config --features
+
+  # Input file
+  mcin=${IN1[0]}
+  
+  echo ARGV:       $@       
+  echo Signal:     ${IN1[@]}  
+  echo Background: ${IN2[@]}
+
+  export signal=`tar xvf ${mcin}`
+
+  touch background.list
+  for i in "${IN2[@]}"
+  do
+     tar xvf $i >> background.list
+  done
+
+  echo ======================================================================================
+  echo Signal: ${signal}                 
+  echo Background: `cat background.list` 
+
+  echo ======================================================================================
+  echo Directory contents before job execution
+  ls -l 
+
+  echo ======================================================================================
+  echo Executing the pileup task...
+
+  # echo arg1 \(output events\) : $1
+  # echo arg2 \(input file\): $2
+  # echo arg3 \(background listfile\): $3
+  # echo arg4 \(output dir\): $4
+  # echo arg5 \(quarkfilter\): $5
+  # echo arg6 \(runnumber\): $6
+  # echo arg7 \(sequence\): $7
+  # root.exe -q -b Fun4All_G4_Pileup_pp.C\($1,\"$2\",\"$3\",\"$4\",\"$5\"\)
+
+  root.exe -q -b ${macro}\(${nEvents},\"${signal}\",\"background.list\",\".\",\"${flavor}\"\)
+  
+  tar cvf Pythia8Pileup.outDS.tar DST_*.root
+
+  echo ======================================================================================
+  echo Directory contents after job execution
+  ls -l 
+
+  echo END   ${name} `date` 
+
+  cp _${name}.log /sphenix/u/sphnxpro/shrek/${shrek_tag}-${name}-${uniqueId}.log
+
+
+ 

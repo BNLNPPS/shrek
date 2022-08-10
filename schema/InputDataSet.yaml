@@ -28,6 +28,8 @@ schema;input_dataset:
         type: seq
         sequence:
           - type: str
+      reusable:
+        type: bool
 
 schema;secondary_dataset:
     type: map
