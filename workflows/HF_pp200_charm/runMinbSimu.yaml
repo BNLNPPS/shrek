@@ -1,0 +1,61 @@
+Parameters:
+  name: Pythia8MinbSimulation
+  build: mdc2.8
+  comment: Generate Pythia8 Minb Events and run through F4A
+  nJobs:   2000
+  nEvents: 10
+  macro: Fun4All_G4_Pass1_pp.C
+  flavor: ppminbias  
+  runnumber: 1
+  maxAttempt: 3
+  memory: 8192
+  maxWalltime: 48
+  cpuTimePerEvent: 75000
+
+
+Resources:
+  - file: ../MDC2/submit/pythia8_pp_mb/pass1/rundir/*
+
+
+OutputDataSets:
+  - name: Pythia8MinbSimulation/outDS
+    comment: Pythia8 events
+    filelist:
+       - "required:Pythia8MinbSimulation.outDS.tar"
+
+
+JobCommands: |-
+  echo START ${name} `date` 
+
+  # Initialize sPHENIX software environment
+  source /opt/sphenix/core/bin/sphenix_setup.sh -n ${build}
+
+  which root
+  root --version
+  root-config --features
+
+  rn=$( printf "%010d" $runnumber )
+  sn=$( printf "%05d"  $uniqueId )
+
+  # hepmc input data file
+  ln -s /sphenix/sim/sim01/sphnxpro/MDC1/pythia8_HepMC/data/*-${sn}.dat
+  hepmc=`ls *-${sn}.dat`
+
+  filename=G4Hits-${flavor}-${rn}-${sn}.root
+
+  root.exe -q -b ${macro}\($nEvents,\"${hepmc}\",\"${filename}\",\"\",0,\".\"\) 
+  #touch $filename
+
+  tar cvf Pythia8MinbSimulation.outDS.tar ${filename}  
+  ls -l
+
+  echo END   ${name} `date` 
+
+  cp _${name}.log /sphenix/u/sphnxpro/shrek/${shrek_tag}-${name}-${uniqueId}.log
+
+
+
+
+
+  
+

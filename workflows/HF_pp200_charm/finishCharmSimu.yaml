@@ -1,0 +1,41 @@
+Parameters:
+  name: FinishCharmSimu
+  build: mdc2.8
+  comment: This is a test job definition
+  maxAttempt: 5
+ 
+InputDataSets:
+  - name: Pythia8CharmSimulation/outDS
+    match: Pythia8CharmSimulation.outDS.tar
+    nFilesPerJob: 1
+
+OutputDataSets:
+  - name: FinishPythia8CharmSimu/outDS
+    comment: Charm events plus minbias pileup
+    filelist:
+    - "required:FiniahPythia8CharmSimu.outDS.txt"
+
+Resources:
+  - file: ../MDC2/submit/HF_pp200_signal/pass2/rundir/*
+
+JobCommands: |-
+  echo START ${name} `date` 
+
+  # Initialize sPHENIX software environment
+  source /opt/sphenix/core/bin/sphenix_setup.sh -n ${build}
+
+
+  # Input file
+  mcin=${IN1[0]}
+  
+  echo ARGV:       $@       
+  echo Signal:     ${IN1[@]}  
+
+  tar xvf ${mcin} > FiniahPythia8CharmSimu.outDS.txt 
+
+  echo END   ${name} `date` 
+
+  cp _${name}.log /sphenix/u/sphnxpro/shrek/${shrek_tag}-${name}-${uniqueId}.log
+
+
+ 
