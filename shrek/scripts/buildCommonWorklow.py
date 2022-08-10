@@ -24,7 +24,7 @@ from shrek.scripts.buildWorkflowGraph import buildWorkflowGraph
 from math import ceil, log
 
 # List of user parameters which get translated into PANDA options
-PANDA_OPTS = [ "nJobs", "nFilesPerJob", "nGBPerJob", "maxAttempt", "memory", "dumpTaskParams", "maxWalltime" ]
+PANDA_OPTS = [ "nJobs", "nFiles", "nSkipFiles", "nFilesPerJob", "nGBPerJob", "maxAttempt", "memory", "dumpTaskParams", "maxWalltime", "nEventsPerFile", "cpuTimePerEvent" ]
 
 def ceil_power_of_10(n):
     exp = log(n, 10)
@@ -120,6 +120,25 @@ def cwl_inputs( wfgraph ):
     
     if 0==count:
         inputs = "\ninputs: []"
+    
+    return inputs
+
+def yml_inputs( wfgraph ):
+    inputs = ""
+
+    # Find jobs with no predecessors... these may have inputs registered to them.
+    G = wfgraph.graph
+
+    injobs = buildListOfWorkflowInputJobs(G)
+
+    count = 0 # count total number of input jobs
+    for jobname in injobs:
+        job = wfgraph.jobsmap[jobname]
+        for inp in job.inputs:
+            count = count + 1
+            #inputs += "\n  %s: string"%inp.name
+            if inp.datasets:
+                inputs += "%s: %s\n"%(inp.name,inp.datasets)
             
     return inputs
 
@@ -300,7 +319,8 @@ def buildCommonWorkflow( yamllist, tag_, site, args ):
     output += cwl_outputs( wfg )
     output += cwl_steps( wfg, site, args )
 
-    yaml = "# dummy yaml file"
+    yaml = ""
+    yaml += yml_inputs( wfg )
 
     return ( output, yaml, digraph )
 
