@@ -204,15 +204,25 @@ def cwl_opt_args( job ):
 
     # From input (secondary) data sets
     inputs = []
+    reusableStreams = []
     count = 0
     hasInput = False
     hasSecondary = False
     for inp in job.inputs:
-        DSn = '%{DS' + str(count) + '}'
+
+        # Name of the dataset
+        DSname = 'DS' + str(count)
+        DSn = '%{DS' + str(count) + '}'       
         count += 1
+
+        # Stream name
         INn = 'IN' + str(count)
+        if inp.reusable:
+            reusableStreams.append( INn )
+        
         name = inp.name        
         nfpj = inp.nFilesPerJob
+
         # Handle principle (input) data set
         if count==1:
             hasInput = True
@@ -228,6 +238,10 @@ def cwl_opt_args( job ):
 
     if len(inputs)>0:
         optargs += ' --secondaryDSs ' + ','.join(inputs)
+
+    #print('Reusable streams: ' + str(reusableStreams) )
+    if len(reusableStreams)>0:
+        optargs += ' --reusableSecondary ' + ','.join(reusableStreams)
 
     if hasInput:
         optargs += ' --forceStaged '                
