@@ -10,6 +10,7 @@ InputDataSet:
   nSkip: 0
   nFiles: all
   local: False
+  reusable: False
 #  localFiles:
 #    - /path/or/pattern/match/to/file.txt
 #    - /path/or/pattern/match/to/files*
