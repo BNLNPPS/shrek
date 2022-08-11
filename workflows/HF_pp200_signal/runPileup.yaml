@@ -4,14 +4,17 @@ Parameters:
   comment: This is a test job definition
   macro: Fun4All_G4_Pileup_pp.C
   flavor: Charm  
-  nEvents: 1
-  maxAttempt: 3
+  nEvents: 10
+  nJobs: 10
+  maxAttempt: 5
+  memory: 8192
  
 InputDataSets:
   - name: Pythia8CharmSimulation/outDS
     match: Pythia8CharmSimulation.outDS.tar
     nFilesPerJob: 1
   - name: Pythia8MinbSimulation/outDS
+    reusable: true
     match: Pythia8MinbSimulation.outDS.tar
     nFilesPerJob: 5
 
@@ -29,6 +32,10 @@ JobCommands: |-
 
   # Initialize sPHENIX software environment
   source /opt/sphenix/core/bin/sphenix_setup.sh -n ${build}
+
+  which root
+  root --version
+  root-config --features
 
   # Input file
   mcin=${IN1[0]}
@@ -66,9 +73,6 @@ JobCommands: |-
   # root.exe -q -b Fun4All_G4_Pileup_pp.C\($1,\"$2\",\"$3\",\"$4\",\"$5\"\)
 
   root.exe -q -b ${macro}\(${nEvents},\"${signal}\",\"background.list\",\".\",\"${flavor}\"\)
-
-  # Force successful job completion b/c PanDA
-  touch DST_blah.root 
   
   tar cvf Pythia8Pileup.outDS.tar DST_*.root
 

@@ -2,7 +2,6 @@ Parameters:
   name: mergeOutputs
   build: mdc2.8
   comment: Merge all outputs into a single tarball
-  nEvents: 1
   maxAttempt: 3
  
 InputDataSets:

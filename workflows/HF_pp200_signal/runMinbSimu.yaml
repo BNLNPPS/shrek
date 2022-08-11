@@ -2,12 +2,14 @@ Parameters:
   name: Pythia8MinbSimulation
   build: mdc2.8
   comment: Generate Pythia8 Minb Events and run through F4A
-  nJobs:   5
-  nEvents: 1
+  nJobs:   50
+  nEvents: 10
   macro: Fun4All_G4_Pass1_pp.C
   flavor: ppminbias  
   runnumber: 1
   maxAttempt: 3
+  memory: 8192
+
 
 Resources:
   - file: ../MDC2/submit/pythia8_pp_mb/pass1/rundir/*
@@ -25,6 +27,10 @@ JobCommands: |-
 
   # Initialize sPHENIX software environment
   source /opt/sphenix/core/bin/sphenix_setup.sh -n ${build}
+
+  which root
+  root --version
+  root-config --features
 
   rn=$( printf "%010d" $runnumber )
   sn=$( printf "%05d"  $uniqueId )

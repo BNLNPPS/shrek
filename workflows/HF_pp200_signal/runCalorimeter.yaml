@@ -4,7 +4,7 @@ Parameters:
   comment: This is a test job definition
   macro: Fun4All_G4_Calo.C
   flavor: Charm  
-  nEvents: 1
+  nEvents: 10
   maxAttempt: 3
 
 InputDataSets:
