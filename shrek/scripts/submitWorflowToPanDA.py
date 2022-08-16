@@ -12,6 +12,7 @@ import uuid
 import datetime
 import subprocess # TODO refactor subprocess --> sh
 import sh
+import sys
 
 from shrek.scripts.buildJobScript import buildJobScript
 from shrek.scripts.buildCommonWorklow import buildCommonWorkflow
@@ -65,6 +66,8 @@ def main():
     parser.add_argument('--branch', type=str,          default=shrekOpts['defaultBranch'])
 
     args = parser.parse_args()
+
+    fullcommandline = str( ' '.join(sys.argv) )
    
     if args.handshake == True:
         from pandaclient import panda_api
@@ -108,6 +111,7 @@ def main():
     # Create a "tag file" which will ride along with the job 
     with open( subdir + '/' + taguuid, 'w' ) as f:
         f.write('SHREK Job Submission %s'%str(datetime.datetime.now()))
+        f.write('\n' + fullcommandline )
         f.write('\ncmd args: ')
         f.write('\n')        
         f.write(str(args))
