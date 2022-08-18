@@ -1,0 +1,44 @@
+Parameters:
+  name: mergeOutputs
+  build: ana.315
+  comment: Merge all outputs into a single tarball
+  maxAttempt: 3
+ 
+InputDataSets:
+  - name: Pythia8Calorimeter/outDS
+    match: Pythia8Calorimeter.outDS.tar
+    nFilesPerJob: 1
+  - name: Pythia8Pass4TrackStageC/outDS
+    match: Pythia8Pass4TrackStageC.outDS.tar
+    nFilesPerJob: 1
+
+OutputDataSets:
+  - name: Pythia8CharmOutput/outDS
+    comment: Charm events plus minbias pileup
+    filelist:
+    - "required:Pythia8CharmOutput.outDS.tar"
+
+JobCommands: |-
+  echo START ${name} `date` 
+
+  # Initialize sPHENIX software environment
+  source /opt/sphenix/core/bin/sphenix_setup.sh -n ${build}
+
+  # Input file
+  mcin=${IN1[0]}
+  
+  echo ARGV:       $@       
+  echo Signal:     ${IN1[@]}  
+  echo Background: ${IN2[@]}
+
+  tar xvf ${IN1[0]}
+  tar xvf ${IN2[0]}
+
+  # Pack everything up...
+  tar cvf Pythia8CharmOutput.outDS.tar *.root
+
+  echo END   ${name} `date` 
+
+  cp _${name}.log /sphenix/u/sphnxpro/shrek/${shrek_tag}-${name}-${uniqueId}.log
+
+ 
