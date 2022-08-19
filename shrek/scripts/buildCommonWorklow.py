@@ -23,7 +23,7 @@ from shrek.scripts.buildWorkflowGraph import buildWorkflowGraph
 
 from math import ceil, log
 
-# List of user parameters which get translated into PANDA options
+# List of user parameters which get translated into PANDA (prun) options
 PANDA_OPTS = [ "nJobs", "nFiles", "nSkipFiles", "nFilesPerJob", "nGBPerJob", "maxAttempt", "memory", "dumpTaskParams", "maxWalltime", "nEventsPerFile", "cpuTimePerEvent" ]
 
 def ceil_power_of_10(n):
@@ -306,9 +306,15 @@ def cwl_steps( wfgraph, site, args ):
         if len(optargs.strip()) > 0:
             steps += "\n        opt_args:"
             steps += '\n          default: "%s --site %s --avoidVP --noBuild "' %(optargs,site)
-
         
         steps += "\n    out: [outDS]" # by convention...
+
+        # Conditional execution
+        when = getattr(job.parameters,'when',None)
+        if when:
+            steps += "\n    when: %s"%str(when)
+
+
         steps += "\n"
         
 
