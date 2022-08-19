@@ -3,15 +3,14 @@ Parameters:
   build: ana.315
   comment: Generate Pythia8 Minb Events and run through F4A
   nJobs:   100
-  nEvents: 20
+  nEvents: 100
   macro: Fun4All_G4_Pass1_pp.C
   flavor: ppminbias  
   runnumber: 1
-  maxAttempt: 3
+  maxAttempt: 1
   memory: 8192
   maxWalltime: 48
-  cpuTimePerEvent: 75000
-
+  cpuTimePerEvent: 2000000
 
 Resources:
   - file: ../MDC2/submit/pythia8_pp_mb/pass1/rundir/*
