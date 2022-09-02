@@ -13,6 +13,7 @@ import datetime
 import subprocess # TODO refactor subprocess --> sh
 import sh
 import sys
+import time
 
 from shrek.scripts.buildJobScript import buildJobScript
 from shrek.scripts.buildCommonWorklow import buildCommonWorkflow
@@ -65,7 +66,8 @@ def main():
     parser.add_argument('--user', type=str,            default=getpass.getuser())
     parser.add_argument('--branch', type=str,          default=shrekOpts['defaultBranch'])
 
-    args = parser.parse_args()
+    # Unrecognized flags
+    args, globalvars = parser.parse_known_args()
 
     fullcommandline = str( ' '.join(sys.argv) )
    
@@ -81,7 +83,7 @@ def main():
 
     shrekOpts['taguuid'] = taguuid
 
-    (subdir,cwlfile,yamlfile) = buildSubmissionDirectory( args.tag, args.yaml, args.site, args, shrekOpts )
+    (subdir,cwlfile,yamlfile) = buildSubmissionDirectory( args.tag, args.yaml, args.site, args, shrekOpts, globalvars )
 
     pchain = [ "pchain" ]
 
@@ -143,6 +145,10 @@ def main():
     pchain_result = None
     utcnow = ""
     if args.submit:
+
+        # Pausing 5s before poking the PanDA... give user a chance to abort...
+        time.sleep(5)
+        
         pchain_result = subprocess.run( ' '.join(pchain), shell=True, cwd=os.path.abspath(subdir), capture_output=True, check=False )
         utcnow = str(datetime.datetime.utcnow())
         with open( subdir + '/' + taguuid, 'a' ) as f:
