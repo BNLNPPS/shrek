@@ -69,6 +69,15 @@ def main():
     # Unrecognized flags
     args, globalvars = parser.parse_known_args()
 
+    glvars = {}
+    for gl in globalvars:
+        gl = gl.strip('--')
+        gl = gl.strip('-')
+        (k,v) = gl.split('=')
+        glvars[k] = v
+
+    print(glvars)
+
     fullcommandline = str( ' '.join(sys.argv) )
    
     if args.handshake == True:
@@ -83,7 +92,7 @@ def main():
 
     shrekOpts['taguuid'] = taguuid
 
-    (subdir,cwlfile,yamlfile) = buildSubmissionDirectory( args.tag, args.yaml, args.site, args, shrekOpts, globalvars )
+    (subdir,cwlfile,yamlfile) = buildSubmissionDirectory( args.tag, args.yaml, args.site, args, shrekOpts, glvars )
 
     pchain = [ "pchain" ]
 

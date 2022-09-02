@@ -75,10 +75,10 @@ def buildJobScript( yaml_, tag_, glvars_ ):
 
     # Export global variables
     # TODO: require pattern match of VAR=VAL
-    for gl in glvars_:
+    for (gl,val) in glvars_.items():
         gl = gl.strip('--')
         gl = gl.strip('-')
-        output += 'export %s\n'%gl
+        output += 'export %s=%s\n'%(gl,val)
         
     
 
