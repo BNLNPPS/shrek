@@ -128,7 +128,7 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
         
 
     # Build CWL for PanDA submission
-    ( cwf, yml, dgr ) = buildCommonWorkflow( jdfs, tag, site, args )
+    ( cwf, yml, dgr ) = buildCommonWorkflow( jdfs, tag, site, args, glvars )
     cwlfile = '%s-workflow.cwl'%tag
     ymlfile = '%s-input.yaml'%tag
     # Output common workflow

@@ -123,7 +123,7 @@ def cwl_inputs( wfgraph ):
     
     return inputs
 
-def yml_inputs( wfgraph ):
+def yml_inputs( wfgraph, glvars_ ):
     inputs = ""
 
     # Find jobs with no predecessors... these may have inputs registered to them.
@@ -138,7 +138,11 @@ def yml_inputs( wfgraph ):
             count = count + 1
             #inputs += "\n  %s: string"%inp.name
             if inp.datasets:
-                inputs += "%s: %s\n"%(inp.name,inp.datasets)
+                dataset = inp.datasets
+                for k,v in glvars_.items():
+                    if k in dataset:
+                        dataset = dataset.replace(k,v)
+                inputs += "%s: %s\n"%(inp.name,dataset)
             
     return inputs
 
@@ -325,7 +329,7 @@ def cwl_steps( wfgraph, site, args ):
 
     
 
-def buildCommonWorkflow( yamllist, tag_, site, args ):
+def buildCommonWorkflow( yamllist, tag_, site, args, glvars_ ):
 
     wfg = buildWorkflowGraph( yamllist, tag_ )
     wfg.buildEdges()
@@ -340,7 +344,7 @@ def buildCommonWorkflow( yamllist, tag_, site, args ):
     output += cwl_steps( wfg, site, args )
 
     yaml = ""
-    yaml += yml_inputs( wfg )
+    yaml += yml_inputs( wfg, glvars_ )
 
     return ( output, yaml, digraph )
 
