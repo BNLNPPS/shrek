@@ -81,9 +81,17 @@ def main():
 
     args, globalvars = parser.parse_known_args()
 
-    for result in pollRucioForDatasetsMatching( args.conditions, ':'.join([args.scope,args.match]), args.period ):
+    testDS1 = pollRucioForDatasetsMatching( args.conditions, ':'.join([args.scope,'*.test1']), 0 )
+    testDS2 = pollRucioForDatasetsMatching( args.conditions, ':'.join([args.scope,'*.test2']), 0 )
 
-        print(result)
+    for ds1,ds2 in zip ( testDS1, testDS2 ):
+
+        print(ds1)
+        print(ds2)
+
+        time.sleep( args.period )
+    
+
 
 
 
