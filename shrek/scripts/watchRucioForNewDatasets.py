@@ -27,6 +27,7 @@ def readConfig( filename ):
     return defaults['Donkey']
 
 def queryRucioForDatasetsMatching( conditions, filematch ):
+    print('query %s %s'%(conditions,filematch) )
     if conditions:
         result = sh.rucio.ls( '--short', '--filter', conditions, filematch )
     else:
@@ -34,7 +35,29 @@ def queryRucioForDatasetsMatching( conditions, filematch ):
     result=result.strip('\n')
     return result.split()
 
-def pollRucioForDatasetsMatchin( conditions, filematch ):
+def pollRucioForDatasetsMatching( conditions, filematch, delta ):
+
+    # Initialize to the current time
+    utclast  = str(datetime.datetime.utcnow())
+    
+    while True:
+
+        utcnow  = str(datetime.datetime.utcnow())
+        select  = ( 'updated_at>%s,'%utclast + conditions ) .strip(',')
+        result  = queryRucioForDatasetsMatching( select, filematch )
+        message = '[Donkey %s polling datasets since %s : %i datasets match]'%(utcnow,utclast,len(result))
+        print(message)
+        utclast = utcnow
+        
+        yield result
+
+        time.sleep( delta )
+        
+        
+
+
+
+
     
     
 
@@ -54,31 +77,16 @@ def main():
     parser.set_defaults( match=defaults['match'] )
 
     parser.add_argument( '--conditions', type=str, help='Filter conditions applied to dataset metadata' )
-    parser.set_defaults( conditions=None )
+    parser.set_defaults( conditions='' )
 
     args, globalvars = parser.parse_known_args()
 
-    go = True
+    for result in pollRucioForDatasetsMatching( args.conditions, ':'.join([args.scope,args.match]), args.period ):
 
-    # Last polling time
-    utclast  = str(datetime.datetime.utcnow())
-       
-    while go:
+        print(result)
 
-        # Current time
-        utcnow  = str(datetime.datetime.utcnow())
-        conditions = 'created_at>%s'%utclast
 
-        # Supplemental conditions supplied on command line
-        if args.conditions:
-            conditions = conditions + ',' + args.conditions
-               
-        result = queryRucioForDatasetsMatching( conditions, '%s:%s'%(args.scope, args.match) )
-        message = '[Donkey %s polling datasets since %s : %i datasets match]'%(utcnow,utclast,len(result))
-        print(message)
 
-        utclast = utcnow
-        time.sleep( args.period )
 
 
 if __name__ == '__main__':
