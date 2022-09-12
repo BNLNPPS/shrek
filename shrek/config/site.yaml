@@ -4,7 +4,7 @@ Shrek:
   defaultBranch: test
 
 Donkey:
-  period: 60
+  period: 900
   scope: user.jwebb2
   match: "*"
 
