@@ -15,6 +15,8 @@ import sh
 import sys
 import time
 
+from sh import shrek_submit as shrek
+
 def readConfig( filename ):
 
     defaults = {}
@@ -26,8 +28,7 @@ def readConfig( filename ):
 
     return defaults['Donkey']
 
-def queryRucioForDatasetsMatching( conditions, filematch ):
-    print('query %s %s'%(conditions,filematch) )
+def queryRucioForDatasetsMatching( conditions, filematch ):    
     if conditions:
         result = sh.rucio.ls( '--short', '--filter', conditions, filematch )
     else:
@@ -35,22 +36,21 @@ def queryRucioForDatasetsMatching( conditions, filematch ):
     result=result.strip('\n')
     return result.split()
 
-def pollRucioForDatasetsMatching( conditions, filematch, delta ):
+def pollRucioForDatasetsMatching( conditions, filematch, delta, utclast_ ):
 
-    # Initialize to the current time
-    utclast  = str(datetime.datetime.utcnow())
-    
+    count = 0
+    utclast = utclast_
+
     while True:
 
         utcnow  = str(datetime.datetime.utcnow())
         select  = ( 'updated_at>%s,'%utclast + conditions ) .strip(',')
         result  = queryRucioForDatasetsMatching( select, filematch )
-        message = '[Donkey %s polling datasets since %s : %i datasets match]'%(utcnow,utclast,len(result))
+        message = '[Donkey %s polling datasets since %s : %i datasets match : %s]'%(utcnow,utclast,len(result),select)
+        utclast = utcnow        
         print(message)
-        utclast = utcnow
-        
+        count = count + 1
         yield result
-
         time.sleep( delta )
         
         
@@ -76,21 +76,37 @@ def main():
     parser.add_argument( '--match', type=str, help='Datasets match this string (only "*" allowed as wildcards)' )
     parser.set_defaults( match=defaults['match'] )
 
+    parser.add_argument( '--dsflag', type=str, help='Specifies the name of the arguement for the dataset')
+    parser.set_defaults( dsflag='INPUT' )
+
     parser.add_argument( '--conditions', type=str, help='Filter conditions applied to dataset metadata' )
     parser.set_defaults( conditions='' )
 
-    args, globalvars = parser.parse_known_args()
+    parser.add_argument( "--workflows", type=str, help='SHREK workflows to submit' )
 
-    testDS1 = pollRucioForDatasetsMatching( args.conditions, ':'.join([args.scope,'*.test1']), 0 )
-    testDS2 = pollRucioForDatasetsMatching( args.conditions, ':'.join([args.scope,'*.test2']), 0 )
+    parser.add_argument( '--startdate', type=str, help='Start date/time for query [defaults to invocation time]' )
+    parser.set_defaults( startdate=str(datetime.datetime.utcnow()) )
 
-    for ds1,ds2 in zip ( testDS1, testDS2 ):
+    args, extraargs = parser.parse_known_args()
 
-        print(ds1)
-        print(ds2)
+    count = 0
+    for datasets in  pollRucioForDatasetsMatching( args.conditions, ':'.join([args.scope,args.match]), args.period, args.startdate ):
 
-        time.sleep( args.period )
-    
+        # Loop over all datasets and submit them via shrek
+        for ds in datasets:
+
+            # Remove the scope from the dsname
+            dsname = ds.split(':')[1]
+            
+            dsname = dsname.split('_')
+            dsname.pop()
+            dsname = '_'.join(dsname)
+                        
+            print('shrek --no-submit','--no-check','--tag=sP22a-test66-%i'%count,'%s=%s'%(args.dsflag,dsname), ' '.join(extraargs))
+            count = count + 1
+        
+
+
 
 
 
