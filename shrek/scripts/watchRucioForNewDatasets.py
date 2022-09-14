@@ -82,9 +82,13 @@ def main():
     parser.add_argument( '--prescale', type=int, help="Launch only 1 in prescale jobs" )
     parser.set_defaults( prescale=1 )
 
+    parser.add_argument( '--itermax', type=int, help="Exit after specified number of iterations" )
+    parser.set_defaults( itermax=-1 )
+
     args, extraargs = parser.parse_known_args()
 
     count = 0
+    itercount = 0
 
     # First verify that all actors are correctly specified... building a map for
     # future lookup.  If we throw here... we throw.
@@ -94,10 +98,11 @@ def main():
         action[ actor ] = sh.Command(actor)
     
     for datasets in  pollRucioForDatasetsMatching( args.conditions, ':'.join([args.scope,args.match]), args.period, args.startdate ):
+        itercount = itercount + 1        
 
         # Loop over all datasets and submit them via shrek
         for ds in datasets:
-
+              
             # Remove the scope from the dsname
             dsname = ds.split(':')[1]
             
@@ -117,7 +122,11 @@ def main():
                 # TODO: Implement sane exception handling
                 action[actor] ( dsname, uniqueId, _out=captureActorOutput, _err=captureActorError )
 
-            count = count + 1                                            
-
+            count = count + 1
+        
+        # Break out of polling loop if we reach the max number of iterations
+        if itercount == args.itermax:
+            break
+           
 if __name__ == '__main__':
     main()
