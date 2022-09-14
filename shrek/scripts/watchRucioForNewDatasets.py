@@ -2,17 +2,9 @@
 
 import yaml
 import argparse
-import pydot
-import os
-import pathlib
 import shutil
-import glob
-import getpass
-import uuid
 import datetime
-import subprocess # TODO refactor subprocess --> sh
 import sh
-import sys
 import time
 
 from sh import shrek_submit as shrek
@@ -52,15 +44,13 @@ def pollRucioForDatasetsMatching( conditions, filematch, delta, utclast_ ):
         count = count + 1
         yield result
         time.sleep( delta )
-        
-        
+               
+def captureActorOutput( out ):
+    print(out)
 
-
-
-
-    
-    
-
+def captureActorError( out ):
+    print(out)
+       
 def main():
 
     defaults = readConfig( 'shrek/config/site.yaml' )
@@ -76,20 +66,33 @@ def main():
     parser.add_argument( '--match', type=str, help='Datasets match this string (only "*" allowed as wildcards)' )
     parser.set_defaults( match=defaults['match'] )
 
-    parser.add_argument( '--dsflag', type=str, help='Specifies the name of the arguement for the dataset')
-    parser.set_defaults( dsflag='INPUT' )
-
     parser.add_argument( '--conditions', type=str, help='Filter conditions applied to dataset metadata' )
     parser.set_defaults( conditions='' )
-
-    parser.add_argument( "--workflows", type=str, help='SHREK workflows to submit' )
 
     parser.add_argument( '--startdate', type=str, help='Start date/time for query [defaults to invocation time]' )
     parser.set_defaults( startdate=str(datetime.datetime.utcnow()) )
 
+    parser.add_argument('--submit',    dest='submit', action='store_true',  help="Submit jobs to PanDA through SHREK")
+    parser.add_argument('--no-submit', dest='submit', action='store_false', help="No submission, just print out command")
+    parser.set_defaults(submit=False)
+
+    parser.add_argument('--actor',     dest='actors', action='append',  help="Attach an actor, which will be run on each matching dataset, with the ds passed as the first argument and a running count as the second." )
+    parser.set_defaults(actors=[])
+
+    parser.add_argument( '--prescale', type=int, help="Launch only 1 in prescale jobs" )
+    parser.set_defaults( prescale=1 )
+
     args, extraargs = parser.parse_known_args()
 
     count = 0
+
+    # First verify that all actors are correctly specified... building a map for
+    # future lookup.  If we throw here... we throw.
+    action = {}
+    for actor in args.actors:
+        print("Verifying ", actor )
+        action[ actor ] = sh.Command(actor)
+    
     for datasets in  pollRucioForDatasetsMatching( args.conditions, ':'.join([args.scope,args.match]), args.period, args.startdate ):
 
         # Loop over all datasets and submit them via shrek
@@ -101,17 +104,20 @@ def main():
             dsname = dsname.split('_')
             dsname.pop()
             dsname = '_'.join(dsname)
-                        
-            print('shrek --no-submit','--no-check','--tag=sP22a-test66-%i'%count,'%s=%s'%(args.dsflag,dsname), ' '.join(extraargs))
-            count = count + 1
-        
 
+            # Apply prescaling
+            if ( count % args.prescale > 0 ):
+                count = count + 1                
+                continue
 
+            uniqueId = count # but may want to make this a uuid...
+            
+            for actor in args.actors:
+                print('Action: ', actor, dsname)
+                # TODO: Implement sane exception handling
+                action[actor] ( dsname, uniqueId, _out=captureActorOutput, _err=captureActorError )
 
-
-
-
-
+            count = count + 1                                            
 
 if __name__ == '__main__':
     main()
