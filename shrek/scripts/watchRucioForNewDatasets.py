@@ -9,6 +9,9 @@ import time
 
 from sh import shrek_submit as shrek
 
+class RucioNonResponsive( Exception ):
+    pass
+
 def readConfig( filename ):
 
     defaults = {}
@@ -20,7 +23,8 @@ def readConfig( filename ):
 
     return defaults['Donkey']
 
-def queryRucioForDatasetsMatching( conditions, filematch ):    
+def queryRucioForDatasetsMatching( conditions, filematch ):
+    result = []    
     if conditions:
         result = sh.rucio.ls( '--short', '--filter', conditions, filematch )
     else:
@@ -28,16 +32,37 @@ def queryRucioForDatasetsMatching( conditions, filematch ):
     result=result.strip('\n')
     return result.split()
 
-def pollRucioForDatasetsMatching( conditions, filematch, delta, utclast_ ):
+def pollRucioForDatasetsMatching( conditions, filematch, delta, utclast_, exceptionMax=5 ):
 
     count = 0
     utclast = utclast_
 
+    rucioExceptionCount = 0;
     while True:
 
-        utcnow  = str(datetime.datetime.utcnow())
         select  = ( 'updated_at>%s,'%utclast + conditions ) .strip(',')
-        result  = queryRucioForDatasetsMatching( select, filematch )
+        utcnow  = ""
+        
+        while ( True ):
+
+            utcnow  = str(datetime.datetime.utcnow())                    
+
+            if rucioExceptionCount > exceptionMax:
+                print("[Donkey %s could not query rucio after %i attempts]"%(utcnow,rucioExceptionCount))
+                raise RucioNonResponsive                
+                
+            try:
+                result  = queryRucioForDatasetsMatching( select, filematch )
+                break
+            
+            except sh.ErrorReturnCode_10:
+                print("[Donkey %s could not query rucio %i / %i attempts]"%(utcnow,rucioExceptionCount,exceptionMax ))                
+                rucioExceptionCount = rucioExceptionCount + 1
+                time.sleep(60*rucioExceptionCount) # sleep
+
+        # clear the exception count
+        rucioExceptionCount = 0
+            
         message = '[Donkey %s polling datasets since %s : %i datasets match : %s]'%(utcnow,utclast,len(result),select)
         utclast = utcnow        
         print(message)
