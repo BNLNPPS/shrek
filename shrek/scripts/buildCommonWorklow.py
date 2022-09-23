@@ -24,7 +24,7 @@ from shrek.scripts.buildWorkflowGraph import buildWorkflowGraph
 from math import ceil, log
 
 # List of user parameters which get translated into PANDA (prun) options
-PANDA_OPTS = [ "nJobs", "nFiles", "nSkipFiles", "nFilesPerJob", "nGBPerJob", "maxAttempt", "memory", "dumpTaskParams", "maxWalltime", "nEventsPerFile", "cpuTimePerEvent" ]
+PANDA_OPTS = [ "nJobs", "nFiles", "nSkipFiles", "nFilesPerJob", "nGBPerJob", "maxAttempt", "memory", "dumpTaskParams", "maxWalltime", "nEventsPerFile", "cpuTimePerEvent", "merge" ]
 
 def ceil_power_of_10(n):
     exp = log(n, 10)
@@ -183,9 +183,16 @@ def cwl_opt_args( job ):
     hasMaxAttempt = False
     for par in PANDA_OPTS:
         val = getattr(params,par,None)
+
         if val:
-            if par=='maxAttempt': hasMaxAttempt = True
-            optargs += ' --%s %s '%( par, str(val))
+            if par=='merge':
+                optargs += ' --mergeOutput --mergeScript="%s"' % val
+            else:            
+                optargs += ' --%s %s '%( par, str(val))
+
+            if par=='maxAttempt':
+                hasMaxAttempt = True
+                
 
     # Override annoying PanDA default...
     if hasMaxAttempt == False:
