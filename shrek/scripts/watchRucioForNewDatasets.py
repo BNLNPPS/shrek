@@ -23,6 +23,18 @@ def readConfig( filename ):
 
     return defaults['Donkey']
 
+def readWatchFile( filename ):
+    result = {}
+    if filename:
+        with open(filename,'r') as stream:
+            try:
+                result = yaml.safe_load(stream)
+            except yaml.YAMLError as exc:
+                print(exc)
+
+    print(result)
+    return result
+
 def queryRucioForDatasetsMatching( conditions, filematch ):
     result = []    
     if conditions:
@@ -71,10 +83,10 @@ def pollRucioForDatasetsMatching( conditions, filematch, delta, utclast_, except
         time.sleep( delta )
                
 def captureActorOutput( out ):
-    print(out)
+    print('| ' + out)
 
 def captureActorError( out ):
-    print(out)
+    print('| ' + out)
        
 def main():
 
@@ -110,7 +122,22 @@ def main():
     parser.add_argument( '--itermax', type=int, help="Exit after specified number of iterations" )
     parser.set_defaults( itermax=-1 )
 
+    parser.add_argument( '--watch-file', dest='watchfile', type=str, help="Definition file")
+    parser.set_defaults( watchfile=None )
+
     args, extraargs = parser.parse_known_args()
+
+    # Read arguements in from a yaml file and override command line options
+    watchcfg       = readWatchFile( args.watchfile )
+
+    actors         = watchcfg.get( 'actors',     args.actors )
+    conditions     = watchcfg.get( 'conditions', args.conditions )
+    scope          = watchcfg.get( 'scope',      args.scope )
+    match          = watchcfg.get( 'match',      args.match )
+    period         = watchcfg.get( 'period',     args.period )
+    startdate      = watchcfg.get( 'startdate',  args.startdate )
+    prescale       = watchcfg.get( 'prescale',   args.prescale )
+    itermax        = watchcfg.get( 'itermax',    args.itermax )
 
     count = 0
     itercount = 0
@@ -118,11 +145,11 @@ def main():
     # First verify that all actors are correctly specified... building a map for
     # future lookup.  If we throw here... we throw.
     action = {}
-    for actor in args.actors:
+    for actor in actors:
         print("Verifying ", actor )
         action[ actor ] = sh.Command(actor)
     
-    for datasets in  pollRucioForDatasetsMatching( args.conditions, ':'.join([args.scope,args.match]), args.period, args.startdate ):
+    for datasets in  pollRucioForDatasetsMatching( conditions, ':'.join([scope,match]), period, startdate ):
         itercount = itercount + 1        
 
         # Loop over all datasets and submit them via shrek
@@ -136,21 +163,21 @@ def main():
             dsname = '_'.join(dsname)
 
             # Apply prescaling
-            if ( count % args.prescale > 0 ):
+            if ( count % prescale > 0 ):
                 count = count + 1                
                 continue
 
             uniqueId = count # but may want to make this a uuid...
             
-            for actor in args.actors:
-                print('Action: ', actor, dsname)
+            for actor in actors:
+                #print('Action: ', actor, dsname)
                 # TODO: Implement sane exception handling
                 action[actor] ( dsname, uniqueId, _out=captureActorOutput, _err=captureActorError )
 
             count = count + 1
         
         # Break out of polling loop if we reach the max number of iterations
-        if itercount == args.itermax:
+        if itercount == itermax:
             break
            
 if __name__ == '__main__':
