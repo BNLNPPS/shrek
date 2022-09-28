@@ -23,8 +23,8 @@ from shrek.scripts.buildWorkflowGraph import buildWorkflowGraph
 
 from math import ceil, log
 
-# List of user parameters which get translated into PANDA options
-PANDA_OPTS = [ "nJobs", "nFiles", "nSkipFiles", "nFilesPerJob", "nGBPerJob", "maxAttempt", "memory", "dumpTaskParams", "maxWalltime", "nEventsPerFile", "cpuTimePerEvent" ]
+# List of user parameters which get translated into PANDA (prun) options
+PANDA_OPTS = [ "nJobs", "nFiles", "nSkipFiles", "nFilesPerJob", "nGBPerJob", "maxAttempt", "memory", "dumpTaskParams", "maxWalltime", "nEventsPerFile", "cpuTimePerEvent", "merge" ]
 
 def ceil_power_of_10(n):
     exp = log(n, 10)
@@ -123,7 +123,7 @@ def cwl_inputs( wfgraph ):
     
     return inputs
 
-def yml_inputs( wfgraph ):
+def yml_inputs( wfgraph, glvars_ ):
     inputs = ""
 
     # Find jobs with no predecessors... these may have inputs registered to them.
@@ -138,7 +138,11 @@ def yml_inputs( wfgraph ):
             count = count + 1
             #inputs += "\n  %s: string"%inp.name
             if inp.datasets:
-                inputs += "%s: %s\n"%(inp.name,inp.datasets)
+                dataset = inp.datasets
+                for k,v in glvars_.items():
+                    if k in dataset:
+                        dataset = dataset.replace(k,v)
+                inputs += "%s: %s\n"%(inp.name,dataset)
             
     return inputs
 
@@ -179,9 +183,16 @@ def cwl_opt_args( job ):
     hasMaxAttempt = False
     for par in PANDA_OPTS:
         val = getattr(params,par,None)
+
         if val:
-            if par=='maxAttempt': hasMaxAttempt = True
-            optargs += ' --%s %s '%( par, str(val))
+            if par=='merge':
+                optargs += ' --mergeOutput --mergeScript="%s"' % val
+            else:            
+                optargs += ' --%s %s '%( par, str(val))
+
+            if par=='maxAttempt':
+                hasMaxAttempt = True
+                
 
     # Override annoying PanDA default...
     if hasMaxAttempt == False:
@@ -306,9 +317,15 @@ def cwl_steps( wfgraph, site, args ):
         if len(optargs.strip()) > 0:
             steps += "\n        opt_args:"
             steps += '\n          default: "%s --site %s --avoidVP --noBuild "' %(optargs,site)
-
         
         steps += "\n    out: [outDS]" # by convention...
+
+        # Conditional execution
+        when = getattr(job.parameters,'when',None)
+        if when:
+            steps += "\n    when: %s"%str(when)
+
+
         steps += "\n"
         
 
@@ -319,7 +336,7 @@ def cwl_steps( wfgraph, site, args ):
 
     
 
-def buildCommonWorkflow( yamllist, tag_, site, args ):
+def buildCommonWorkflow( yamllist, tag_, site, args, glvars_ ):
 
     wfg = buildWorkflowGraph( yamllist, tag_ )
     wfg.buildEdges()
@@ -334,7 +351,7 @@ def buildCommonWorkflow( yamllist, tag_, site, args ):
     output += cwl_steps( wfg, site, args )
 
     yaml = ""
-    yaml += yml_inputs( wfg )
+    yaml += yml_inputs( wfg, glvars_ )
 
     return ( output, yaml, digraph )
 

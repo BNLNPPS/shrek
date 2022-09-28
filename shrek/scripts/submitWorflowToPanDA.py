@@ -12,6 +12,8 @@ import uuid
 import datetime
 import subprocess # TODO refactor subprocess --> sh
 import sh
+import sys
+import time
 
 from shrek.scripts.buildJobScript import buildJobScript
 from shrek.scripts.buildCommonWorklow import buildCommonWorkflow
@@ -54,7 +56,11 @@ def main():
 
     parser.add_argument('--uuid',    dest='uuid', action='store_true',  help="Tag will be appended by UUID")
     parser.add_argument('--no-uuid', dest='uuid', action='store_false', help="Tag will be appended by UUID")
-    parser.set_defaults(uuid=True)    
+    parser.set_defaults(uuid=True)
+
+    parser.add_argument('--archive',    dest='archive', action='store_true',  help="Submission directory pushed to git / archived")
+    parser.add_argument('--no-archive', dest='archive', action='store_false', help="Submission directory pushed to git / archived")
+    parser.set_defaults(archive=True)        
 
     #
     parser.add_argument('--vo', type=str,              default=pandaOpts['vo'])
@@ -64,7 +70,19 @@ def main():
     parser.add_argument('--user', type=str,            default=getpass.getuser())
     parser.add_argument('--branch', type=str,          default=shrekOpts['defaultBranch'])
 
-    args = parser.parse_args()
+    # Unrecognized flags
+    args, globalvars = parser.parse_known_args()
+
+    glvars = {}
+    for gl in globalvars:
+        gl = gl.strip('--')
+        gl = gl.strip('-')
+        (k,v) = gl.split('=')
+        glvars[k] = v
+
+    print(glvars)
+
+    fullcommandline = str( ' '.join(sys.argv) )
    
     if args.handshake == True:
         from pandaclient import panda_api
@@ -78,7 +96,7 @@ def main():
 
     shrekOpts['taguuid'] = taguuid
 
-    (subdir,cwlfile,yamlfile) = buildSubmissionDirectory( args.tag, args.yaml, args.site, args, shrekOpts )
+    (subdir,cwlfile,yamlfile) = buildSubmissionDirectory( args.tag, args.yaml, args.site, args, shrekOpts, glvars )
 
     pchain = [ "pchain" ]
 
@@ -108,6 +126,7 @@ def main():
     # Create a "tag file" which will ride along with the job 
     with open( subdir + '/' + taguuid, 'w' ) as f:
         f.write('SHREK Job Submission %s'%str(datetime.datetime.now()))
+        f.write('\n' + fullcommandline )
         f.write('\ncmd args: ')
         f.write('\n')        
         f.write(str(args))
@@ -139,6 +158,10 @@ def main():
     pchain_result = None
     utcnow = ""
     if args.submit:
+
+        # Pausing 5s before poking the PanDA... give user a chance to abort...
+        time.sleep(5)
+        
         pchain_result = subprocess.run( ' '.join(pchain), shell=True, cwd=os.path.abspath(subdir), capture_output=True, check=False )
         utcnow = str(datetime.datetime.utcnow())
         with open( subdir + '/' + taguuid, 'a' ) as f:
@@ -153,41 +176,40 @@ def main():
         message='[Shrek submission %s %s UTC]'%(taguuid,utcnow)
         print(message)
 
-        # Make sure all artefacts were committed and push (will require git auth)
-        sh.git.add      ( '*',                                  _cwd=subdir )
-        try:
-            sh.git.commit ( '-m "%s"'%message,                  _cwd=subdir )
-        except sh.ErrorReturnCode_1:
-            print("WARN: git commit duplicate code?")
-        except sh.ErrorReturnCode:
-            print("WARN: git commit duplicate code?")
+        if args.archive:
+            # Make sure all artefacts were committed and push (will require git auth)
+            sh.git.add      ( '*',                                  _cwd=subdir )
+            try:
+                sh.git.commit ( '-m "%s"'%message,                  _cwd=subdir )
+            except sh.ErrorReturnCode_1:
+                print("WARN: git commit duplicate code?")
+            except sh.ErrorReturnCode:
+                print("WARN: git commit duplicate code?")
 
-        #sh.git.tag    ( '-a','-m "%s"'%message, '%s'%taguuid, _cwd=subdir )
-        sh.git.push   (                                       _cwd=subdir )
-        #sh.git.push   ( 'origin', '%s'%taguuid,               _cwd=subdir )
+            #sh.git.tag    ( '-a','-m "%s"'%message, '%s'%taguuid, _cwd=subdir )
+            sh.git.push   (                                       _cwd=subdir )
+            #sh.git.push   ( 'origin', '%s'%taguuid,               _cwd=subdir )
 
-        # Hash for current commit
-        githash = sh.git('rev-parse', '--short', 'HEAD',         _cwd=subdir ) .rstrip()
+            # Hash for current commit
+            githash = sh.git('rev-parse', '--short', 'HEAD',         _cwd=subdir ) .rstrip()
 
-        # n.b. this line is too hardcoded for production / release... contains my github account...
-        # githashurl = 'https://github.com/klendathu2k/sPHENIX-test-production/commit/%s'%githash
-        githashurl = 'https://github.com/klendathu2k/sPHENIX-test-production/tree/%s/%s'%(githash,args.tag)
+            # n.b. this line is too hardcoded for production / release... contains my github account...
+            # githashurl = 'https://github.com/klendathu2k/sPHENIX-test-production/commit/%s'%githash
+            githashurl = 'https://github.com/klendathu2k/sPHENIX-test-production/tree/%s/%s'%(githash,args.tag)
 
-        # Open readme file to place a oneliner table entry
-        print( shrekOpts['submissionPrefix'] + 'README.md' )
-
+            # Open readme file to place a oneliner table entry
+            print( shrekOpts['submissionPrefix'] + 'README.md' )
         
-        
-        with open( shrekOpts['submissionPrefix'] + 'README.md', 'a' ) as readme:
-            update = '|%s|%s|[%s](%s)|%s|\n'%(args.tag,utcnow,githash,githashurl,args.user)
-            readme.write( update )
+            with open( shrekOpts['submissionPrefix'] + 'README.md', 'a' ) as readme:
+                update = '|%s|%s|[%s](%s)|%s|\n'%(args.tag,utcnow,githash,githashurl,args.user)
+                readme.write( update )
 
-        sh.git.add    ( 'README.md',                          _cwd=shrekOpts['submissionPrefix'])
-        try:
-            sh.git.commit ( '-m "%s"'%message,                    _cwd=shrekOpts['submissionPrefix'])            
-            sh.git.push   (                                       _cwd=shrekOpts['submissionPrefix'])
-        except:
-            print ("Warning: README.md not updated" )
+            sh.git.add    ( 'README.md',                          _cwd=shrekOpts['submissionPrefix'])
+            try:
+                sh.git.commit ( '-m "%s"'%message,                    _cwd=shrekOpts['submissionPrefix'])            
+                sh.git.push   (                                       _cwd=shrekOpts['submissionPrefix'])
+            except:
+                print ("Warning: README.md not updated" )
 
     else:
         print('To submit by hand:')

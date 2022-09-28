@@ -46,7 +46,7 @@ def jobDirectoryName( tag, opts ):
 
     yield subdir
 
-def buildSubmissionDirectory( tag, jdfs_, site, args, opts ):
+def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
 
     # Make certain we have absolute path to job definition files
     jdfs = []
@@ -84,7 +84,7 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts ):
     jobs = []
     for jdf in jdfs:
         stem = pathlib.Path(jdf).stem        
-        (job, script) = buildJobScript( jdf, tag )
+        (job, script) = buildJobScript( jdf, tag, glvars )
         jobs.append(job)
 
         # A job w/ no name will be treated as pure input
@@ -128,7 +128,7 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts ):
         
 
     # Build CWL for PanDA submission
-    ( cwf, yml, dgr ) = buildCommonWorkflow( jdfs, tag, site, args )
+    ( cwf, yml, dgr ) = buildCommonWorkflow( jdfs, tag, site, args, glvars )
     cwlfile = '%s-workflow.cwl'%tag
     ymlfile = '%s-input.yaml'%tag
     # Output common workflow

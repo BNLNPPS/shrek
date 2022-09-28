@@ -1,6 +1,6 @@
 Parameters:
   name: mergeOutputs
-  build: mdc2.8
+  build: ana.315
   comment: Merge all outputs into a single tarball
   maxAttempt: 3
  
@@ -8,8 +8,8 @@ InputDataSets:
   - name: Pythia8Calorimeter/outDS
     match: Pythia8Calorimeter.outDS.tar
     nFilesPerJob: 1
-  - name: Pythia8Pass4Track/outDS
-    match: Pythia8Pass4Track.outDS.tar
+  - name: Pythia8Pass4TrackStageC/outDS
+    match: Pythia8Pass4TrackStageC.outDS.tar
     nFilesPerJob: 1
 
 OutputDataSets:
@@ -39,7 +39,6 @@ JobCommands: |-
 
   echo END   ${name} `date` 
 
-  cp _${name}.log /sphenix/u/sphnxpro/shrek/${name}-${uniqueId}.log
-
+  cp _${name}.log /sphenix/u/sphnxpro/shrek/${shrek_tag}-${name}-${uniqueId}.log
 
  

@@ -1,11 +1,12 @@
 Parameters:
-  name: Pythia8Pass4Track
-  build: mdc2.8
+  name: Pythia8Pass4TrackStage0
+  build:  ana.315
   comment: This is a test job definition
-  macro: Fun4All_G4_Trkr.C
+  macro: Fun4All_G4_sPHENIX_job0.C
   flavor: Charm  
   nEvents: 10
   maxAttempt: 3
+  runnumber: 1
 
 InputDataSets:
   - name: Pythia8Pass3Track/outDS
@@ -14,13 +15,13 @@ InputDataSets:
     nFilesPerJob: 1
 
 OutputDataSets:
-  - name: Pythia8Pass4Track/outDS
+  - name: Pythia8Pass4TrackStage0/outDS
     comment: Pythia8 events
     filelist:
-       - "required:Pythia8Pass4Track.outDS.tar"
+       - "required:Pythia8Pass4TrackStage0.outDS.tar"
 
 Resources:
-  - file: ../MDC2/submit/HF_pp200_signal/pass4trk/rundir/*
+  - file: ../MDC2/submit/HF_pp200_signal/pass4_job0/rundir/*
 
 JobCommands: |-
   echo START ${name} `date` 
@@ -45,19 +46,25 @@ JobCommands: |-
   # $6: run number
   # $7: sequence
 
+  rn=$( printf "%010d" $runnumber )
+  sn=$( printf "%05d"  $uniqueId )
+
   dst_track=`ls DST_TRKR_HIT*.root`
   dst_truth=`ls DST_TRUTH_G4HIT*.root`
-  outfile=dst_pass4track_output.root
+  outfile=HF_pp200_signal_pass4_job0_${rn}-${sn}.root
 
   echo DST_TRUTH: $dst_truth
 
-  echo root.exe -q -b Fun4All_G4_Trkr.C\(${nEvents},\"${dst_track}\",\"${outfile}\",\"\",0,\".\"\)
-  root.exe -q -b Fun4All_G4_Trkr.C\(${nEvents},\"${dst_track}\",\"${outfile}\",\"\",0,\".\"\)
+  #echo root.exe -q -b ${macro}\(${nEvents},\"${dst_track}\",\"${outfile}\",\"\",0,\".\"\)
+  #root.exe -q -b ${macro}\(${nEvents},\"${dst_track}\",\"${outfile}\",\"\",0,\".\"\)
+
+  echo root.exe -q -b ${macro}\(${nEvents},0,\"${dst_track}\",\"${outfile}\",\".\"\)
+  root.exe -q -b ${macro}\(${nEvents},0,\"${dst_track}\",\"${outfile}\",\".\"\)
 
   # NOTE: This packs all input files as well...
-  tar cvf Pythia8Pass4Track.outDS.tar *.root 
+  tar cvf Pythia8Pass4TrackStage0.outDS.tar *.root 
   ls 
 
   echo END   ${name} `date` 
 
-  cp _${name}.log /sphenix/u/sphnxpro/shrek/${name}-${uniqueId}.log
+  cp _${name}.log /sphenix/u/sphnxpro/shrek/${shrek_tag}-${name}-${uniqueId}.log

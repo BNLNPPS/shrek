@@ -1,6 +1,6 @@
 Parameters:
   name: Pythia8Pass3Track
-  build: mdc2.8
+  build: ana.315
   comment: This is a test job definition
   macro: Fun4All_G4_Pass3Trk.C
   flavor: Charm  
@@ -52,17 +52,19 @@ JobCommands: |-
   # DST_TRUTH_G4HIT_pythia8_Charm_3MHz-0000000001-00001.root
   # DST_VERTEX_pythia8_Charm_3MHz-0000000001-00001.root
 
+  rn=$( printf "%010d" $runnumber )
+  sn=$( printf "%05d"  $uniqueId )
+
   dst_track=`ls DST_TRKR*.root`
   dst_truth=`ls DST_TRUTH*.root`
-  outfile=dst_pass3track_output.root
+  outfile=HF_pp200_signal_pass3trk_${rn}-${sn}.root
 
-  #root.exe -q -b  Fun4All_G4_Pass3Trk.C\($1,\"$2\",\"$3\",\"\",\"\",0,\"$4\",\"$5\"\)
-  echo   root.exe -q -b  Fun4All_G4_Pass3Trk.C\($1,\"${dst_track}\",\"${dst_truth}\",\"\",\"\",0,\".\",\"${flavor}\"\)
-  root.exe -q -b  Fun4All_G4_Pass3Trk.C\($1,\"${dst_track}\",\"${dst_truth}\",\"\",\"\",0,\".\",\"${flavor}\"\)
+  echo   root.exe -q -b  Fun4All_G4_Pass3Trk.C\(${nEvents},\"${dst_track}\",\"${dst_truth}\",\"\",\"\",0,\".\",\"${flavor}\"\)
+  root.exe -q -b  Fun4All_G4_Pass3Trk.C\(${nEvents},\"${dst_track}\",\"${dst_truth}\",\"\",\"\",0,\".\",\"${flavor}\"\)
 
   # NOTE: This packs all input files as well...
   tar cvf Pythia8Pass3Track.outDS.tar *.root 
 
   echo END   ${name} `date` 
 
-  cp _${name}.log /sphenix/u/sphnxpro/shrek/${name}-${uniqueId}.log
+  cp _${name}.log /sphenix/u/sphnxpro/shrek/${shrek_tag}-${name}-${uniqueId}.log

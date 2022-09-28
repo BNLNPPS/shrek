@@ -61,7 +61,7 @@ def buildJobDefinition( yaml_, tag_ ):
 
         return job
 
-def buildJobScript( yaml_, tag_ ):
+def buildJobScript( yaml_, tag_, glvars_ ):
 
     job = buildJobDefinition( yaml_, tag_ )
 
@@ -71,7 +71,15 @@ def buildJobScript( yaml_, tag_ ):
     output += "uname -a\n"
     output += "lscpu | grep \^CPU\n"    
     output += "free -h --giga\n"
-    output += "\n"    
+    output += "\n"
+
+    # Export global variables
+    # TODO: require pattern match of VAR=VAL
+    for (gl,val) in glvars_.items():
+        gl = gl.strip('--')
+        gl = gl.strip('-')
+        output += 'export %s=%s\n'%(gl,val)
+        
     
 
     if job == None:

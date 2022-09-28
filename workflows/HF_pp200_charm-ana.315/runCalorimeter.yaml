@@ -1,6 +1,6 @@
 Parameters:
   name: Pythia8Calorimeter
-  build: mdc2.8
+  build: ana.315
   comment: This is a test job definition
   macro: Fun4All_G4_Calo.C
   flavor: Charm  
@@ -52,9 +52,13 @@ JobCommands: |-
   # DST_TRUTH_G4HIT_pythia8_Charm_3MHz-0000000001-00001.root
   # DST_VERTEX_pythia8_Charm_3MHz-0000000001-00001.root
 
+  rn=$( printf "%010d" $runnumber )
+  sn=$( printf "%05d"  $uniqueId )
+
   dst_calo=`ls DST_CALO_G4HIT*.root`
   dst_vert=`ls DST_VERTEX*.root`
-  outfile=dst_calo_output.root
+  #outfile=dst_calo_output.root
+  outfile=HF_pp200_signal_pass2_${rn}
 
   root.exe -q -b  ${macro}\(${nEvents},\"${dst_calo}\",\"${dst_vert}\",\"${outfile}\",\".\"\)
 
@@ -63,4 +67,4 @@ JobCommands: |-
 
   echo END   ${name} `date` 
 
-  cp _${name}.log /sphenix/u/sphnxpro/shrek/${name}-${uniqueId}.log
+  cp _${name}.log /sphenix/u/sphnxpro/shrek/${shrek_tag}-${name}-${uniqueId}.log
