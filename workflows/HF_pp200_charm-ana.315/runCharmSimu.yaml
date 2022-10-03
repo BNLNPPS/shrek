@@ -2,15 +2,13 @@ Parameters:
   name: Pythia8CharmSimulation
   build: ana.315
   comment: Generate Pythia8 Charm Events and run through F4A
-  nJobs:   500
-  nEvents: 100
+  nJobs:   200
+  nEvents: 1000
   macro: Fun4All_G4_HF_pp_signal.C
   flavor: Charm  
   runnumber: 1
   maxAttempt: 1
   memory: 8192
-  maxWalltime: 48
-  cpuTimePerEvent: 2000000
 
 
 Resources:
@@ -29,10 +27,6 @@ JobCommands: |-
 
   # Initialize sPHENIX software environment
   source /opt/sphenix/core/bin/sphenix_setup.sh -n ${build}
-
-  which root
-  root --version
-  root-config --features
 
 
   rn=$( printf "%010d" $runnumber )
