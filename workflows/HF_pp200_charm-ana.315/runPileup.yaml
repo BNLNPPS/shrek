@@ -8,15 +8,14 @@ Parameters:
   maxAttempt: 5
   memory: 8192
   runnumber: 1
-  nFiles: 10
  
 InputDataSets:
   - name: Pythia8CharmSignal
-    datasets: user.jwebb2.sP22r-hfcharm-signal-test4_000_Pythia8CharmSimulation
+    datasets: CHARM_INPUT
     match: Pythia8CharmSimulation.outDS.tar
     nFilesPerJob: 1
   - name: Pythia8Background
-    datasets: user.jwebb2.sP22r-hfcharm-background-test9_000_Pythia8MinbSimulation
+    datasets: MINBIAS_INPUT
     reusable: true
     match: Pythia8MinbSimulation.outDS.tar
     nFilesPerJob: 99
