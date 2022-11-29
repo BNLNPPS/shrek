@@ -60,7 +60,11 @@ def main():
 
     parser.add_argument('--archive',    dest='archive', action='store_true',  help="Submission directory pushed to git / archived")
     parser.add_argument('--no-archive', dest='archive', action='store_false', help="Submission directory pushed to git / archived")
-    parser.set_defaults(archive=True)        
+    parser.set_defaults(archive=True)
+
+    parser.add_argument('--push',    dest='push', action='store_true',  help="Submission directory pushed to git / archived")
+    parser.add_argument('--no-push', dest='push', action='store_false', help="Submission directory pushed to git / archived")
+    parser.set_defaults(push=False)        
 
     #
     parser.add_argument('--vo', type=str,              default=pandaOpts['vo'])
@@ -186,10 +190,9 @@ def main():
             except sh.ErrorReturnCode:
                 print("WARN: git commit duplicate code?")
 
-            #sh.git.tag    ( '-a','-m "%s"'%message, '%s'%taguuid, _cwd=subdir )
-            sh.git.push   (                                       _cwd=subdir )
-            #sh.git.push   ( 'origin', '%s'%taguuid,               _cwd=subdir )
-
+            if args.push:
+                sh.git.push   (                                       _cwd=subdir )
+            
             # Hash for current commit
             githash = sh.git('rev-parse', '--short', 'HEAD',         _cwd=subdir ) .rstrip()
 
@@ -206,8 +209,9 @@ def main():
 
             sh.git.add    ( 'README.md',                          _cwd=shrekOpts['submissionPrefix'])
             try:
-                sh.git.commit ( '-m "%s"'%message,                    _cwd=shrekOpts['submissionPrefix'])            
-                sh.git.push   (                                       _cwd=shrekOpts['submissionPrefix'])
+                sh.git.commit ( '-m "%s"'%message,                    _cwd=shrekOpts['submissionPrefix'])
+                if args.push:
+                    sh.git.push   (                                       _cwd=shrekOpts['submissionPrefix'])
             except:
                 print ("Warning: README.md not updated" )
 
