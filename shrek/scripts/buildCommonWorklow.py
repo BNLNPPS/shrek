@@ -186,7 +186,7 @@ def cwl_opt_args( job ):
 
         if val:
             if par=='merge':
-                optargs += ' --mergeOutput --mergeScript="%s"' % val
+                optargs += ' --mergeOutput --mergeScript=\\\"%s\\\"' % val
             else:            
                 optargs += ' --%s %s '%( par, str(val))
 
