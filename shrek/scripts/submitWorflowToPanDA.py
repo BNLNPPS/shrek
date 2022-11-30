@@ -56,7 +56,10 @@ def main():
 
     parser.add_argument('--uuid',    dest='uuid', action='store_true',  help="Tag will be appended by UUID")
     parser.add_argument('--no-uuid', dest='uuid', action='store_false', help="Tag will be appended by UUID")
-    parser.set_defaults(uuid=True)
+    parser.add_argument('--timestamp',    dest='timestamp', action='store_true',  help="Tag will be appended by timestamp")
+    parser.add_argument('--no-timestamp', dest='timestamp', action='store_false', help="Tag will be appended by timestamp")
+    parser.set_defaults(uuid=False)
+    parser.set_defaults(timestamp=True)
 
     parser.add_argument('--archive',    dest='archive', action='store_true',  help="Submission directory pushed to git / archived")
     parser.add_argument('--no-archive', dest='archive', action='store_false', help="Submission directory pushed to git / archived")
@@ -97,6 +100,13 @@ def main():
     taguuid = args.tag
     if args.uuid:
         taguuid = taguuid + '-' + str(uuid.uuid1())
+    elif args.timestamp:
+        stamp = datetime.datetime.now().isoformat('T','minutes')
+        stamp = stamp.replace(':','')
+        stamp = stamp.replace('-','')
+        stamp = stamp.replace('T','-')
+        taguuid = taguuid + '-' + stamp
+     
 
     shrekOpts['taguuid'] = taguuid
 
