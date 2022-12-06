@@ -20,7 +20,7 @@ def commonWorkflow():
         tag  = "sP-SIMPLE-CHAIN-TEST"
     args = Args()
 
-    return buildCommonWorkflow( yamls, args.tag, args.site, args )    
+    return buildCommonWorkflow( yamls, args.tag, args.site, args, {} )    
 
 #________________________________________________________________________
 

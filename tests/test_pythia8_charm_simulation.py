@@ -29,7 +29,7 @@ def commonWorkflow():
         tag  = "sP-PYTHIA8-TEST"
     args = Args()        
 
-    return buildCommonWorkflow( yamls, args.tag, args.site, args )
+    return buildCommonWorkflow( yamls, args.tag, args.site, args, {} )
 
 #________________________________________________________________________
 
