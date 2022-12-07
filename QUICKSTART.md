@@ -46,12 +46,16 @@ It is typically user.${USER}
 
 Next, you should run the test suite to confirm codes are setup properly.
 
+```
 $ pytest -v tests/
+```
 
 ## Setting up handy aliases
 
+```
 $ alias donkey='shrek/scripts/watchRucioForNewDatasets.py'
 $ alias shrek='shrek/scripts/submitWorflowToPanDA.py'
+```
 
 ## Running test jobs with shrek
 
@@ -60,36 +64,44 @@ workflow, creating the directory "sP00a-simple" in your submission area, and
 assembling the job submission scripts there.  There will be no interaction 
 with the PanDA server.
 
+```
 $ shrek --no-submit --no-check --no-handshake --tag sP00a-simple tests/simple-chain/*.yaml
+```
 
-There are three flags -- no-submit, no-check and no-handshake -- which instruct shrek not
+There are three flags -- `no-submit`, `no-check` and `no-handshake` -- which instruct shrek not
 to have any interaction with the PanDA servers.  On a typical call, shrek will begin by
 trying to send a handshake message to the PanDA server.  PanDA will either respond that
 it is ready to accept jobs, or request authentication.  (Or possibly fail at this point).
 
 Run 
 
+```
 $ shrek --no-submit --no-check --handshake --tag sP00a-simple tests/simple-chain/*.yaml
+```
 
 to make sure you are authenticated with the PanDA server, following any instructions
-you recieve.  [You could omit the --handshake option as it is the default].
+you recieve.  [You could omit the `--handshake` option as it is the default].
 
 Next we want to validate the workflow.  Run
 
+```
 $ shrek --no-submit --check --handshake --tag sP00a-simple tests/simple-chain/*.yaml
+```
 
 The PanDA server will return true if the CWL document is properly structured and able
 to be accepted.  This is not a guarentee that the code will run, but it does demonstrate
 that shrek has converted the job definition files under `tests/simple-chain` into something
-which PanDA can handle.  [Again, the --check flag is enabled by default and could be
+which PanDA can handle.  [Again, the `--check` flag is enabled by default and could be
 omitted.]
 
 If all goes well, shrek should report that PanDA considers the workflow to be valid,
 and provides instructions for how to submit the job by hand.
 
-Finally let's submit the job via shrek.  Issue
+Finally let's submit the job to PanDA via shrek.  Issue
 
+```
 $ shrek --submit --tag sP00a-simple tests/simple-chain/*.yaml
+```
 
 As mentioned above, the `handshake` and `check` options are on by default, so we have
 omitted them from this example.  The `submit` option, however, is not on by default.
