@@ -8,19 +8,13 @@ import sh
 import time
 
 from sh import shrek_submit as shrek
+from shrek.scripts.ShrekConfiguration import readSiteConfig
 
 class RucioNonResponsive( Exception ):
     pass
 
-def readConfig( filename ):
-
-    defaults = {}
-    with open(filename,'r') as stream:
-        try:
-            defaults = yaml.safe_load(stream)
-        except yaml.YAMLError as exc:
-            print(exc)
-
+def readConfig( filename ):    
+    defaults = readSiteConfig()    
     return defaults['Donkey']
 
 def readWatchFile( filename ):
@@ -90,7 +84,7 @@ def captureActorError( out ):
        
 def main():
 
-    defaults = readConfig( 'shrek/config/site.yaml' )
+    defaults = readConfig()
 
     parser = argparse.ArgumentParser(description='Monitors rucio for new datasets and submits to PanDA')
 
