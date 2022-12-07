@@ -19,21 +19,14 @@ import pprint
 from shrek.scripts.buildJobScript import buildJobScript
 from shrek.scripts.buildCommonWorklow import buildCommonWorkflow
 from shrek.scripts.buildSubmissionDirectory import buildSubmissionDirectory
+from shrek.scripts.ShrekConfiguration import readSiteConfig
 
 def main():
 
     # Default configuration options
-    defaults = {}
-    shrekOpts = {}
-    pandaOpts = {}    
-    with open("shrek/config/site.yaml", "r") as stream:
-        try:
-            defaults = yaml.safe_load(stream)
-            shrekOpts = defaults['Shrek']
-            pandaOpts = defaults['PanDA']
-            print(pandaOpts)
-        except yaml.YAMLError as exc:
-            print(exc)
+    defaults  = readSiteConfig()
+    shrekOpts = defaults['Shrek']
+    pandaOpts = defaults['PanDA']
 
     # Setup the default panda environment to be run in subprocess that launches pchain
     pandaEnv = os.environ.copy()
