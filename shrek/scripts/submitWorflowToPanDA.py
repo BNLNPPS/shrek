@@ -14,6 +14,7 @@ import subprocess # TODO refactor subprocess --> sh
 import sh
 import sys
 import time
+import pprint
 
 from shrek.scripts.buildJobScript import buildJobScript
 from shrek.scripts.buildCommonWorklow import buildCommonWorkflow
@@ -33,7 +34,15 @@ def main():
             print(pandaOpts)
         except yaml.YAMLError as exc:
             print(exc)
-                                   
+
+    # Setup the default panda environment to be run in subprocess that launches pchain
+    pandaEnv = os.environ.copy()
+    pandaEnv['PANDA_URL']         = pandaOpts['url']
+    pandaEnv['PANDA_URL_SSL']     = pandaOpts['url_ssl']
+    pandaEnv['PANDA_AUTH']        = pandaOpts['auth']
+    pandaEnv['PANDA_VERIFY_HOST'] = pandaOpts['verify_host']
+    pandaEnv['PANDA_AUTH_VO']     = pandaOpts['auth_vo']
+                                             
     #
     parser = argparse.ArgumentParser(description='Build job submission area')
     parser.add_argument('yaml', metavar='YAML', type=str, nargs="+",help='input filename')
@@ -132,7 +141,7 @@ def main():
     #   exit code is tested and exception raised if nonzero
     pcheck_result = ""
     if args.check:
-        pcheck_result = subprocess.run( ' '.join(pcheck), shell=True, cwd=os.path.abspath(subdir), capture_output=True, check=False )
+        pcheck_result = subprocess.run( ' '.join(pcheck), shell=True, cwd=os.path.abspath(subdir), env=pandaEnv, capture_output=True, check=False )
 
     # We are now ready to submit the job.  First log everything to a tag file...
     # (can be updated to a local DB)
@@ -171,12 +180,13 @@ def main():
     #
     pchain_result = None
     utcnow = ""
+    
     if args.submit:
 
         # Pausing 5s before poking the PanDA... give user a chance to abort...
         time.sleep(5)
         
-        pchain_result = subprocess.run( ' '.join(pchain), shell=True, cwd=os.path.abspath(subdir), capture_output=True, check=False )
+        pchain_result = subprocess.run( ' '.join(pchain), shell=True, cwd=os.path.abspath(subdir), env=pandaEnv, capture_output=True, check=False )
         utcnow = str(datetime.datetime.utcnow())
         with open( subdir + '/' + taguuid, 'a' ) as f:
             f.write('\nsubmit:')
