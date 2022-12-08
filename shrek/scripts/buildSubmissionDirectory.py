@@ -146,7 +146,7 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
 
     # Create PNG from the digraph and store in the staging area along
     # with a markdown file for display purposes
-    if dgr:
+    if dgr and args.diagram:
         dot = nx.drawing.nx_pydot.to_pydot(dgr)
         dot.write_png( "%s/workflow.png"%subdir )
 

@@ -69,7 +69,11 @@ def main():
 
     parser.add_argument('--push',    dest='push', action='store_true',  help="Submission directory pushed to git / archived")
     parser.add_argument('--no-push', dest='push', action='store_false', help="Submission directory pushed to git / archived")
-    parser.set_defaults(push=False)        
+    parser.set_defaults(push=False)
+
+    parser.add_argument('--diagram',    dest='diagram', action='store_true',  help="Add workflow diagram")
+    parser.add_argument('--no-diagram', dest='diagram', action='store_false', help="Do not create workflow diagram")
+    parser.set_defaults(diagram=True)        
 
     #
     parser.add_argument('--vo', type=str,              default=pandaOpts['vo'])
