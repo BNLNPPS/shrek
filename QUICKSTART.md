@@ -30,7 +30,7 @@ a local git repository inside of it.
 ```
 $ mkdir ../my-submission-area
 $ cd ../my-submission-area
-$ git inti
+$ git init
 $ cd -
 ```
 
