@@ -1,0 +1,17 @@
+Parameters:
+  name: top1
+  comment: "Simple chain from panda examples"
+  nJobs: 5
+
+OutputDataSets:
+  - name: top1/outDS
+    filelist:
+      - "required: top1outDS.tar"
+
+JobCommands: |-
+  echo $uniqueId > seed1.txt
+  tar cvf top1outDS.tar seed1.txt
+
+
+
+

@@ -1,0 +1,14 @@
+Parameters:
+  name: top
+  comment: "Simple chain from panda examples"
+  nJobs: 3
+
+OutputDataSets:
+  - name: top/outDS
+    filelist:
+      - "required: seed.txt"
+
+JobCommands: |-
+  echo $uniqueId > seed.txt
+  cp seed.txt /sphenix/u/sphnxpro/PanDa/
+
