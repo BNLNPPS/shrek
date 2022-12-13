@@ -108,3 +108,35 @@ omitted them from this example.  The `submit` option, however, is not on by defa
 So we explicitly tell shrek to submit the job.
 
 If all goes well, you'll see a URL pointing you to the job monitoring page for your run.
+
+## Troubleshooting
+
+What to do if something goes wrong
+
+### Python complains about missing executables for graphviz
+
+If you see a message `FileNotFoundError: [Errno 2] No such file or directory: 'dot'`, the graphviz
+executable is not installed on the system.  This is used to create a diagram of the workflow chain,
+and is not required for the construction of the files needed for PanDA submission.  You can add the
+option
+
+`--no-diagram` 
+
+to the command line.  This will supress generation of the workflow diagram and allow submission to proceed.
+
+### PanDA did not validate the workflow.  Submission canceled.
+
+This message is returned when PanDA recieives and invalid workflow document, but
+will also occur if there is a problem with authenticating to either or both the
+PanDA and rucio servers.
+
+SHREK assumes that your PanDA and rucio account has the same name as your account
+on the computer that you submit from.  If this is not the case, you can provide the
+username as
+
+`--user my-username`
+
+### The submission goes through, but PanDA workflow monitor reports "doSetup failed with local variable 'child_process' referenced before assignment failed to setup task"
+
+I see this error somewhat frequently.  Give it some time and PanDA may recover.
+
