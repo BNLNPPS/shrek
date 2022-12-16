@@ -35,6 +35,18 @@ def main():
     pandaEnv['PANDA_AUTH']        = pandaOpts['auth']
     pandaEnv['PANDA_VERIFY_HOST'] = pandaOpts['verify_host']
     pandaEnv['PANDA_AUTH_VO']     = pandaOpts['auth_vo']
+
+    if pandaOpts.get('cache_url'):        
+        pandaEnv['PANDA_CACHE_URL'] = pandaOpts.get('cache_url')
+    if pandaOpts.get('mon_url'):
+        pandaEnv['PANDAMON_URL'] = pandaOpts.get('mon_url')
+    if pandaOpts.get('use_native_httplib'):
+        pandaEnv['PANDA_USE_NATIVE_HTTPLIB'] = pandaOpts.get('use_native_httplib')
+    if pandaOpts.get('behind_real_lb') != None:
+        pandaEnv['PANDA_BEHIND_REAL_LB'] = pandaOpts.get('behind_real_lb')
+        
+
+    pprint.pprint(pandaOpts)
                                              
     #
     parser = argparse.ArgumentParser(description='Build job submission area')
@@ -234,11 +246,16 @@ def main():
 
     else:
         print('To submit by hand:')
-        print('  cd %s'%subdir )
-        print('  %s'% ' '.join(pchain) )
+        print('  $ cd %s'%subdir )
+        print('  $ %s'% ' '.join(pchain) )
+        print('    - or -' )
+        print('  $ ./submit' )
 
         with open( '%s/submit'%subdir, 'w' ) as doit:
             doit.write( '#!/usr/bin/env bash\n')
+            for k,v in pandaEnv.items():
+                if k[:5]=='PANDA':
+                    doit.write('%s=%s\n'%(k,v))
             doit.write( '%s\n'% ' '.join(pchain) )
 
 if __name__ == '__main__':
