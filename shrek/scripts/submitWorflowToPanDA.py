@@ -44,6 +44,9 @@ def main():
         pandaEnv['PANDA_USE_NATIVE_HTTPLIB'] = pandaOpts.get('use_native_httplib')
     if pandaOpts.get('behind_real_lb') != None:
         pandaEnv['PANDA_BEHIND_REAL_LB'] = pandaOpts.get('behind_real_lb')
+
+    if pandaOpts.get("virtualenv") != None:
+        pandaEnv['SHREK_VIRTUAL_ENV_SCRIPT'] = pandaOpts.get("virtualenv") 
         
 
     pprint.pprint(pandaOpts)
@@ -130,7 +133,14 @@ def main():
 
     (subdir,cwlfile,yamlfile) = buildSubmissionDirectory( args.tag, args.yaml, args.site, args, shrekOpts, glvars )
 
-    pchain = [ "pchain" ]
+    # Build the pchain command
+    pchain = []
+
+    
+    if pandaOpts.get("virtualenv") != None:
+        pchain . append( '(' + pandaOpts.get("virtualenv") + ') && ' )
+    
+    pchain . append ( "pchain" )
 
     pchain . append( '--vo %s'%args.vo )
     pchain . append( '--workingGroup %s'%args.workingGroup )
@@ -245,18 +255,20 @@ def main():
                 print ("Warning: README.md not updated" )
 
     else:
+        
         print('To submit by hand:')
         print('  $ cd %s'%subdir )
         print('  $ %s'% ' '.join(pchain) )
         print('    - or -' )
         print('  $ ./submit' )
 
-        with open( '%s/submit'%subdir, 'w' ) as doit:
-            doit.write( '#!/usr/bin/env bash\n')
-            for k,v in pandaEnv.items():
-                if k[:5]=='PANDA':
-                    doit.write('%s=%s\n'%(k,v))
-            doit.write( '%s\n'% ' '.join(pchain) )
+    # Create the manual submission script regardless of whether we submitted the job or not    
+    with open( '%s/submit'%subdir, 'w' ) as doit:
+        doit.write( '#!/usr/bin/env bash\n')
+        for k,v in pandaEnv.items():
+            if k[:5]=='PANDA':
+                doit.write('%s=%s\n'%(k,v))
+        doit.write( '%s\n'% ' '.join(pchain) )
 
 if __name__ == '__main__':
     main()
