@@ -138,7 +138,7 @@ def main():
 
     
     if pandaOpts.get("virtualenv") != None:
-        pchain . append( '(' + pandaOpts.get("virtualenv") + ') && ' )
+        pchain . append( pandaOpts.get("virtualenv") + ' && ' )
     
     pchain . append ( "pchain" )
 
