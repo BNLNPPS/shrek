@@ -108,8 +108,6 @@ def main():
         (k,v) = gl.split('=')
         glvars[k] = v
 
-    print(glvars)
-
     fullcommandline = str( ' '.join(sys.argv) )
    
     if args.handshake == True:
@@ -131,11 +129,14 @@ def main():
 
     shrekOpts['taguuid'] = taguuid
 
-    (subdir,cwlfile,yamlfile) = buildSubmissionDirectory( args.tag, args.yaml, args.site, args, shrekOpts, glvars )
+    (subdir,cwlfile,yamlfile,jobs) = buildSubmissionDirectory( args.tag, args.yaml, args.site, args, shrekOpts, glvars )
+
+    if len(jobs)==1:
+        print("This looks like a prun job to me")
+        return
 
     # Build the pchain command
     pchain = []
-
     
     if pandaOpts.get("virtualenv") != None:
         pchain . append( pandaOpts.get("virtualenv") + ' && ' )

@@ -125,7 +125,6 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
                         os.symlink( os.path.abspath(f), jobdir + '/' + tail )
 
                         job_resources.append( os.path.abspath(f) )
-        
 
     # Build CWL for PanDA submission
     ( cwf, yml, dgr ) = buildCommonWorkflow( jdfs, tag, site, args, glvars )
@@ -197,7 +196,7 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
     # Print the monitoring link
     print( "Workflow monitoring https://panda-doma.cern.ch/tasks/?taskname=%s\n"%taskname )        
                         
-    return (subdir,cwlfile,ymlfile)
+    return (subdir,cwlfile,ymlfile,jobs)
         
 def main():
 
