@@ -21,12 +21,12 @@ from shrek.scripts.buildCommonWorklow import buildCommonWorkflow
 from shrek.scripts.buildSubmissionDirectory import buildSubmissionDirectory
 from shrek.scripts.ShrekConfiguration import readSiteConfig
 
+# Default configuration options
+defaults  = readSiteConfig()
+shrekOpts = defaults['Shrek']
+pandaOpts = defaults['PanDA']
+        
 def main():
-
-    # Default configuration options
-    defaults  = readSiteConfig()
-    shrekOpts = defaults['Shrek']
-    pandaOpts = defaults['PanDA']
 
     # Setup the default panda environment to be run in subprocess that launches pchain
     pandaEnv = os.environ.copy()
