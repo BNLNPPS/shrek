@@ -15,6 +15,7 @@ import sh
 import sys
 import time
 import pprint
+import inspect
 
 from shrek.scripts.buildJobScript import buildJobScript
 from shrek.scripts.buildCommonWorklow import buildCommonWorkflow
@@ -25,6 +26,86 @@ from shrek.scripts.ShrekConfiguration import readSiteConfig
 defaults  = readSiteConfig()
 shrekOpts = defaults['Shrek']
 pandaOpts = defaults['PanDA']
+
+def buildPrunCommand( submissionDirectory, jobDefinitions, args, taguuid  ):  
+    assert( len(jobDefinitions)==1 )
+    from shrek.scripts.buildCommonWorklow import PANDA_OPTS
+    
+    job = jobDefinitions[0]
+
+    numInputs      = job.numInputs
+    numOutputs     = job.numOutputs
+    numSecondaries = job.numSecondaries
+
+    #print('numInputs = '+str(numInputs))
+    #print('numOutputs = '+str(numOutputs))
+    #print('numSecondaries = '+str(numSecondaries))
+    #print( job.inputs )
+    #print( job.outputs )
+    #print( job.secondaries )
+    #print( job.filename )
+    #print( job.definition )
+    #print( job.name )
+
+    #for outds in job.outputs:
+    #    print( outds.filelist )
+    # output = '--outputs ' + ','.join(outds.filelist)
+    # pchain.append(output)
+
+    pchain = []
+    if pandaOpts.get("virtualenv") != None:
+        pchain . append( pandaOpts.get("virtualenv") + ' && ' )
+    
+    pchain . append ( "prun" )
+    pchain . append( "-v" )
+    pchain . append( "--noBuild" )
+
+    pchain . append( '--site %s'%args.site )
+    pchain . append( '--vo %s'%args.vo )
+    pchain . append( '--workingGroup %s'%args.workingGroup )
+    pchain . append( '--prodSourceLabel %s'%args.prodSourceLabel )
+
+    # Output data set
+    pchain . append('--outDS user.%s.%s'%( args.user, taguuid ) )
+
+    # Output data files
+    output = '--outputs '
+    for outds in job.outputs:
+        output += ','.join(outds.filelist)
+    output = output.replace('required:','')
+    pchain.append(output)        
+    
+
+    # Input data files
+    
+    # Build the shell exec command
+    shargs = "%s.sh %%RNDM:%i"%(job.name,args.offset)
+
+    for (i,IN) in enumerate(job.inputs):
+        if i==0: shargs += " %IN"
+        else:    shargs += " %%IN%i"%(i+1)
+
+    shargs += ' >& _%s.log' % ( job.name ) 
+    pchain . append("--exec '%s'"% (shargs) )
+
+    params = job.parameters
+    hasMaxAttempt = False
+    for par in PANDA_OPTS:
+        val = getattr(params,par,None)
+        if val:
+            if par=='merge':
+                pchain.append( '--mergeOutput' )
+                pchain.append( '--mergeScript=\\\"%s\\\"' % val )
+            else:            
+                pchain.append( ' --%s %s '%( par, str(val)) )
+                if par=='maxAttempt':
+                    hasMaxAttempt = True
+
+    if hasMaxAttempt == False:
+        pchain . append( '--maxAttempt 1' )
+    
+    return pchain
+
         
 def main():
 
@@ -131,37 +212,48 @@ def main():
 
     (subdir,cwlfile,yamlfile,jobs) = buildSubmissionDirectory( args.tag, args.yaml, args.site, args, shrekOpts, glvars )
 
+
+    # Build the prun command
+    pruncmd = None
     if len(jobs)==1:
         print("This looks like a prun job to me")
-        return
+        pruncmd = buildPrunCommand( subdir, jobs, args, taguuid )
+        # Do not execute workflow check
+        args.check = False
 
     # Build the pchain command
     pchain = []
+
+    if len(jobs)!=1:
+        if pandaOpts.get("virtualenv") != None:
+            pchain . append( pandaOpts.get("virtualenv") + ' && ' )
     
-    if pandaOpts.get("virtualenv") != None:
-        pchain . append( pandaOpts.get("virtualenv") + ' && ' )
-    
-    pchain . append ( "pchain" )
+        pchain . append ( "pchain" )
 
-    pchain . append( '--vo %s'%args.vo )
-    pchain . append( '--workingGroup %s'%args.workingGroup )
-    pchain . append( '--prodSourceLabel %s'%args.prodSourceLabel )
+        pchain . append( '--vo %s'%args.vo )
+        pchain . append( '--workingGroup %s'%args.workingGroup )
+        pchain . append( '--prodSourceLabel %s'%args.prodSourceLabel )
 
-    pchain . append('--outDS user.%s.%s'%( args.user, taguuid ) )
-    pchain . append('--cwl %s'%cwlfile )
-    pchain . append('--yaml %s'%yamlfile )
+        pchain . append('--outDS user.%s.%s'%( args.user, taguuid ) )    
+        pchain . append('--cwl %s'%cwlfile )
+        pchain . append('--yaml %s'%yamlfile )
 
-    pcheck = []
-    for p in pchain: pcheck.append(p)
-    pcheck .append ( '--check' )
+        pcheck = []
+        for p in pchain: pcheck.append(p)
+        pcheck .append ( '--check' )
 
 
-    # Run pchain with --check option to validate against PanDA prior to submission
-    #   output is captured
-    #   exit code is tested and exception raised if nonzero
-    pcheck_result = ""
-    if args.check:
-        pcheck_result = subprocess.run( ' '.join(pcheck), shell=True, cwd=os.path.abspath(subdir), env=pandaEnv, capture_output=True, check=False )
+        # Run pchain with --check option to validate against PanDA prior to submission
+        #   output is captured
+        #   exit code is tested and exception raised if nonzero
+        pcheck_result = ""
+        if args.check:
+            pcheck_result = subprocess.run( ' '.join(pcheck), shell=True, cwd=os.path.abspath(subdir), env=pandaEnv, capture_output=True, check=False )
+
+
+    # Use prun if we have a single job
+    if (len(jobs)==1 ):
+        pchain = pruncmd
 
     # We are now ready to submit the job.  First log everything to a tag file...
     # (can be updated to a local DB)
