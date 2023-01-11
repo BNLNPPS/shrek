@@ -14,10 +14,11 @@ Next, you'll want to modify the site configuration file, using
 your favorite text editor
 
 ```
-$ edt shrek/config/site.yaml
+$ cp shrek/config/site.yaml .
+$ edt site.yaml
 ```
 
-For sPHENIX usesr, there are two fields which need to be modified 
+For sPHENIX users, there are two fields which need to be modified 
 in order to get the system running:
 
 ### Shrek/submissionPrefix points to a directory where shrek will create
