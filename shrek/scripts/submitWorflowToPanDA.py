@@ -153,14 +153,14 @@ def main():
     parser.set_defaults(handshake=True)
 
     parser.add_argument('--uuid',    dest='uuid', action='store_true',  help="Tag will be appended by UUID")
-    parser.add_argument('--no-uuid', dest='uuid', action='store_false', help="Tag will be appended by UUID")
+    parser.add_argument('--no-uuid', dest='uuid', action='store_false', help="Tag will not be appended by UUID")
     parser.add_argument('--timestamp',    dest='timestamp', action='store_true',  help="Tag will be appended by timestamp")
-    parser.add_argument('--no-timestamp', dest='timestamp', action='store_false', help="Tag will be appended by timestamp")
+    parser.add_argument('--no-timestamp', dest='timestamp', action='store_false', help="Tag will not be appended by timestamp")
     parser.set_defaults(uuid=False)
     parser.set_defaults(timestamp=True)
 
     parser.add_argument('--archive',    dest='archive', action='store_true',  help="Submission directory pushed to git / archived")
-    parser.add_argument('--no-archive', dest='archive', action='store_false', help="Submission directory pushed to git / archived")
+    parser.add_argument('--no-archive', dest='archive', action='store_false', help="Submission directory not pushed to git / archived")
     parser.set_defaults(archive=True)
 
     parser.add_argument('--push',    dest='push', action='store_true',  help="Submission directory pushed to git / archived")
@@ -169,7 +169,7 @@ def main():
 
     parser.add_argument('--diagram',    dest='diagram', action='store_true',  help="Add workflow diagram")
     parser.add_argument('--no-diagram', dest='diagram', action='store_false', help="Do not create workflow diagram")
-    parser.set_defaults(diagram=True)        
+    parser.set_defaults(diagram=False)        
 
     #
     parser.add_argument('--vo', type=str,              default=pandaOpts['vo'])

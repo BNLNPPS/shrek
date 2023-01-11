@@ -124,6 +124,8 @@ option
 
 to the command line.  This will supress generation of the workflow diagram and allow submission to proceed.
 
+n.b. --no-diagram is now the default option
+
 ### PanDA did not validate the workflow.  Submission canceled.
 
 This message is returned when PanDA recieives and invalid workflow document, but
