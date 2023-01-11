@@ -26,7 +26,7 @@ in order to get the system running:
 Shrek/submissionPrefix points to a directory where shrek will create
 the job submission documents for PanDA and gather any supporting files
 needed to run the job.  You should create a fresh directory and initialize 
-a local git repository inside of it.
+a local git repository inside of it.  
 
 ```
 $ mkdir ../my-submission-area
@@ -35,8 +35,7 @@ $ git init
 $ cd -
 ```
 
-Under "Shrek" there is a "submissionPrefix" option.  This points to
-a directory
+
 
 ### Donkey/scope
 
