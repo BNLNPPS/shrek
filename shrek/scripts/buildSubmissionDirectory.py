@@ -70,9 +70,7 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
         print('[PanDA submission directory %s]'%s)            
         break
 
-
         
-
     # Copy job description files to staging area
     for j in jdfs:
         print('[Copy %s to submission directory %s]'%(j,subdir))                    
@@ -84,7 +82,7 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
     jobs = []
     for jdf in jdfs:
         stem = pathlib.Path(jdf).stem        
-        (job, script) = buildJobScript( jdf, tag, glvars )
+        (job, script) = buildJobScript( jdf, tag, opts, glvars )
         jobs.append(job)
 
         # A job w/ no name will be treated as pure input
