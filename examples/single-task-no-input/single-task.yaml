@@ -1,0 +1,14 @@
+Parameters:
+  name: top
+  comment: "Single chain with no input"
+  nJobs: 3
+
+OutputDataSets:
+  - name: top/outDS
+    filelist:
+      - "required: single.txt"
+
+JobCommands: |-
+  echo $uniqueId > single.txt
+
+
