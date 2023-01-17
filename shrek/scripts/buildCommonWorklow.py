@@ -24,7 +24,19 @@ from shrek.scripts.buildWorkflowGraph import buildWorkflowGraph
 from math import ceil, log
 
 # List of user parameters which get translated into PANDA (prun) options
-PANDA_OPTS = [ "nJobs", "nFiles", "nSkipFiles", "nFilesPerJob", "nGBPerJob", "maxAttempt", "memory", "dumpTaskParams", "maxWalltime", "nEventsPerFile", "cpuTimePerEvent", "merge" ]
+PANDA_OPTS = [ "nJobs",
+               "nFiles",
+               "nSkipFiles",
+               "nFilesPerJob",
+               "nGBPerJob",
+               "maxAttempt",
+               "memory",
+               "dumpTaskParams",
+               "maxWalltime",
+               "nEventsPerFile",
+               "nEventsPerChunk",
+               "cpuTimePerEvent",
+               "merge" ]
 
 def ceil_power_of_10(n):
     exp = log(n, 10)
