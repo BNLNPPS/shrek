@@ -1,0 +1,22 @@
+Parameters:
+  name: top
+  comment: "Single chain with no input"
+  nJobs: 3
+  message1: "Hello"
+  message2: "World"
+
+Resources:
+  - file: ./examples/resources/resource_file.text 
+
+OutputDataSets:
+  - name: top/outDS
+    filelist:
+      - "required: single.txt"
+
+JobCommands: |-
+  echo $uniqueId >  single.txt
+  echo $message1 >> single.txt
+  echo $message2 >> single.txt
+  cat resource_file.text >> single.text
+
+

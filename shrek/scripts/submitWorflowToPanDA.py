@@ -182,6 +182,9 @@ def main():
     # Unrecognized flags
     args, globalvars = parser.parse_known_args()
 
+    # Set user in shrekOpts
+    shrekOpts['user'] = args.user 
+
     glvars = {}
     for gl in globalvars:
         gl = gl.strip('--')

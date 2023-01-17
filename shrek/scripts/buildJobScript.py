@@ -61,7 +61,7 @@ def buildJobDefinition( yaml_, tag_ ):
 
         return job
 
-def buildJobScript( yaml_, tag_, glvars_ ):
+def buildJobScript( yaml_, tag_, opts_, glvars_ ):
 
     job = buildJobDefinition( yaml_, tag_ )
 
@@ -79,8 +79,12 @@ def buildJobScript( yaml_, tag_, glvars_ ):
         gl = gl.strip('--')
         gl = gl.strip('-')
         output += 'export %s=%s\n'%(gl,val)
-        
-    
+
+    # Export username, tag, etc...
+    output += 'export shrek_username=%s\n'%opts_['user']
+    output += 'export shrek_tag=%s\n'%opts_['taguuid']
+    #output += 'export rucio_dsname=user.${shrek_username}.%{shrek_tag}\n'
+    output += 'export rucio_dsname=user.%s.%s\n'%(opts_['user'],opts_['taguuid'])
 
     if job == None:
         print("Job not valid... probably no yaml file?")
@@ -100,7 +104,8 @@ def buildJobScript( yaml_, tag_, glvars_ ):
 
         # Successive arguements will accept inputs
         for (i,ds) in enumerate(job.inputs):
-            output += "export IN%i_name=%s\n"%(i+1,ds.name)                         
+            output += "export IN%i_name=%s\n"%(i+1,ds.name) 
+            output += "export IN%i_task=%s\n"%(i+1,ds.name.replace("/outDS","") )           
             output += 'export IN%i=(`echo $%i | tr "," " "`)\n'%(i+1,arg)
             arg = arg + 1
 
