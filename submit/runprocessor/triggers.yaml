@@ -1,0 +1,17 @@
+Parameters:
+  name: triggers
+  comment: "Emulation of the sPHENIX trigger"
+  nJobs: 1
+
+OutputDataSets:
+  - name: triggers/outDS
+    filelist:
+      - "required: emulated-trigger.daq"
+
+JobCommands: |-
+  echo $uniqueId > emulated-trigger.daq
+
+
+
+
+

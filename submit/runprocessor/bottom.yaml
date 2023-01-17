@@ -1,0 +1,42 @@
+Parameters:
+  name: runprocessor
+  comment: "Run processor emulation"
+
+InputDataSets:
+  - name: trackers/outDS
+    match: emulated-tracker.daq
+    nFilesPerJob: 40
+  - name: calorimeters/outDS
+    match: emulated-calor.daq
+    nFilesPerJob: 20
+  - name: triggers/outDS
+    match: emulated-trigger.daq
+    nFilesPerJob: 1
+
+OutputDataSets:
+  - name: runprocessor/outDS
+    filelist: 
+      - "required: manifest.dat" 
+
+JobCommands: |-
+
+  echo ---------------------------------------------------------
+  echo bottom.sh:
+  cat bottom.sh
+  echo ---------------------------------------------------------
+
+  echo "Emulated tracker inputs"
+  echo ${IN1[@]}
+  echo "Emulated calorimeter inputs"
+  echo ${IN2[@]}
+  echo "Emulated trigger inputs"
+  echo ${IN3[@]}
+
+  echo "Emulated tracker inputs"     >  manifest.dat
+  echo ${IN1[@]}                     >> manifest.dat
+  echo "Emulated calorimeter inputs" >> manifest.dat
+  echo ${IN2[@]}                     >> manifest.dat
+  echo "Emulated trigger inputs"     >> manifest.dat
+  echo ${IN3[@]}                     >> manifest.dat
+
+  cp _${name}.log /sphenix/u/sphnxpro/shrek/_${name}-${uniqueId}.log
