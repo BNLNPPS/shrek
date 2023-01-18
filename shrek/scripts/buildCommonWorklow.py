@@ -33,8 +33,8 @@ PANDA_OPTS = [ "nJobs",
                "memory",
                "dumpTaskParams",
                "maxWalltime",
-               "nEventsPerFile",
-               "nEventsPerChunk",
+               # "nEventsPerFile",  # These are attached to inputs
+               # "nEventsPerChunk",
                "cpuTimePerEvent",
                "merge" ]
 
@@ -245,12 +245,15 @@ def cwl_opt_args( job ):
         
         name = inp.name        
         nfpj = inp.nFilesPerJob
+        nepf = inp.nEventsPerFile
 
         # Handle principle (input) data set
         if count==1:
             hasInput = True
             if nfpj:
                 optargs += ' --nFilesPerJob='+str(nfpj)
+            if nepf:
+                optargs += ' --nEventsPerFile='+str(nepf)
             continue
 
         # Secondaries only from this point...

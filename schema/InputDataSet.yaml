@@ -22,6 +22,8 @@ schema;input_dataset:
         type: int
       nFiles:
         type: text # may be number or ALL (all)
+      nEventsPerFile:
+        type: int
       local:
         type: bool
       localFiles:
