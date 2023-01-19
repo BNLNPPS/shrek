@@ -33,6 +33,7 @@ PANDA_OPTS = [ "nJobs",
                "memory",
                "dumpTaskParams",
                "maxWalltime",
+               "nEventsPerJob",               
                # "nEventsPerFile",  # These are attached to inputs
                # "nEventsPerChunk",
                "cpuTimePerEvent",
