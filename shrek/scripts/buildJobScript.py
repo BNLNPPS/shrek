@@ -85,7 +85,6 @@ def buildJobScript( yaml_, tag_, opts_, glvars_ ):
     # Export username, tag, etc...
     output += 'export shrek_username=%s\n'%opts_['user']
     output += 'export shrek_tag=%s\n'%opts_['taguuid']
-    #output += 'export rucio_dsname=user.${shrek_username}.%{shrek_tag}\n'
     output += 'export rucio_dsname=user.%s.%s\n'%(opts_['user'],opts_['taguuid'])
 
     if job == None:
@@ -117,28 +116,6 @@ def buildJobScript( yaml_, tag_, opts_, glvars_ ):
         output += 'export shrek_tag=%s\n'%(tag_)
 
 
-    #
-    # Inject metadata handling into the script
-    #
-    output += """
- # Function to add metadata information
- function addmetadata {
-    # To logfile
-    echo ${shrek_tag} ${uniqueId}: \\\"${1}\\\" : \\\"${2}\\\"
-    # For PanDA
-    echo \\\"${1}\\\" : \\\"${2}\\\", >> userJobMetadata.json
- }
-
- # Initialize metadata file
- echo '{' > userJobMetadata.json        
- echo \\\"shrek_begin_metafile\\\" : 1,  >> userJobMetadata.json
-    addmetadata shrek_tag ${shrek_tag}
-    addmetadata shrek_uniqueId ${uniqueId}
-    addmetadata shrek_start_time \"`date`\"
-    
-    """
-
-
 
 
         #
@@ -147,6 +124,33 @@ def buildJobScript( yaml_, tag_, opts_, glvars_ ):
         if job.parameters:
             if job.parameters.params:
                 output += job.parameters.params + '\n\n'
+
+        #
+        # Inject metadata handling into the script
+        #
+        output += """
+# Function to add metadata information
+# if the variable metalogger is defined, append to specified log file 
+function addmetadata {
+   local datetime=`date`
+   # For PanDA
+   echo \\\"${1}\\\" : \\\"${2}\\\", >> userJobMetadata.json
+   # Logging facility
+   if [[ -z ${metalogger} ]]; then
+      echo "[" ${datetime} "]" ${shrek_tag} ${name} ${uniqueId}: \\\"${1}\\\" : \\\"${2}\\\"
+   else
+      echo "[" ${datetime} "]" ${shrek_tag} ${name} ${uniqueId}: \\\"${1}\\\" : \\\"${2}\\\"        
+      echo "[" ${datetime} "]" ${shrek_tag} ${name} ${uniqueId}: \\\"${1}\\\" : \\\"${2}\\\"        >> ${metalogger}
+   fi
+}
+# Initialize metadata file
+echo '{' > userJobMetadata.json        
+echo \\\"shrek_begin_metafile\\\" : 1,  >> userJobMetadata.json
+
+addmetadata shrek_tag ${shrek_tag}
+addmetadata shrek_uniqueId ${uniqueId}
+addmetadata shrek_start_time \"`date`\"
+        """
 
 
         #
