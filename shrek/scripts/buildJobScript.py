@@ -65,7 +65,9 @@ def buildJobScript( yaml_, tag_, opts_, glvars_ ):
 
     job = buildJobDefinition( yaml_, tag_ )
 
-    output  = "echo $@\n"
+    output = ""
+
+    output += "echo $@\n"
     output += "\n"        
     output += "echo Executing on `hostname`\n"
     output += "uname -a\n"
@@ -114,6 +116,31 @@ def buildJobScript( yaml_, tag_, opts_, glvars_ ):
         #
         output += 'export shrek_tag=%s\n'%(tag_)
 
+
+    #
+    # Inject metadata handling into the script
+    #
+    output += """
+ # Function to add metadata information
+ function addmetadata {
+    # To logfile
+    echo ${shrek_tag} ${uniqueId}: \\\"${1}\\\" : \\\"${2}\\\"
+    # For PanDA
+    echo \\\"${1}\\\" : \\\"${2}\\\", >> userJobMetadata.json
+ }
+
+ # Initialize metadata file
+ echo '{' > userJobMetadata.json        
+ echo \\\"shrek_begin_metafile\\\" : 1,  >> userJobMetadata.json
+    addmetadata shrek_tag ${shrek_tag}
+    addmetadata shrek_uniqueId ${uniqueId}
+    addmetadata shrek_start_time \"`date`\"
+    
+    """
+
+
+
+
         #
         # Build and output environment block
         #
@@ -124,24 +151,38 @@ def buildJobScript( yaml_, tag_, opts_, glvars_ ):
 
         #
         # Worker node initialization
-        #
+        #        
         if job.init:
+            output += "addmetadata shrek_init_start \"`date`\"\n"            
             if job.init.block:
                 output += job.init.block + '\n'
+            output += "addmetadata shrek_init_end \"`date`\"\n"                            
 
         #
         # Worker node execution script
         #
         if job.commands:
+            output += "addmetadata shrek_command_exec_start \"`date`\"\n"            
             if job.commands.block:
                 output += job.commands.block + '\n'
+            output += "addmetadata shrek_command_exec_end \"`date`\"\n"                            
 
         #
         # Worker node finalization
         #
         if job.finish:
+            output += "addmetadata shrek_finish_start \"`date`\"\n"                        
             if job.finish.block:
                 output += job.finish.block + '\n'
+            output += "addmetadata shrek_finish_end \"`date`\"\n"                                        
+
+    output += """
+
+    addmetadata shrek_end_time \"`date`\"
+    
+ echo \\\"shrek_end_metafile\\\" : 1  >> userJobMetadata.json
+ echo '}' >> userJobMetadata.json
+    """
 
     return ( job, output )
 
