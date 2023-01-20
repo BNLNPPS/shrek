@@ -1,7 +1,7 @@
 Shrek:
   maxSubmit: 1000
-  submissionPrefix: ./submit/
-  defaultBranch: master
+  submissionPrefix: ../submit/
+  defaultBranch: test
 
 Donkey:
   period: 900
