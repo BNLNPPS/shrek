@@ -200,7 +200,7 @@ def main():
    
     if args.handshake == True:
         hello = sh.Command("shrek/scripts/pokeThePanda.py")
-        hello( _env=pandaEnv )
+        hello(_fg=True, _env=pandaEnv )
 
 
     taguuid = args.tag
