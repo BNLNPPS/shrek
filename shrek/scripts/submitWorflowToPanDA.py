@@ -199,9 +199,8 @@ def main():
     fullcommandline = str( ' '.join(sys.argv) )
    
     if args.handshake == True:
-        from pandaclient import panda_api
-        client = panda_api.get_api()
-        client.hello()
+        hello = sh.Command("shrek/scripts/pokeThePanda.py")
+        hello( _env=pandaEnv )
 
 
     taguuid = args.tag
