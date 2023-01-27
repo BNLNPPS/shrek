@@ -125,9 +125,13 @@ def main():
         pandaEnv['PANDA_USE_NATIVE_HTTPLIB'] = pandaOpts.get('use_native_httplib')
     if pandaOpts.get('behind_real_lb') != None:
         pandaEnv['PANDA_BEHIND_REAL_LB'] = pandaOpts.get('behind_real_lb')
-
+    if pandaOpts.get("config_root") != None:
+        pandaEnv['PANDA_CONFIG_ROOT'] = pandaOpts.get("config_root")
+        
     if pandaOpts.get("virtualenv") != None:
-        pandaEnv['SHREK_VIRTUAL_ENV_SCRIPT'] = pandaOpts.get("virtualenv") 
+        pandaEnv['SHREK_VIRTUAL_ENV_SCRIPT'] = pandaOpts.get("virtualenv")
+
+
         
 
     pprint.pprint(pandaOpts)
