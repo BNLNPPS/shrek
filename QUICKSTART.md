@@ -6,7 +6,7 @@ First clone the repository and change into the shrek
 directory
 
 ```
-$ git clone https://github.com/klendathu2k/shrek
+$ git clone https://github.com/BNLNPPS/shrek
 $ cd shrek
 ```
 
