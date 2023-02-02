@@ -265,32 +265,36 @@ def main():
     # (can be updated to a local DB)
 
     # Create a "tag file" which will ride along with the job 
-    with open( subdir + '/' + taguuid, 'w' ) as f:
+    with open( subdir + '/' + taguuid + '.log', 'w' ) as f:
         f.write('SHREK Job Submission %s'%str(datetime.datetime.now()))
         f.write('\n' + fullcommandline )
+        f.write('\n')
         f.write('\ncmd args: ')
         f.write('\n')        
         f.write(str(args))
-        f.write('\nsubdir: ')
+        f.write('\n')                
+        f.write('\nSubmission directory: ')
         f.write('\n')        
         f.write(os.path.abspath(subdir))
-        f.write('\ntag: ')
+        f.write('\n')                
+        f.write('\nTag with uuid/timestamp: ')
         f.write('\n')        
         f.write(taguuid)
-        f.write('\ncheck:')
+        f.write('\nResult of pchain check:')
         f.write('\n')
         if args.check:
             f.write(str(pcheck_result.stdout))
             f.write('\n')
             f.write(str(pcheck_result.stderr))
         else:
-            f.write('\n')            
-            f.write('no PanDA validation\n')
+            f.write('Suppressed by --no-check option\n')
             f.write('\n')            
 
     if args.check:
         if pcheck_result.returncode != 0:
-            print("PanDA did not validate the workflow.  Submission canceled.")
+            print("==========================================================\n")
+            print("PanDA did not validate the workflow.  Submission canceled.\n")
+            print("==========================================================\n")            
             return
 
     #
@@ -304,19 +308,30 @@ def main():
         # Pausing 5s before poking the PanDA... give user a chance to abort...
         time.sleep(5)
         
-        pchain_result = subprocess.run( ' '.join(pchain), shell=True, cwd=os.path.abspath(subdir), env=pandaEnv, capture_output=True, check=False )
+        print("==========================================================")
+        print("PanDA submission")
+        print("==========================================================")                    
+        pchain_result = subprocess.run( ' '.join(pchain), shell=True, cwd=os.path.abspath(subdir), env=pandaEnv, capture_output=True, check=False )        
+        print( pchain_result.stdout.decode('UTF-8') )
+        print( pchain_result.stderr.decode('UTF-8') ) 
+        print("==========================================================\n")                                   
         utcnow = str(datetime.datetime.utcnow())
-        with open( subdir + '/' + taguuid, 'a' ) as f:
+        message='[Shrek submission %s %s UTC]'%(taguuid,utcnow)
+        print(message)
+        
+        with open( subdir + '/' + taguuid + '.log', 'a' ) as f:
             f.write('\nsubmit:')
             f.write('\n'+utcnow)
             f.write('\n')
-            f.write(str(pchain_result.stdout))
             f.write('\n')
-            f.write(str(pchain_result.stderr))
-        print('[Job submitted at '+utcnow+' UTC]')
+            f.write('PanDA returned...\n')
+            f.write( str(pchain_result.stdout.decode('UTF-8')) )
+            f.write( '\n')
+            f.write( str(pchain_result.stderr.decode('UTF-8')) )
 
-        message='[Shrek submission %s %s UTC]'%(taguuid,utcnow)
-        print(message)
+
+
+
 
         if args.archive:
             # Make sure all artefacts were committed and push (will require git auth)
