@@ -27,6 +27,19 @@ defaults  = readSiteConfig()
 shrekOpts = defaults['Shrek']
 pandaOpts = defaults['PanDA']
 
+def progressbar(it, prefix="", size=60, out=sys.stdout): # Python3.3+
+    count = len(it)
+    def show(j):
+        x = int(size*j/count)
+        print("{}[{}{}] {}/{}".format(prefix, "#"*x, "."*(size-x), j, count),
+              end='\r', file=out, flush=True)
+    show(0)
+    for i, item in enumerate(it):
+        yield item
+        show(i+1)
+    print("\n", flush=True, file=out)
+                                                                
+
 def buildPrunCommand( submissionDirectory, jobDefinitions, args, taguuid  ):  
     assert( len(jobDefinitions)==1 )
     from shrek.scripts.buildCommonWorklow import PANDA_OPTS
@@ -173,7 +186,9 @@ def main():
 
     parser.add_argument('--diagram',    dest='diagram', action='store_true',  help="Add workflow diagram")
     parser.add_argument('--no-diagram', dest='diagram', action='store_false', help="Do not create workflow diagram")
-    parser.set_defaults(diagram=False)        
+    parser.set_defaults(diagram=False)
+
+    parser.add_argument('--no-pause', dest='pause', action='store_false', help='Do not pause before submitting job' )
 
     #
     parser.add_argument('--vo', type=str,              default=pandaOpts['vo'])
@@ -305,8 +320,13 @@ def main():
     
     if args.submit:
 
-        # Pausing 5s before poking the PanDA... give user a chance to abort...
-        time.sleep(5)
+        # Pause before submission
+        if args.pause:
+            print("Pausing for 15s before submission\n")
+            for i in progressbar( range(60), "Pausing:", 60 ):
+                time.sleep(0.25)
+
+        print("Submitting workflow\n")
         
         print("==========================================================")
         print("PanDA submission")
