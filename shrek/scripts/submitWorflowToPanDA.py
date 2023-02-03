@@ -70,6 +70,10 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, taguuid  ):
         pchain . append( pandaOpts.get("virtualenv") + ' && ' )
     
     pchain . append ( "prun" )
+
+    if args.scouting == False:
+        pchain . append( '--expertOnly_skipScout' )
+
     pchain . append( "-v" )
     pchain . append( "--noBuild" )
 
@@ -88,8 +92,9 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, taguuid  ):
     output = output.replace('required:','')
     pchain.append(output)        
     
-
     # Input data files
+
+    
     
     # Build the shell exec command
     shargs = "%s.sh %%RNDM:%i"%(job.name,args.offset)
@@ -190,6 +195,8 @@ def main():
 
     parser.add_argument('--no-pause', dest='pause', action='store_false', help='Do not pause before submitting job' )
 
+    parser.add_argument('--no-scouting', dest='scouting', action='store_false', help='Disable scouting jobs, intended for production manager(s).  Users strongly discouraged from using.')
+
     #
     parser.add_argument('--vo', type=str,              default=pandaOpts['vo'])
     parser.add_argument('--site',type=str,             default=pandaOpts['site'])
@@ -250,6 +257,9 @@ def main():
             pchain . append( pandaOpts.get("virtualenv") + ' && ' )
     
         pchain . append ( "pchain" )
+
+        if args.scouting == False:
+            pchain . append( '--expertOnly_skipScout' )
 
         pchain . append( '--vo %s'%args.vo )
         pchain . append( '--workingGroup %s'%args.workingGroup )
