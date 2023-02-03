@@ -16,11 +16,17 @@ import sys
 import time
 import pprint
 import inspect
+import logging
+from io import StringIO 
 
 from shrek.scripts.buildJobScript import buildJobScript
 from shrek.scripts.buildCommonWorklow import buildCommonWorkflow
 from shrek.scripts.buildSubmissionDirectory import buildSubmissionDirectory
 from shrek.scripts.ShrekConfiguration import readSiteConfig
+
+from shrek.scripts.simpleLogger import DEBUG, INFO, WARN, ERROR, CRITICAL
+
+INFO("The Super Handsome Remote Execution Koordinator")
 
 # Default configuration options
 defaults  = readSiteConfig()
@@ -150,9 +156,9 @@ def main():
         pandaEnv['SHREK_VIRTUAL_ENV_SCRIPT'] = pandaOpts.get("virtualenv")
 
 
-        
-
-    pprint.pprint(pandaOpts)
+    #pprint.pprint(pandaOpts)
+    for k,v in pandaOpts.items():
+        INFO("  %s = %s"%(k,v))
                                              
     #
     parser = argparse.ArgumentParser(description='Build job submission area')
@@ -221,8 +227,10 @@ def main():
     fullcommandline = str( ' '.join(sys.argv) )
    
     if args.handshake == True:
+        WARN("Poking the bear you may be prompted for a new token.")
         hello = sh.Command("shrek/scripts/pokeThePanda.py")
-        hello(_fg=True, _env=pandaEnv )
+        hello(_fg=True, _env=pandaEnv)
+
 
 
     taguuid = args.tag
@@ -234,7 +242,6 @@ def main():
         stamp = stamp.replace('-','')
         stamp = stamp.replace('T','-')
         taguuid = taguuid + '-' + stamp
-     
 
     shrekOpts['taguuid'] = taguuid
 
@@ -244,9 +251,12 @@ def main():
     # Build the prun command
     pruncmd = None
     if len(jobs)==1:
-        print("This looks like a prun job to me")
+        WARN("Single job description (yaml) found.")
+        WARN("This looks like a prun job to me")
         pruncmd = buildPrunCommand( subdir, jobs, args, taguuid )
         # Do not execute workflow check
+        if args.check==True:
+            WARN("Setting option --no-check")
         args.check = False
 
     # Build the pchain command
@@ -289,8 +299,9 @@ def main():
     # We are now ready to submit the job.  First log everything to a tag file...
     # (can be updated to a local DB)
 
-    # Create a "tag file" which will ride along with the job 
-    with open( subdir + '/' + taguuid + '.log', 'w' ) as f:
+    # Create a "tag file" which will ride along with the job
+    logfile = subdir + '/' + taguuid + '.log'
+    with open( logfile, 'w' ) as f:
         f.write('SHREK Job Submission %s'%str(datetime.datetime.now()))
         f.write('\n' + fullcommandline )
         f.write('\n')
@@ -317,9 +328,10 @@ def main():
 
     if args.check:
         if pcheck_result.returncode != 0:
-            print("==========================================================\n")
-            print("PanDA did not validate the workflow.  Submission canceled.\n")
-            print("==========================================================\n")            
+            CRITICAL("PanDA did not validate the workflow.  Submission canceled.  Dumping log file.")
+            with open( logfile, 'r') as f:
+                for line in f:
+                    WARN( line.strip('\n') )
             return
 
     #
@@ -332,24 +344,28 @@ def main():
 
         # Pause before submission
         if args.pause:
-            print("Pausing for 15s before submission\n")
+            WARN("Pausing for 15s before submission\n")
             for i in progressbar( range(60), "Pausing:", 60 ):
                 time.sleep(0.25)
 
-        print("Submitting workflow\n")
+        INFO("Submitting workflow\n")
         
-        print("==========================================================")
-        print("PanDA submission")
-        print("==========================================================")                    
-        pchain_result = subprocess.run( ' '.join(pchain), shell=True, cwd=os.path.abspath(subdir), env=pandaEnv, capture_output=True, check=False )        
-        print( pchain_result.stdout.decode('UTF-8') )
-        print( pchain_result.stderr.decode('UTF-8') ) 
-        print("==========================================================\n")                                   
+        INFO("==========================================================")
+        INFO("PanDA submission")
+        INFO("==========================================================")                    
+        pchain_result = subprocess.run( ' '.join(pchain), shell=True, cwd=os.path.abspath(subdir), env=pandaEnv, capture_output=True, check=False )
+        INFO("sdtout:")
+        for line in pchain_result.stdout.decode('UTF-8').split('\n'):
+            INFO(line)
+        INFO("sdterr:")            
+        for line in pchain_result.stderr.decode('UTF-8').split('\n'):
+            WARN(line)
+        INFO("==========================================================\n")                                   
         utcnow = str(datetime.datetime.utcnow())
-        message='[Shrek submission %s %s UTC]'%(taguuid,utcnow)
-        print(message)
+        message='Shrek submission %s %s UTC'%(taguuid,utcnow)
+        INFO(message)
         
-        with open( subdir + '/' + taguuid + '.log', 'a' ) as f:
+        with open( subdir + '/' + taguuid + '.log', 'w' ) as f:
             f.write('\nsubmit:')
             f.write('\n'+utcnow)
             f.write('\n')
