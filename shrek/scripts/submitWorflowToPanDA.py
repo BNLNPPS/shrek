@@ -268,9 +268,6 @@ def main():
     
         pchain . append ( "pchain" )
 
-        if args.scouting == False:
-            pchain . append( '--expertOnly_skipScout' )
-
         pchain . append( '--vo %s'%args.vo )
         pchain . append( '--workingGroup %s'%args.workingGroup )
         pchain . append( '--prodSourceLabel %s'%args.prodSourceLabel )
