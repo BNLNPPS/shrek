@@ -2,6 +2,8 @@ import yaml
 import os
 from os.path import exists
 
+from shrek.scripts.simpleLogger import DEBUG, INFO, WARN, ERROR, CRITICAL
+
 def readSiteConfig(default='site.yaml'):
 
     shreksys = os.environ.get( 'SHREK_SYS', '.' )      # shrek system installation (defaults to pwd)
@@ -17,7 +19,7 @@ def readSiteConfig(default='site.yaml'):
             config = c
             break
 
-    print("SHREK configuration found at %s"%config)
+    INFO("SHREK configuration found at %s"%config)
 
     result = {}
     
