@@ -53,7 +53,7 @@ def validateAgainstSchema( yaml_ ):
 
 #________________________________________________________________________
 def buildTheJobRuntimeScript( yaml_, tag = 'sP22aa-TEST' ):
-    script = buildJobScript( yaml_, tag, {}, {} )
+    script = buildJobScript( yaml_, tag, {'user':'none','taguuid':'test'}, {} )
     assert(script)
 
 #________________________________________________________________________

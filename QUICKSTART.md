@@ -6,7 +6,7 @@ First clone the repository and change into the shrek
 directory
 
 ```
-$ git clone https://github.com/klendathu2k/shrek
+$ git clone https://github.com/BNLNPPS/shrek
 $ cd shrek
 ```
 
@@ -26,11 +26,12 @@ in order to get the system running:
 Shrek/submissionPrefix points to a directory where shrek will create
 the job submission documents for PanDA and gather any supporting files
 needed to run the job.  You should create a fresh directory and initialize 
-a local git repository inside of it.  
+a local git repository inside of it.  And make sure the site.yaml file
+points to it:
 
 ```
-$ mkdir ../my-submission-area
-$ cd ../my-submission-area
+$ mkdir ../submit  # directory should match the submissionPrefix in site.yaml
+$ cd ../submit
 $ git init
 $ cd -
 ```

@@ -1,7 +1,8 @@
 Shrek:
   maxSubmit: 1000
   submissionPrefix: ../submit/
-  defaultBranch: test
+  defaultBranch: master
+
 
 Donkey:
   period: 900
@@ -18,3 +19,4 @@ PanDA:
   auth: oidc
   verify_host: "off"
   auth_vo: sphenix
+  config_root: ~/.pathena

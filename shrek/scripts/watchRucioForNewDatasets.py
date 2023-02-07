@@ -7,13 +7,13 @@ import datetime
 import sh
 import time
 
-from sh import shrek_submit as shrek
+#from sh import shrek_submit as shrek
 from shrek.scripts.ShrekConfiguration import readSiteConfig
 
 class RucioNonResponsive( Exception ):
     pass
 
-def readConfig( filename ):    
+def readConfig( filename = None ):    
     defaults = readSiteConfig()    
     return defaults['Donkey']
 

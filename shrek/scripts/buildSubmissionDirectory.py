@@ -14,6 +14,8 @@ import networkx as nx
 from shrek.scripts.buildJobScript import buildJobScript
 from shrek.scripts.buildCommonWorklow import buildCommonWorkflow
 
+from shrek.scripts.simpleLogger import DEBUG, INFO, WARN, ERROR, CRITICAL
+
 def get_umask():
     umask = os.umask(0)
     os.umask(umask)
@@ -62,18 +64,18 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
             # Submission directory should be on the requested branch
             sh.git.checkout ( args.branch,                          _cwd=s )                        
 
-            print('[Existing submission directory %s is cleared]'%s)
+            WARN('Existing submission directory %s is cleared'%s)
             shutil.rmtree( s )
                 
         subdir = s            
         os.mkdir( subdir )
-        print('[PanDA submission directory %s]'%s)            
+        INFO('PanDA submission directory %s'%s)            
         break
 
         
     # Copy job description files to staging area
     for j in jdfs:
-        print('[Copy %s to submission directory %s]'%(j,subdir))                    
+        INFO('Copy %s to submission directory %s'%(j,subdir))                    
         sh.cp( j, subdir )
 
     # Build job scripts and stage into directory
@@ -117,7 +119,7 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
 
             for r in job.resources:
                 if r.type=='file':
-                    print("link %s --> %s"%(r.url,jobdir))
+                    INFO("Linking %s --> %s"%(r.url,jobdir))
                     for f in glob.glob(r.url):
                         head,tail = os.path.split( f )
                         os.symlink( os.path.abspath(f), jobdir + '/' + tail )
@@ -189,10 +191,10 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
 
         md.write( "## PanDA Monitoring\n" )
         taskname = 'user.%s.%s_*'%(args.user,opts['taguuid'])
-        md.write( "[panda monitoring](https://panda-doma.cern.ch/tasks/?taskname=%s)\n"%taskname )
+        md.write( "[panda monitoring](https://sphenix-panda.apps.rcf.bnl.gov/tasks/?taskname=%s)\n"%taskname )
 
     # Print the monitoring link
-    print( "Workflow monitoring https://panda-doma.cern.ch/tasks/?taskname=%s\n"%taskname )        
+    INFO( "Workflow monitoring https://sphenix-panda.apps.rcf.bnl.gov/tasks/?taskname=%s\n"%taskname )        
                         
     return (subdir,cwlfile,ymlfile,jobs)
         

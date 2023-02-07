@@ -13,6 +13,8 @@ from shrek.yaml.secondaryds import SecondaryDS, buildSecondaryList
 from shrek.yaml.resources import Resource, buildResourceList
 from shrek.yaml.jobdefinition import JobDefinition
 
+from shrek.scripts.simpleLogger import DEBUG, INFO, WARN, ERROR, CRITICAL
+
 def getHandler():
     handler = Handler()
     handler.addToken( 'Parameters', buildParameterBlock, None )
