@@ -4,7 +4,7 @@ Parameters:
   comment:    Generate Pythia8 Charm Events and run through F4A
   nJobs:      10
   nEvents:    100
-  prescale:   100000
+  prescale:   1
   macro:      Fun4All_G4_HF_pp_signal.C
   flavor:     Charm  
   runnumber:  1
