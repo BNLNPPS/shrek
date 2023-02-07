@@ -5,6 +5,7 @@ class InputDS:
         self.comment = None
         self.altname = None
         self.nFilesPerJob = None
+        self.nEventsPerFile = None
         self.match = None
         self.nSkip = None
         self.nFiles = None
@@ -22,6 +23,7 @@ def buildInputList( key, dslist ):
             if k=='comment': i.comment = v
             if k=='altname': i.altname = v
             if k=='nFilesPerJob': i.nFilesPerJob = v
+            if k=='nEventsPerFile': i.nEventsPerFile = v                
             if k=='match' : i.match = v
             if k=='nSkip': i.nSkip = v
             if k=='nFiles': i.nFiles = str(v) # number or "ALL"

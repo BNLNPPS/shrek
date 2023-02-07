@@ -67,7 +67,9 @@ def buildJobScript( yaml_, tag_, opts_, glvars_ ):
 
     job = buildJobDefinition( yaml_, tag_ )
 
-    output  = "echo $@\n"
+    output = ""
+
+    output += "echo $@\n"
     output += "\n"        
     output += "echo Executing on `hostname`\n"
     output += "uname -a\n"
@@ -85,7 +87,6 @@ def buildJobScript( yaml_, tag_, opts_, glvars_ ):
     # Export username, tag, etc...
     output += 'export shrek_username=%s\n'%opts_['user']
     output += 'export shrek_tag=%s\n'%opts_['taguuid']
-    #output += 'export rucio_dsname=user.${shrek_username}.%{shrek_tag}\n'
     output += 'export rucio_dsname=user.%s.%s\n'%(opts_['user'],opts_['taguuid'])
 
     if job == None:
@@ -116,6 +117,9 @@ def buildJobScript( yaml_, tag_, opts_, glvars_ ):
         #
         output += 'export shrek_tag=%s\n'%(tag_)
 
+
+
+
         #
         # Build and output environment block
         #
@@ -123,27 +127,68 @@ def buildJobScript( yaml_, tag_, opts_, glvars_ ):
             if job.parameters.params:
                 output += job.parameters.params + '\n\n'
 
+        #
+        # Inject metadata handling into the script
+        #
+        output += """
+# Function to add metadata information
+# if the variable metalogger is defined, append to specified log file 
+function addmetadata {
+   local datetime=`date`
+   # For PanDA
+   echo \\\"${1}\\\" : \\\"${2}\\\", >> userJobMetadata.json
+   # Logging facility
+   if [[ -z ${metalogger} ]]; then
+      echo "[" ${datetime} "]" ${shrek_tag} ${name} ${uniqueId}: \\\"${1}\\\" : \\\"${2}\\\"
+   else
+      echo "[" ${datetime} "]" ${shrek_tag} ${name} ${uniqueId}: \\\"${1}\\\" : \\\"${2}\\\"        
+      echo "[" ${datetime} "]" ${shrek_tag} ${name} ${uniqueId}: \\\"${1}\\\" : \\\"${2}\\\"        >> ${metalogger}
+   fi
+}
+# Initialize metadata file
+echo '{' > userJobMetadata.json        
+echo \\\"shrek_begin_metafile\\\" : 1,  >> userJobMetadata.json
+
+addmetadata shrek_tag ${shrek_tag}
+addmetadata shrek_uniqueId ${uniqueId}
+addmetadata shrek_start_time \"`date`\"
+        """
+
 
         #
         # Worker node initialization
-        #
+        #        
         if job.init:
+            output += "addmetadata shrek_init_start \"`date`\"\n"            
             if job.init.block:
                 output += job.init.block + '\n'
+            output += "addmetadata shrek_init_end \"`date`\"\n"                            
 
         #
         # Worker node execution script
         #
         if job.commands:
+            output += "addmetadata shrek_command_exec_start \"`date`\"\n"            
             if job.commands.block:
                 output += job.commands.block + '\n'
+            output += "addmetadata shrek_command_exec_end \"`date`\"\n"                            
 
         #
         # Worker node finalization
         #
         if job.finish:
+            output += "addmetadata shrek_finish_start \"`date`\"\n"                        
             if job.finish.block:
                 output += job.finish.block + '\n'
+            output += "addmetadata shrek_finish_end \"`date`\"\n"                                        
+
+    output += """
+
+    addmetadata shrek_end_time \"`date`\"
+    
+ echo \\\"shrek_end_metafile\\\" : 1  >> userJobMetadata.json
+ echo '}' >> userJobMetadata.json
+    """
 
     return ( job, output )
 

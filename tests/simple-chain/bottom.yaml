@@ -1,11 +1,16 @@
 Parameters:
   name: bottom
   comment: "Simple example from panda"
+  merge: "merge.sh %IN %OUT"
+
 
 InputDataSets:
   - name: top/outDS
     nFilesPerJob: 1
     match: seed.txt
+
+Resources:                                                                                                                                                                                                                                                                          
+  - file: ./tests/simple-chain/merge.sh
 
 OutputDataSets:
   - name: bottom/outDS
@@ -15,3 +20,7 @@ OutputDataSets:
 JobCommands: |-
   echo ${IN1[@]} > results.root
   cp results.root /sphenix/u/sphnxpro/shrek/results-${uniqueId}.root 
+
+  cat results.root > /sphenix/u/sphnxpro/shrek/bottom-${uniqueId}.log
+
+

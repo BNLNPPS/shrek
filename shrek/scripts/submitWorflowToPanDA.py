@@ -88,6 +88,8 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, taguuid  ):
     pchain . append( '--workingGroup %s'%args.workingGroup )
     pchain . append( '--prodSourceLabel %s'%args.prodSourceLabel )
 
+    pchain . append( '----dumpTaskParams %s.task.parameters'%args.name )
+
     # Output data set
     pchain . append('--outDS user.%s.%s'%( args.user, taguuid ) )
 

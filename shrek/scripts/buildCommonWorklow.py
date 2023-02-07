@@ -24,7 +24,20 @@ from shrek.scripts.buildWorkflowGraph import buildWorkflowGraph
 from math import ceil, log
 
 # List of user parameters which get translated into PANDA (prun) options
-PANDA_OPTS = [ "nJobs", "nFiles", "nSkipFiles", "nFilesPerJob", "nGBPerJob", "maxAttempt", "memory", "dumpTaskParams", "maxWalltime", "nEventsPerFile", "cpuTimePerEvent", "merge" ]
+PANDA_OPTS = [ "nJobs",
+               "nFiles",
+               "nSkipFiles",
+               "nFilesPerJob",
+               "nGBPerJob",
+               "maxAttempt",
+               "memory",
+               "dumpTaskParams",
+               "maxWalltime",
+               "nEventsPerJob",               
+               # "nEventsPerFile",  # These are attached to inputs
+               # "nEventsPerChunk",
+               "cpuTimePerEvent",
+               "merge" ]
 
 def ceil_power_of_10(n):
     exp = log(n, 10)
@@ -233,12 +246,15 @@ def cwl_opt_args( job ):
         
         name = inp.name        
         nfpj = inp.nFilesPerJob
+        nepf = inp.nEventsPerFile
 
         # Handle principle (input) data set
         if count==1:
             hasInput = True
             if nfpj:
                 optargs += ' --nFilesPerJob='+str(nfpj)
+            if nepf:
+                optargs += ' --nEventsPerFile='+str(nepf)
             continue
 
         # Secondaries only from this point...
