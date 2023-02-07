@@ -82,5 +82,20 @@ task monitoring page.  (Note that the page does not get generated until the
 first job in the workflow actually begins running, so the link may be empty
 when you first try to follow it).
 
+# Submit something a little more charming...
+
+In the sphenix directory there are two simulation jobs defined, charm and minbias.  
+Edit the runCharmSimu.yaml file in the charm directory...
+```
+$ edt sphenix/charm/runCharmSimu.yaml
+```
+
+Change the number of jobs and number of events to what you like, then 
+
+```
+shrek --user <username> --submit --tag charm sphenix/charm/runCharmSimu.yaml
+```
+
+Enjoy.
 
 
