@@ -150,7 +150,7 @@ def main():
     if pandaOpts.get('behind_real_lb') != None:
         pandaEnv['PANDA_BEHIND_REAL_LB'] = pandaOpts.get('behind_real_lb')
     if pandaOpts.get("config_root") != None:
-        pandaEnv['PANDA_CONFIG_ROOT'] = pandaOpts.get("config_root")
+        pandaEnv['PANDA_CONFIG_ROOT'] = os.path.expandvars( pandaOpts.get("config_root") )
         
     if pandaOpts.get("virtualenv") != None:
         pandaEnv['SHREK_VIRTUAL_ENV_SCRIPT'] = pandaOpts.get("virtualenv")
