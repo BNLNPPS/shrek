@@ -194,7 +194,10 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
         md.write( "[panda monitoring](https://sphenix-panda.apps.rcf.bnl.gov/tasks/?taskname=%s)\n"%taskname )
 
     # Print the monitoring link
-    INFO( "Workflow monitoring https://sphenix-panda.apps.rcf.bnl.gov/tasks/?taskname=%s\n"%taskname )        
+    WARN( "==========================================================")
+    WARN( "Workflow monitoring https://sphenix-panda.apps.rcf.bnl.gov/tasks/?taskname=%s\n"%taskname )        
+    WARN( "==========================================================")
+
                         
     return (subdir,cwlfile,ymlfile,jobs)
         
