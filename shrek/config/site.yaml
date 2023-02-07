@@ -19,4 +19,4 @@ PanDA:
   auth: oidc
   verify_host: "off"
   auth_vo: sphenix
-  config_root: ~/.pathena
+  config_root: $HOME/.pathena
