@@ -19,10 +19,10 @@ The prgram will output the following and pause waiting for your input...
 ...
 
 ...
-$${\color{red}[shrek WARNING] Poking the bear you may be prompted for a new token.}$$
-$${\color{grey}INFO : Please go to https://panda-iam-doma.cern.ch/device?user_code=MV1VYY and sign in. Waiting until authentication is completed}$$
-$${\color{grey}INFO : Ready to get ID token?}$$
-$${\color{grey}[y/n]}$$
+[shrek WARNING] Poking the bear you may be prompted for a new token.
+INFO : Please go to https://panda-iam-doma.cern.ch/device?user_code=MV1VYY and sign in. Waiting until authentication is completed
+INFO : Ready to get ID token?
+[y/n]
 
 Follow the link and authenticate through your ID provider (BNL/SDCC) with
 your user credentials.
