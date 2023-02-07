@@ -20,7 +20,7 @@ The prgram will output the following and pause waiting for your input...
 
 ...
 [shrek WARNING] Poking the bear you may be prompted for a new token.   
-INFO : Please go to https://panda-iam-doma.cern.ch/device?user_code=MV1VYY and sign in. Waiting until authentication is completed    
+INFO : Please go to ...................... and sign in. Waiting until authentication is completed    
 INFO : Ready to get ID token?    
 [y/n]  
 
