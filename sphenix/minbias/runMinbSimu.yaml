@@ -1,6 +1,6 @@
 Parameters:
   name: Pythia8MinbSimulation
-  build: ana.315
+  build: ana.345
   comment: Generate Pythia8 Minb Events and run through F4A
   nJobs:   10
   nEvents: 100
@@ -11,7 +11,7 @@ Parameters:
   memory: 8192
 
 Resources:
-  - file: /sphenix/u/jwebb2/work/2022/SHREK/MDC2/submit/pythia8_pp_mb/pass1/rundir/*
+  - file: /sphenix/u/jwebb2/work/2023/MDC2/submit/pythia8_pp_mb/pass1/rundir/*
 
 
 OutputDataSets:
