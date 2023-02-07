@@ -43,9 +43,6 @@ JobCommands: |-
 
   echo END   ${name} `date` 
 
-  # mkdir /sphenix/u/sphnxpro/shrek/${shrek_tag}-${name}-${uniqueId}
-  # cp _${name}.log /sphenix/u/sphnxpro/shrek/${shrek_tag}-${name}-${uniqueId}/${shrek_tag}-${name}-${uniqueId}.log
-
 
 
 
