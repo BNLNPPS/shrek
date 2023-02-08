@@ -7,6 +7,8 @@ import datetime
 import sh
 import time
 
+from shrek.scripts.simpleLogger import DEBUG, INFO, WARN, ERROR, CRITICAL
+
 #from sh import shrek_submit as shrek
 from shrek.scripts.ShrekConfiguration import readSiteConfig
 
@@ -54,7 +56,7 @@ def pollRucioForDatasetsMatching( conditions, filematch, delta, utclast_, except
             utcnow  = str(datetime.datetime.utcnow())                    
 
             if rucioExceptionCount > exceptionMax:
-                print("[Donkey %s could not query rucio after %i attempts]"%(utcnow,rucioExceptionCount))
+                CRITICAL("[Donkey %s could not query rucio after %i attempts]"%(utcnow,rucioExceptionCount))
                 raise RucioNonResponsive                
                 
             try:
@@ -62,7 +64,7 @@ def pollRucioForDatasetsMatching( conditions, filematch, delta, utclast_, except
                 break
             
             except sh.ErrorReturnCode_10:
-                print("[Donkey %s could not query rucio %i / %i attempts]"%(utcnow,rucioExceptionCount,exceptionMax ))                
+                WARN("[Donkey %s could not query rucio %i / %i attempts]"%(utcnow,rucioExceptionCount,exceptionMax ))                
                 rucioExceptionCount = rucioExceptionCount + 1
                 time.sleep(60*rucioExceptionCount) # sleep
 
@@ -71,16 +73,18 @@ def pollRucioForDatasetsMatching( conditions, filematch, delta, utclast_, except
             
         message = '[Donkey %s polling datasets since %s : %i datasets match : %s]'%(utcnow,utclast,len(result),select)
         utclast = utcnow        
-        print(message)
+        INFO(message)
         count = count + 1
         yield result
+
+        INFO("Taking an intentional nap")
         time.sleep( delta )
                
 def captureActorOutput( out ):
-    print('| ' + out)
+    INFO('| ' + out)
 
 def captureActorError( out ):
-    print('| ' + out)
+    INFO('| ' + out)
        
 def main():
 
@@ -140,13 +144,18 @@ def main():
     # future lookup.  If we throw here... we throw.
     action = {}
     for actor in actors:
-        print("Verifying ", actor )
-        action[ actor ] = sh.Command(actor)
+        INFO("Verifying user actor = " + str( actor ) )
+        try:
+            action[ actor ] = sh.Command(actor)
+        except sh.CommandNotFound:
+            CRITICAL("User actor "+str(actor)+" not found at specified path.")
+            raise sh.CommandNotFound
     
     for datasets in  pollRucioForDatasetsMatching( conditions, ':'.join([scope,match]), period, startdate ):
-        itercount = itercount + 1        
+        itercount = itercount + 1
 
         # Loop over all datasets and submit them via shrek
+        idset = 1
         for ds in datasets:
               
             # Remove the scope from the dsname
@@ -164,9 +173,10 @@ def main():
             uniqueId = count # but may want to make this a uuid...
             
             for actor in actors:
-                #print('Action: ', actor, dsname)
                 # TODO: Implement sane exception handling
+                INFO("Dispatching dataset %s to actor %s"%(dsname,actor))
                 action[actor] ( dsname, uniqueId, _out=captureActorOutput, _err=captureActorError )
+
 
             count = count + 1
         
