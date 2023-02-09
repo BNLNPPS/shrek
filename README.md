@@ -3,7 +3,7 @@ sPHENIX Handy Remote Execution Koordinator
 
  -or-
 
-Simply Handsom Remote Execution Koordinator
+Simply Handsome Remote Execution Koordinator
 
 Requirements (probably minimal versions...)
 
