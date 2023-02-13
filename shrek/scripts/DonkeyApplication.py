@@ -10,6 +10,7 @@ import stomp
 import uuid
 import os
 import json
+import cmd
 
 from shrek.scripts.simpleLogger import DEBUG, INFO, WARN, ERROR, CRITICAL
 
@@ -131,6 +132,24 @@ class DispatchListener( stomp.ConnectionListener ):
         WARN("disconnected, attempting to reconnect...")
         connectAndSubscribe( self.connection )
 
+class DonkeyShell( cmd.Cmd ):
+    intro  = "Welcome to Donkey shell."
+    prompt = "donkey> "
+    file_  = None
+
+    def do_nada(self, arg):
+        pass
+
+    def do_exit(self, arg):
+        """
+        Exits command loop and falls through to disconnect.
+        """
+        print("This is the end of donkey.  Goodbye.")
+        return True
+        
+
+    
+        
 def readWatchFile( filename ):
     result = {}
     if filename:
@@ -239,7 +258,11 @@ def main():
 
 
     connectAndSubscribe(args, defaults, connection)
-    time.sleep(300)    
+    #time.sleep(300)
+
+    DonkeyShell().cmdloop()
+
+    
     connection.disconnect()
         
 
