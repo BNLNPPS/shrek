@@ -11,6 +11,9 @@ import uuid
 import os
 import json
 import cmd
+import re
+
+import queue
 
 from shrek.scripts.simpleLogger import DEBUG, INFO, WARN, ERROR, CRITICAL
 
@@ -114,23 +117,53 @@ class Message:
     def __init__(self, frame ):
         #self.headers = json.loads( str(frame.headers) )
         self.body    = json.loads( str(frame.body) )
-
+    
+#___________________________________________________________________________________
 class DispatchListener( stomp.ConnectionListener ):
+    """
+    Listener class.  Called by the stomp library... from a separate thread.
+    Recieved messages will be cached w/in a queue (thread safe python FIFO
+    stack).
+    """
     def __init__(self,connection):
         self.connection = connection
-        self.messages = []
+        self.messages = queue.SimpleQueue() 
     def on_error( self, frame ):
         ERROR('recieved %s' % frame.body)
     def on_message( self, frame ):
         INFO('recieved %s' % str(frame.headers) )
         INFO('         %s' % str(frame.body) )
-        self.messages.append( Message(frame) )
-        INFO('%i pending'%len(self.messages))
-        for m in self.messages:
-            INFO( m.body['payload']['name'] )
+        self.messages.put( Message(frame) )
+        INFO('%i pending'%self.messages.qsize())
     def on_disconnected(self):
         WARN("disconnected, attempting to reconnect...")
         connectAndSubscribe( self.connection )
+#___________________________________________________________________________________
+class DispatchManager:
+    def __init__(self, name, pattern, listener ):
+        INFO("Registering new dispatch manager %s for datasets matching %s"%(name,pattern))
+        self.listener = listener
+        self.regex    = re.compile( pattern )
+        self.action   = {}
+        self.running  = False
+        
+    def add_actor(self, actor):
+        INFO("  attching %s to dispatch manager %s"%(actor,self.name))
+        try:
+            action[actor] = sh.Command(actor)
+            self.actors.append(actor)            
+        except sh.CommandNotFound:
+            WARN("Actor %s not fount"%actor)
+            pass
+        
+
+    def run(self):
+        self.running = True
+        
+        self.running = False
+        
+        
+#___________________________________________________________________________________
 
 class DonkeyShell( cmd.Cmd ):
     intro  = "Welcome to Donkey shell."
