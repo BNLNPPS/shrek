@@ -180,12 +180,15 @@ def main():
     parser.add_argument('--no-handshake', dest='handshake', action='store_false', help="Skip credential check")
     parser.set_defaults(handshake=True)
 
+    """
+    Default to tagging with a timestamp
+    """
     parser.add_argument('--uuid',    dest='uuid', action='store_true',  help="Tag will be appended by UUID")
     parser.add_argument('--no-uuid', dest='uuid', action='store_false', help="Tag will not be appended by UUID")
     parser.add_argument('--timestamp',    dest='timestamp', action='store_true',  help="Tag will be appended by timestamp")
     parser.add_argument('--no-timestamp', dest='timestamp', action='store_false', help="Tag will not be appended by timestamp")
-    parser.set_defaults(uuid=False)
-    parser.set_defaults(timestamp=True)
+    parser.set_defaults(uuid      = False)
+    parser.set_defaults(timestamp = True)
 
     parser.add_argument('--archive',    dest='archive', action='store_true',  help="Submission directory pushed to git / archived")
     parser.add_argument('--no-archive', dest='archive', action='store_false', help="Submission directory not pushed to git / archived")
@@ -242,10 +245,13 @@ def main():
         stamp = stamp.replace('-','')
         stamp = stamp.replace('T','-')
         taguuid = taguuid + '-' + stamp
+    else:
+        WARN("Possibly non-unique tag %s"%taguuid)
+        pass
 
     shrekOpts['taguuid'] = taguuid
 
-    (subdir,cwlfile,yamlfile,jobs) = buildSubmissionDirectory( args.tag, args.yaml, args.site, args, shrekOpts, glvars )
+    (subdir,cwlfile,yamlfile,jobs) = buildSubmissionDirectory( taguuid, args.yaml, args.site, args, shrekOpts, glvars )
 
 
     # Build the prun command
