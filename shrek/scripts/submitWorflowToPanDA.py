@@ -240,7 +240,7 @@ def main():
     if args.uuid:
         taguuid = taguuid + '-' + str(uuid.uuid1())
     elif args.timestamp:
-        stamp = datetime.datetime.utcnow().isoformat('T','minutes')
+        stamp = datetime.datetime.utcnow().isoformat('T','seconds')
         stamp = stamp.replace(':','')
         stamp = stamp.replace('-','')
         stamp = stamp.replace('T','-')
