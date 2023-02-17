@@ -12,11 +12,25 @@ import os
 import json
 import cmd
 import re
-
 import queue
+import pandas as pd
+import threading
+
+def captureActorOutput( out ):
+    INFO('| ' + out)
+
+def captureActorError( out ):
+    INFO('| ' + out)
+
+# Watch file column descriptions
+watch_file_columns = ["actors","prescale","scope","match","count", "enable"]
+
+
+dispatch = pd.DataFrame( columns=watch_file_columns )
+listener = None  # DispatchListener
+dmanager = None  # DispatchManager
 
 from shrek.scripts.simpleLogger import DEBUG, INFO, WARN, ERROR, CRITICAL
-
 from shrek.scripts.ShrekConfiguration import readSiteConfig
 
 def readConfig( filename = None ):    
@@ -32,7 +46,6 @@ def readWatchFile( filename ):
             except yaml.YAMLError as exc:
                 print(exc)
 
-    print(result)
     return result
 
 def makeBackupFile( filename ):
@@ -100,8 +113,9 @@ def defaultSubscriptionId( configdir ):
 INFO( "-----------------------------------------------------------------------------------------")
 INFO( "Hello Donkey" )
 INFO( "" )
-INFO( "This’ll be fun. We’ll stay up late, swapping manly stories, and in the morning...")
-INFO( "I’m making waffles!")
+INFO("... I mean, white sparkly teeth! I know you probably hear this all the time from your food,")
+INFO(" but you must bleach or something 'cause that's one dazzling smile you got there! And do I")
+INFO(" detect a hint of minty freshness?")
 INFO( "-----------------------------------------------------------------------------------------")
 
 def connectAndSubscribe( args, defaults, connection ):
@@ -124,44 +138,110 @@ class DispatchListener( stomp.ConnectionListener ):
     Listener class.  Called by the stomp library... from a separate thread.
     Recieved messages will be cached w/in a queue (thread safe python FIFO
     stack).
+
+    NOTE:  This should be a singleton class
     """
     def __init__(self,connection):
         self.connection = connection
-        self.messages = queue.SimpleQueue() 
+        self.messages     = pd.DataFrame() # any write OR read op should be w/in a locked context
+        self.lock_        = threading.Lock()
+
+    def show( self ):
+        with self.lock_:
+            if self.messages.empty:
+                WARN("No messages recieved yet")            
+            else:
+                print(self.messages.to_markdown())
+
     def on_error( self, frame ):
         ERROR('recieved %s' % frame.body)
+
     def on_message( self, frame ):
-        INFO('recieved %s' % str(frame.headers) )
-        INFO('         %s' % str(frame.body) )
-        self.messages.put( Message(frame) )
-        INFO('%i pending'%self.messages.qsize())
+        with self.lock_:
+            payload = json.loads( str(frame.body) )["payload"]
+            payload['state']="pending"
+            if self.messages.empty:
+                self.messages = pd.DataFrame( payload, columns=payload.keys(), index=[0] )
+            else:
+                temp = pd.DataFrame( payload, columns=payload.keys(), index=[0] )
+                self.messages = pd.concat( [self.messages,temp], ignore_index = True )
+
     def on_disconnected(self):
         WARN("disconnected, attempting to reconnect...")
         connectAndSubscribe( self.connection )
+
+
 #___________________________________________________________________________________
 class DispatchManager:
-    def __init__(self, name, pattern, listener ):
-        INFO("Registering new dispatch manager %s for datasets matching %s"%(name,pattern))
-        self.listener = listener
-        self.regex    = re.compile( pattern )
-        self.action   = {}
-        self.running  = False
-        
-    def add_actor(self, actor):
-        INFO("  attching %s to dispatch manager %s"%(actor,self.name))
-        try:
-            action[actor] = sh.Command(actor)
-            self.actors.append(actor)            
-        except sh.CommandNotFound:
-            WARN("Actor %s not fount"%actor)
-            pass
-        
+    def __init__(self,name):
+        self.name = name
+        self.lock_ = threading.Lock()
 
-    def run(self):
-        self.running = True
+    def dispatch(self):
+        global listener
+        global dispatch
         
-        self.running = False
+        active = []
+        with self.lock_:
+            for index,row in dispatch.iterrows():
+                if row['enable'] != "yes":
+                    continue # skip disabled actors
+
+                #
+                # Ensure that the specified actor is available.  If not, issue warning
+                # and mark as disabled.
+                #
+                actor = None
+                try:
+                    actor = sh.Command( row['actors'] )
+                except sh.CommandNotFound:
+                    WARN("Could not locate actor %s, disabling"%row['actors'])
+                    dispatch.loc[ int(index), ["enable"] ] = ["no"]
+                    continue
+
+                regex = row['match'] 
+                scope = row['scope']
+
+                active.append( {'actor':actor, 'scope':scope, 'regex':regex, 'index':int(index) } )
+
+        # Lock the listener
+        with listener.lock_:
+            if listener.messages.empty:
+                WARN("No messages found")
+
+            else:
+                # Loop over all messages which are in the pending state
+                for index,row in listener.messages[ listener.messages['state']=='pending' ].iterrows():
+
+                    for dc in active:
+                        
+                        if dc['scope'] != row['scope']: continue
+                        if re.search( dc['regex'], row['name'] ) == None: continue
+
+                        # Call the matching actor
+                        dc['actor']( " %s"%row['name'], index, _out=captureActorOutput, _err=captureActorError )
+
+                        # Mark the dataset as dispatched
+                        listener.messages.loc[ int(index), ["state"] ] = ["dispatched"]
+
+                        # Increment the count on the dispatcher
+                        jndex = dc['index']                        
+                        with self.lock_:
+                            count = dispatch.loc[ jndex, ["count"] ]
+                            dispatch.loc[ jndex, ["count"] ] = [count+1]
+                            
+
+                        
+                        
+                        
+
+
+
+
+
         
+            
+
         
 #___________________________________________________________________________________
 
@@ -170,18 +250,41 @@ class DonkeyShell( cmd.Cmd ):
     prompt = "donkey> "
     file_  = None
 
-    def do_nada(self, arg):
-        pass
+    def do_dispatch(self,arg):
+        global dmanager
+        dmanager.dispatch()    
 
-    def do_exit(self, arg):
+    def do_show(self, arg):
+        """
+        Display actions when messages match user criteria
+        > show dispatch
+        Display all messages recieved during session
+        > show messages
+        """
+        global dispatch
+        global listener
+        if arg=='dispatch':
+            print(dispatch.to_markdown())
+        if arg=='messages':
+            listener.show()
+
+    def do_enable(self, arg):
+        global dispatch
+        #dispatch.at[arg, "enable"]="yes"
+        dispatch.loc[ int(arg), ["enable"] ] = ["yes"]
+    def do_disable(self, arg):
+        global dispatch
+        #dispatch = dispatch.at[arg, "enable"]="no"
+        dispatch.loc[ int(arg), ["enable"] ] = ["no"]
+
+    def do_exit(self,arg):
         """
         Exits command loop and falls through to disconnect.
         """
         print("This is the end of donkey.  Goodbye.")
         return True
-        
-
-    
+    def do_EOF(self,arg):
+        return self.do_exit(arg)
         
 def readWatchFile( filename ):
     result = {}
@@ -192,7 +295,6 @@ def readWatchFile( filename ):
             except yaml.YAMLError as exc:
                 print(exc)
 
-    print(result)
     return result
 
 def captureActorOutput( out ):
@@ -228,13 +330,7 @@ def parse_args( defaults ):
     parser.add_argument('--password', dest='password', type=str, help='ActiveMQ password')
     parser.set_defaults( password=None )
 
-    parser.add_argument( '--watch-file', dest='watchfile', type=str, help="Definition file")
-    parser.set_defaults( watchfile=None )
-    parser.add_argument( '--match', type=str, help='Datasets match this string (only "*" allowed as wildcards)' )
-    parser.set_defaults( match=defaults['match'] )
-    parser.add_argument( '--conditions', type=str, help='Filter conditions applied to dataset metadata' )
-    parser.set_defaults( conditions=None )    
-
+    parser.add_argument( '--watch-file', dest='watchfile', default=[], nargs='+', type=str, help="Definition file")
 
     return parser.parse_known_args()
 
@@ -244,11 +340,23 @@ def dropCurrentSubscription( current ):
 
 def main():
 
+    global dispatch
+    global listener
+    global dmanager
+
     defaults = readConfig()
     args, extras = parse_args( defaults )
 
-    connection = stomp.Connection( [( defaults['host'], defaults['port'] )] )    
-    connection.set_listener( 'dispatch', DispatchListener( connection ) )
+    connection = stomp.Connection( [( defaults['host'], defaults['port'] )] )
+
+    # Listener montiors the activemq channel for new datasets
+    listener = DispatchListener( connection )
+    # Listener operates in a seperate thread
+    connection.set_listener( 'dispatch', listener )
+
+    # Setup the dispatch manager... May be executed in own thread or by the
+    # cmd loop.
+    dmanager = DispatchManager('manager')
     
     curr_subid   = None
     past_subid   = None
@@ -290,8 +398,20 @@ def main():
 
 
 
+    #
+    # Load watch file into a dataframe... results in one entry per actor, not one entry
+    # per watch file.
+    #
+    
+    #
+    for wf in args.watchfile:
+        rwf = readWatchFile(wf)
+        rwf['count']=0 # initialize zero count
+        rwf['enable']="yes"  # yes/no
+        dfwf = pd.DataFrame( rwf, columns=watch_file_columns )
+        dispatch = pd.concat( [dispatch, dfwf], ignore_index=True )
+
     connectAndSubscribe(args, defaults, connection)
-    #time.sleep(300)
 
     DonkeyShell().cmdloop()
 
