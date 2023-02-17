@@ -176,6 +176,26 @@ class DispatchManager:
     def __init__(self,name):
         self.name = name
         self.lock_ = threading.Lock()
+        self.enabled = True
+
+    def stop(self):
+        """
+        Sets the enabled flag to False, causing run to break out of its loop
+        """
+        with self.lock_:
+            self.enabled = False
+
+    def run(self):
+        """
+        Loop until command loop sets the enabled flag to False
+        """
+        global listener
+        with self.lock_:
+            self.enabled = True
+        while self.enabled:            
+            self.dispatch()
+            listener.show()
+            time.sleep(30)
 
     def dispatch(self):
         global listener
@@ -199,10 +219,11 @@ class DispatchManager:
                     dispatch.loc[ int(index), ["enable"] ] = ["no"]
                     continue
 
-                regex = row['match'] 
-                scope = row['scope']
+                regex    = row['match'] 
+                scope    = row['scope']
+                prescale = row['prescale']
 
-                active.append( {'actor':actor, 'scope':scope, 'regex':regex, 'index':int(index) } )
+                active.append( {'actor':actor, 'scope':scope, 'regex':regex, 'index':int(index), 'prescale':prescale } )
 
         # Lock the listener
         with listener.lock_:
@@ -218,41 +239,68 @@ class DispatchManager:
                         if dc['scope'] != row['scope']: continue
                         if re.search( dc['regex'], row['name'] ) == None: continue
 
+                        # Increment the count on the dispatcher and check prescale
+                        jndex    = dc['index']
+                        prescale = dc['prescale']
+                        
+                        #with self.lock_:
+                        #    count = dispatch.loc[ jndex, ["count"] ]
+                        #    dispatch.loc[ jndex, ["count"] ] = [count+1]
+                        #    if count % prescale > 0:
+                        #        INFO("Skip for prescale")
+                        #        continue  
+
                         # Call the matching actor
                         dc['actor']( " %s"%row['name'], index, _out=captureActorOutput, _err=captureActorError )
 
                         # Mark the dataset as dispatched
                         listener.messages.loc[ int(index), ["state"] ] = ["dispatched"]
 
-                        # Increment the count on the dispatcher
-                        jndex = dc['index']                        
-                        with self.lock_:
-                            count = dispatch.loc[ jndex, ["count"] ]
-                            dispatch.loc[ jndex, ["count"] ] = [count+1]
-                            
-
-                        
-                        
-                        
-
-
-
-
-
-        
-            
-
         
 #___________________________________________________________________________________
-
+dmthread = None
 class DonkeyShell( cmd.Cmd ):
     intro  = "Welcome to Donkey shell."
     prompt = "donkey> "
     file_  = None
 
     def do_dispatch(self,arg):
+        """
+        dispatch [once|run|start|stop]
+
+        once:  run dispatcher one time
+        run:   run dispatcher in thread
+        start: aka run
+        stop:  shutdown dispatch manager and wait for thread to terminate
+        """
         global dmanager
-        dmanager.dispatch()    
+        global dmthread
+
+        # Single call to dispatch
+        if arg=="once":
+            WARN("Executing dispatch one time")
+            dmanager.dispatch()
+
+        elif arg=="run" or arg=="start":
+            if dmthread == None:
+                WARN("Starting dispatch manager on thread")            
+                dmthread = threading.Thread( target=dmanager.run )
+                dmthread.start()
+            else:
+                ERROR("Thread object alread exists... manager should be running")
+
+        elif arg=="stop":
+            if dmthread != None:
+                dmanager.stop() # signal dispatch manager should stop
+                WARN("Waiting up to 30s for DM thread to stop")
+                dmthread.join() # block until thread has stopped as we
+                dmthread = None
+            else:
+                ERROR("No dispatch manager thread found")
+
+        else:
+            ERROR("Argument %s not recognized"%arg)
+
 
     def do_show(self, arg):
         """
@@ -281,7 +329,16 @@ class DonkeyShell( cmd.Cmd ):
         """
         Exits command loop and falls through to disconnect.
         """
+        global dmanager
+
+        # Stop the dispatch manager
+        dmanager.stop()
+        
+        
         print("This is the end of donkey.  Goodbye.")
+
+        
+        
         return True
     def do_EOF(self,arg):
         return self.do_exit(arg)
