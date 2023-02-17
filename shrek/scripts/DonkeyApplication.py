@@ -264,6 +264,30 @@ class DonkeyShell( cmd.Cmd ):
     prompt = "donkey> "
     file_  = None
 
+    def do_load(self, arg):
+        global listener
+        global dmanager
+        global dispatch
+        
+        args=arg.split()
+
+        if args[0]=='watchfile':
+            for a in args[1:]:
+                INFO("Load watch file %s"%a)
+                rwf = readWatchFile(a)
+                rwf['count']=0 # initialize zero count
+                rwf['enable']="yes"  # yes/no
+                dfwf = pd.DataFrame( rwf, columns=watch_file_columns )
+                # NOTE: We really need to lock down the share data model!!!  i.e. DispatchManager
+                # object should manager all reads and writes to the dispatch dataframe (and choose
+                # a better name for this).
+                with dmanager.lock_:                  
+                    dispatch = pd.concat( [dispatch, dfwf], ignore_index=True )
+
+        else:
+            ERROR("Argument %s not recognized"%arg)            
+            
+
     def do_dispatch(self,arg):
         """
         dispatch [once|run|start|stop]
@@ -311,6 +335,7 @@ class DonkeyShell( cmd.Cmd ):
         """
         global dispatch
         global listener
+        # NOTE These should be context locked...
         if arg=='dispatch':
             print(dispatch.to_markdown())
         if arg=='messages':
