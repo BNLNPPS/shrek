@@ -157,9 +157,11 @@ class DispatchListener( stomp.ConnectionListener ):
         ERROR('recieved %s' % frame.body)
 
     def on_message( self, frame ):
-        with self.lock_:
+        utcnow = datetime.datetime.utcnow()
+        with self.lock_:            
             payload = json.loads( str(frame.body) )["payload"]
-            payload['state']="pending"
+            payload['state']='pending'
+            payload['recieved']=utcnow
             if self.messages.empty:
                 self.messages = pd.DataFrame( payload, columns=payload.keys(), index=[0] )
             else:
@@ -177,6 +179,7 @@ class DispatchManager:
         self.name = name
         self.lock_ = threading.Lock()
         self.enabled = True
+        self.verbose = False
 
     def stop(self):
         """
@@ -194,7 +197,8 @@ class DispatchManager:
             self.enabled = True
         while self.enabled:            
             self.dispatch()
-            listener.show()
+            if self.verbose:
+                listener.show()
             time.sleep(30)
 
     def dispatch(self):
@@ -251,7 +255,7 @@ class DispatchManager:
                         #        continue  
 
                         # Call the matching actor
-                        dc['actor']( " %s"%row['name'], index, _out=captureActorOutput, _err=captureActorError )
+                        dc['actor']( " %s"%row['name'], index, _out=captureActorOutput, _err=captureActorError, _env=os.environ.copy() )
 
                         # Mark the dataset as dispatched
                         listener.messages.loc[ int(index), ["state"] ] = ["dispatched"]
