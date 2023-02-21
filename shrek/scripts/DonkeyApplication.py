@@ -15,6 +15,7 @@ import re
 import queue
 import pandas as pd
 import threading
+import editor
 
 def captureActorOutput( out ):
     INFO('| ' + out)
@@ -24,6 +25,15 @@ def captureActorError( out ):
 
 # Watch file column descriptions
 watch_file_columns = ["actors","prescale","scope","match","count", "enable"]
+watch_file_template = """
+actors:
+  - [user script]
+prescale: 1
+scope:  [rucio scope]
+match:  "[regular expression]"
+count:  0
+enable: "no"
+"""
 
 
 dispatch = pd.DataFrame( columns=watch_file_columns )
@@ -32,6 +42,8 @@ dmanager = None  # DispatchManager
 
 from shrek.scripts.simpleLogger import DEBUG, INFO, WARN, ERROR, CRITICAL
 from shrek.scripts.ShrekConfiguration import readSiteConfig
+
+
 
 def readConfig( filename = None ):    
     defaults = readSiteConfig()    
@@ -268,6 +280,50 @@ class DonkeyShell( cmd.Cmd ):
     prompt = "donkey> "
     file_  = None
 
+    def emptyline(self):
+        """
+        No action performed on an empty line.
+        """
+        pass
+
+    
+
+    def do_set(self, arg):
+        """
+        set condition [filename]
+            Opens a new watchfile in your $EDITOR and loads into the dispatch manager
+            
+        """
+        global listener
+        global dmanager
+        global dispatch
+
+        args = arg.split()
+
+        if args[0]=='condition':
+            
+            filename = "/tmp/watchfile-"+str(uuid.uuid4())
+            print(len(args))
+            if len(args)>1:
+                filename=args[1]
+
+            with open(filename,'w') as f:
+                f.write(watch_file_template)
+
+            # Edit the watch file
+            editor.edit( filename )
+
+            # And load it
+            self.onecmd( "load watchfile %s"%filename )
+
+        else:
+
+            ERROR("SET: Argument %s not recognized"%args[0])
+
+            
+
+
+
     def do_load(self, arg):
         global listener
         global dmanager
@@ -279,8 +335,10 @@ class DonkeyShell( cmd.Cmd ):
             for a in args[1:]:
                 INFO("Load watch file %s"%a)
                 rwf = readWatchFile(a)
-                rwf['count']=0 # initialize zero count
-                rwf['enable']="yes"  # yes/no
+                if rwf.get('count',None) == None:
+                    rwf['count']=0 # initialize zero count
+                if rwf.get('enable',None) == None:
+                    rwf['enable']="yes"  # yes/no                
                 dfwf = pd.DataFrame( rwf, columns=watch_file_columns )
                 # NOTE: We really need to lock down the share data model!!!  i.e. DispatchManager
                 # object should manager all reads and writes to the dispatch dataframe (and choose
@@ -289,7 +347,7 @@ class DonkeyShell( cmd.Cmd ):
                     dispatch = pd.concat( [dispatch, dfwf], ignore_index=True )
 
         else:
-            ERROR("Argument %s not recognized"%arg)            
+            ERROR("LOAD: Argument %s not recognized"%arg)            
             
 
     def do_dispatch(self,arg):
@@ -327,7 +385,7 @@ class DonkeyShell( cmd.Cmd ):
                 ERROR("No dispatch manager thread found")
 
         else:
-            ERROR("Argument %s not recognized"%arg)
+            ERROR("DISPATCH: Argument %s not recognized"%arg)
 
 
     def do_show(self, arg):
