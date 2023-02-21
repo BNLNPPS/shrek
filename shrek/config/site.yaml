@@ -3,11 +3,15 @@ Shrek:
   submissionPrefix: ../submit/
   defaultBranch: master
 
-
+# ython -m stomp -H spmq01.sdcc.bnl.gov --user=donkey --password=donkey --listen=/queue/events
 Donkey:
   period: 900
   scope: user.jwebb2
   match: "*"
+  config: $HOME/.donkey
+  host: spmq01.sdcc.bnl.gov
+  queue: /queue/events
+  port: 61613
 
 PanDA:
   vo: wlcg
