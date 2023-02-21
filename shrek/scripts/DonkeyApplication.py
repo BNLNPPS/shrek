@@ -174,6 +174,14 @@ class DispatchListener( stomp.ConnectionListener ):
             payload = json.loads( str(frame.body) )["payload"]
             payload['state']='pending'
             payload['recieved']=utcnow
+
+            # Check if this is a child dataset
+            childscope = payload.get( 'childscope', 'nan')
+            childname  = payload.get( 'childname',  'nan' )
+            childtype  = payload.get( 'childtype',  'nan' )
+            if childscope != 'nan' or childname != 'nan' or childtype != 'nan':
+                payload['state'] = 'ignored'
+            
             if self.messages.empty:
                 self.messages = pd.DataFrame( payload, columns=payload.keys(), index=[0] )
             else:
@@ -299,6 +307,10 @@ class DonkeyShell( cmd.Cmd ):
         """
         set condition [filename]
             Opens a new watchfile in your $EDITOR and loads into the dispatch manager
+
+        set delay value
+            Sets the delay between iterations checking the message queue for dispatching
+            work to the actors.
             
         """
         global listener
@@ -322,6 +334,12 @@ class DonkeyShell( cmd.Cmd ):
 
             # And load it
             self.onecmd( "load watchfile %s"%filename )
+
+        elif args[0]=='delay':
+
+            if args[1]<30:
+                WARN("SET: Setting less that 30s between dispatch iterations doesn't make much sense.")
+            dmanager.set_delay( args[1] )
 
         else:
 
