@@ -35,10 +35,11 @@ count:  0
 enable: "no"
 """
 
-
 dispatch = pd.DataFrame( columns=watch_file_columns )
 listener = None  # DispatchListener
 dmanager = None  # DispatchManager
+
+verbose  = 0
 
 from shrek.scripts.simpleLogger import DEBUG, INFO, WARN, ERROR, CRITICAL
 from shrek.scripts.ShrekConfiguration import readSiteConfig
@@ -180,7 +181,10 @@ class DispatchListener( stomp.ConnectionListener ):
             childname  = payload.get( 'childname',  'nan' )
             childtype  = payload.get( 'childtype',  'nan' )
             if childscope != 'nan' or childname != 'nan' or childtype != 'nan':
-                payload['state'] = 'ignored'
+                payload['state'] = 'workflow product'
+
+            if payload['account']=='iddsv1':
+                payload['state'] = 'workflow product'
             
             if self.messages.empty:
                 self.messages = pd.DataFrame( payload, columns=payload.keys(), index=[0] )
@@ -214,11 +218,12 @@ class DispatchManager:
         Loop until command loop sets the enabled flag to False
         """
         global listener
+        global verbose
         with self.lock_:
             self.enabled = True
         while self.enabled:            
             self.dispatch()
-            if self.verbose:
+            if verbose>0:
                 listener.show()
             time.sleep( self.delay )
 
@@ -305,21 +310,28 @@ class DonkeyShell( cmd.Cmd ):
 
     def do_set(self, arg):
         """
-        set condition [filename]
-            Opens a new watchfile in your $EDITOR and loads into the dispatch manager
+        > set condition [filename]
+              Opens a new watchfile in your $EDITOR and loads into the dispatch manager
 
-        set delay value
-            Sets the delay between iterations checking the message queue for dispatching
-            work to the actors.
+        > set delay value
+              Sets the delay between iterations checking the message queue for dispatching
+              work to the actors.
+
+        > set verbose level
+              Sets global verbosity level
             
         """
         global listener
         global dmanager
         global dispatch
+        global verbose
 
         args = arg.split()
 
-        if args[0]=='condition':
+        if args[0]=='verbose':
+            verbose = args[1]
+
+        elif args[0]=='condition':
             
             filename = "/tmp/watchfile-"+str(uuid.uuid4())
             print(len(args))
@@ -337,9 +349,9 @@ class DonkeyShell( cmd.Cmd ):
 
         elif args[0]=='delay':
 
-            if args[1]<30:
+            if int(args[1])<30:
                 WARN("SET: Setting less that 30s between dispatch iterations doesn't make much sense.")
-            dmanager.set_delay( args[1] )
+            dmanager.set_delay( int(args[1]) )
 
         else:
 
