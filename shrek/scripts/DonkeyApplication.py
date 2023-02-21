@@ -192,6 +192,7 @@ class DispatchManager:
         self.lock_ = threading.Lock()
         self.enabled = True
         self.verbose = False
+        self.delay   = 30 # seconds
 
     def stop(self):
         """
@@ -211,7 +212,13 @@ class DispatchManager:
             self.dispatch()
             if self.verbose:
                 listener.show()
-            time.sleep(30)
+            time.sleep( self.delay )
+
+    def set_delay(self,delay_):
+        if delay_ > 0:
+            with self.lock_:
+                self.delay = delay_
+            
 
     def dispatch(self):
         global listener
