@@ -160,12 +160,17 @@ class DispatchListener( stomp.ConnectionListener ):
         self.messages     = pd.DataFrame() # any write OR read op should be w/in a locked context
         self.lock_        = threading.Lock()
 
-    def show( self ):
+    def show( self, n=0 ):
         with self.lock_:
             if self.messages.empty:
                 WARN("No messages recieved yet")            
             else:
-                print(self.messages.to_markdown())
+                if n==0:
+                    print(self.messages.to_markdown())
+                elif n > 0:
+                    print(self.messages.tail( n).to_markdown())
+                else:
+                    print(self.messages.head(-n).to_markdown())                    
 
     def on_error( self, frame ):
         ERROR('recieved %s' % frame.body)
@@ -480,16 +485,26 @@ class DonkeyShell( cmd.Cmd ):
         """
         Display actions when messages match user criteria
         > show dispatch
-        Display all messages recieved during session
-        > show messages
+
+        Display all messages recieved during session.  If n is provided,
+        show only the n most recent lines.  First n if negative value given.
+        > show messages [n]
         """
         global dispatch
         global listener
+
+        args=arg.split()
+        
         # NOTE These should be context locked...
-        if arg=='dispatch':
+        if args[0]=='dispatch':
             print(dispatch.to_markdown())
-        if arg=='messages':
-            listener.show()
+        if args[0]=='messages':
+            n = 0
+            if len(args) > 1:
+                n = int(args[1])
+
+            listener.show(n)
+
 
     def do_enable(self, arg):
         global dispatch
