@@ -334,7 +334,16 @@ class DonkeyShell( cmd.Cmd ):
         else:
             dmanager.save(arg)
 
-    
+
+    def do_edit(self, arg):
+        """
+        > edit filename
+        """
+        if os.path.exists(arg):
+            editor.edit(arg)
+        else:
+            ERROR("Could not find %s"%str(arg))
+
 
     def do_set(self, arg):
         """
@@ -626,21 +635,22 @@ def main():
     # per watch file.
     #
     
-    #
-    for wf in args.watchfile:
-        rwf = readWatchFile(wf)
-        rwf['count']=0 # initialize zero count
-        rwf['enable']="yes"  # yes/no
-        dfwf = pd.DataFrame( rwf, columns=watch_file_columns )
-        dispatch = pd.concat( [dispatch, dfwf], ignore_index=True )
 
-    
+    for wf in args.watchfile:
+        if not os.path.exists(wf):
+            WARN("%s does not exist, ignored"%wf)
+        else:
+            rwf = readWatchFile(wf)
+            rwf['count']=0 # initialize zero count
+            rwf['enable']="yes"  # yes/no
+            dfwf = pd.DataFrame( rwf, columns=watch_file_columns )
+            dispatch = pd.concat( [dispatch, dfwf], ignore_index=True )
+
 
     connectAndSubscribe(args, defaults, connection)
     DonkeyShell().cmdloop()    
 
     
-
 if __name__ == '__main__':
     main()
 
