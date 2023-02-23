@@ -38,6 +38,7 @@ enable: "no"
 dispatch = pd.DataFrame( columns=watch_file_columns )
 listener = None  # DispatchListener
 dmanager = None  # DispatchManager
+connection = None
 
 verbose  = 0
 
@@ -184,7 +185,7 @@ class DispatchListener( stomp.ConnectionListener ):
                 payload['state'] = 'workflow product'
 
             if payload['account']=='iddsv1':
-                payload['state'] = 'workflow product'
+                payload['state'] = 'workflow product'           
             
             if self.messages.empty:
                 self.messages = pd.DataFrame( payload, columns=payload.keys(), index=[0] )
@@ -192,9 +193,9 @@ class DispatchListener( stomp.ConnectionListener ):
                 temp = pd.DataFrame( payload, columns=payload.keys(), index=[0] )
                 self.messages = pd.concat( [self.messages,temp], ignore_index = True )
 
-    def on_disconnected(self):
-        WARN("disconnected, attempting to reconnect...")
-        connectAndSubscribe( self.connection )
+    #def on_disconnected(self):
+    #    WARN("disconnected, attempting to reconnect...")
+    #    connectAndSubscribe( self.connection )
 
 
 #___________________________________________________________________________________
@@ -231,6 +232,20 @@ class DispatchManager:
         if delay_ > 0:
             with self.lock_:
                 self.delay = delay_
+
+    def save(self,filename=".donkey/messages.csv"):        
+        global listener
+        with listener.lock_:
+            INFO("Save to message persistency file %s"%filename)                
+            listener.messages.to_csv( filename, mode='w', index=False, header=True )
+
+    def restore(self,filename=".donkey/messages.csv"):
+        global listener
+        if os.path.exists(filename):
+            WARN("Messages restored from %s"%filename)            
+            with listener.lock_:        
+                readin = pd.read_csv( filename )
+                listener.messages = readin
             
 
     def dispatch(self):
@@ -306,6 +321,20 @@ class DonkeyShell( cmd.Cmd ):
         """
         pass
 
+    def do_save(self,arg):
+        """
+        > save [filename]
+
+        Saves messages to csv file.  If no filename is provided, saves to the checkpoint
+        file.
+        """
+        global dmanager
+        if arg == "":
+            dmanager.save()
+        else:
+            dmanager.save(arg)
+
+
     def do_edit(self, arg):
         """
         > edit filename
@@ -314,7 +343,7 @@ class DonkeyShell( cmd.Cmd ):
             editor.edit(arg)
         else:
             ERROR("Could not find %s"%str(arg))
-    
+
 
     def do_set(self, arg):
         """
@@ -370,13 +399,23 @@ class DonkeyShell( cmd.Cmd ):
 
 
     def do_load(self, arg):
+        """
+        > load conditions filename
+
+        Loads a conditions file
+
+        > load messages filename
+
+        Loads message file
+        
+        """
         global listener
         global dmanager
         global dispatch
         
         args=arg.split()
 
-        if args[0]=='watchfile':
+        if args[0]=='conditions':
             for a in args[1:]:
                 INFO("Load watch file %s"%a)
                 rwf = readWatchFile(a)
@@ -390,6 +429,10 @@ class DonkeyShell( cmd.Cmd ):
                 # a better name for this).
                 with dmanager.lock_:                  
                     dispatch = pd.concat( [dispatch, dfwf], ignore_index=True )
+
+        elif args[0]=='messages':
+            
+            dmanager.restore(args[1])
 
         else:
             ERROR("LOAD: Argument %s not recognized"%arg)            
@@ -450,11 +493,9 @@ class DonkeyShell( cmd.Cmd ):
 
     def do_enable(self, arg):
         global dispatch
-        #dispatch.at[arg, "enable"]="yes"
         dispatch.loc[ int(arg), ["enable"] ] = ["yes"]
     def do_disable(self, arg):
         global dispatch
-        #dispatch = dispatch.at[arg, "enable"]="no"
         dispatch.loc[ int(arg), ["enable"] ] = ["no"]
 
     def do_exit(self,arg):
@@ -462,16 +503,14 @@ class DonkeyShell( cmd.Cmd ):
         Exits command loop and falls through to disconnect.
         """
         global dmanager
+        global connection
 
-        # Stop the dispatch manager
+        connection.disconnect()
+        dmanager.save()
         dmanager.stop()
-        
-        
-        print("This is the end of donkey.  Goodbye.")
-
-        
-        
+        INFO("This is the end of donkey shell.  Goodbye.")
         return True
+
     def do_EOF(self,arg):
         return self.do_exit(arg)
         
@@ -532,6 +571,7 @@ def main():
     global dispatch
     global listener
     global dmanager
+    global connection
 
     defaults = readConfig()
     args, extras = parse_args( defaults )
@@ -546,6 +586,9 @@ def main():
     # Setup the dispatch manager... May be executed in own thread or by the
     # cmd loop.
     dmanager = DispatchManager('manager')
+
+    # Restore messages
+    dmanager.restore()
     
     curr_subid   = None
     past_subid   = None
@@ -603,15 +646,11 @@ def main():
             dfwf = pd.DataFrame( rwf, columns=watch_file_columns )
             dispatch = pd.concat( [dispatch, dfwf], ignore_index=True )
 
-    # Multi-threading begins here ...
 
     connectAndSubscribe(args, defaults, connection)
-    DonkeyShell().cmdloop()
+    DonkeyShell().cmdloop()    
 
     
-    connection.disconnect()
-        
-
 if __name__ == '__main__':
     main()
 
