@@ -320,11 +320,88 @@ class DonkeyShell( cmd.Cmd ):
     prompt = "donkey> "
     file_  = None
 
+    def __init__(self,args):
+        cmd.Cmd.__init__(self)
+        self.args = args
+
+    def preloop(self):
+
+        go = True
+        for bf in self.args.batchfile:
+            if not os.path.exists(bf):
+                WARN("Batch file %s not found.")
+                go = False
+        
+        # Execute any pending batch files
+        if go==True:
+            for bf in self.args.batchfile:
+                with open(bf,'r') as bf_:
+                    for line in bf_:
+                        self.cmdqueue.append(line)
+        else:
+            CRITICAL("One or more batch files could not be found.  Exiting.")
+            self.cmdqueue.append("exit")
+    
+
     def emptyline(self):
         """
         No action performed on an empty line.
         """
         pass
+
+    def do_info(self,arg):
+        """
+        > info message
+        
+        Log message at INFO level.
+        """
+        INFO(arg)
+    def do_warn(self,arg):
+        """
+        > warn message
+        
+        Log message at WARN level.
+        """        
+        WARN(arg)
+    def do_error(self,arg):
+        """
+        > error message
+        
+        Log message at ERROR level.
+        """        
+        ERROR(arg)
+    def do_critical(self,arg):
+        """
+        > info message
+        
+        Log message at CRITICAL level.
+        """        
+        CRITICAL(arg)
+
+    def do_exec(self,arg):
+        """
+        > exec batchfile [batchfile ...]
+
+        Execute the commands contained in the specified batch file(s).
+        
+        """
+        args = arg.split()
+
+        go = True
+        for bf in args:
+            if not os.path.exists(bf):
+                WARN("Batch file %s not found.")
+                go = False
+
+        if go == True:
+            for bf in args:
+                INFO("Execute %s"%bf)
+                with open(bf,'r') as file_:
+                    for line in file_:
+                        self.onecmd( line )
+        else:
+            WARN("One or more batch files missing.  None executed.")
+            
 
     def do_save(self,arg):
         """
@@ -592,6 +669,8 @@ def parse_args( defaults ):
 
     parser.add_argument( '--watch-file', dest='watchfile', default=[], nargs='+', type=str, help="Definition file")
 
+    parser.add_argument( 'batchfile', default=[], nargs='?', type=str, help="Batch file", action="append")
+
     return parser.parse_known_args()
 
 def dropCurrentSubscription( current ):
@@ -680,7 +759,11 @@ def main():
 
 
     connectAndSubscribe(args, defaults, connection)
-    DonkeyShell().cmdloop()    
+
+    # Instantiate and run the donkey shell
+    DonkeyShell(args).cmdloop()    
+
+    
 
     
 if __name__ == '__main__':
