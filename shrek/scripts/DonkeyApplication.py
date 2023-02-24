@@ -16,6 +16,7 @@ import queue
 import pandas as pd
 import threading
 import editor
+import readline
 
 def captureActorOutput( out ):
     INFO('| ' + out)
@@ -320,12 +321,24 @@ class DonkeyShell( cmd.Cmd ):
     prompt = "donkey> "
     file_  = None
 
-    def __init__(self,args):
+    def __init__(self,args,histfile=".donkey/history",histfile_size=10000):
         cmd.Cmd.__init__(self)
         self.args = args
+        self.hist = histfile
+        self.histsz = histfile_size
+
+    def postloop(self):
+        # Save history file
+        readline.set_history_length(self.histsz)
+        readline.write_history_file(self.hist)
+
 
     def preloop(self):
+        # Load history file
+        if os.path.exists(self.hist):
+            readline.read_history_file(self.hist)
 
+        # Process batch files on command line
         go = True
         for bf in self.args.batchfile:
             if not os.path.exists(bf):
@@ -632,6 +645,10 @@ class DonkeyShell( cmd.Cmd ):
         Display all messages recieved during session.  If n is provided,
         show only the n most recent lines.  First n if negative value given.
         > show messages [n]
+
+        Display the history
+        > show history
+        
         """
         global dispatch
         global listener
@@ -645,8 +662,11 @@ class DonkeyShell( cmd.Cmd ):
             n = 0
             if len(args) > 1:
                 n = int(args[1])
-
             listener.show(n)
+
+    def do_history(self,arg):        
+        for i in range(readline.get_current_history_length()):
+            print("%i %s"%(i,readline.get_history_item(i + 1)))
 
 
     def do_enable(self, arg):
