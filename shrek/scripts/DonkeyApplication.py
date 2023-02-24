@@ -361,6 +361,11 @@ class DonkeyShell( cmd.Cmd ):
 
         > set verbose level
               Sets global verbosity level
+
+        > set state row value
+              For the specified row (or comma-separated list of rows), set the message state
+              to the specified value [pending or ignore]
+              
             
         """
         global listener
@@ -394,6 +399,18 @@ class DonkeyShell( cmd.Cmd ):
             if int(args[1])<30:
                 WARN("SET: Setting less that 30s between dispatch iterations doesn't make much sense.")
             dmanager.set_delay( int(args[1]) )
+
+        elif args[0]=='state':
+            if len(args)==3:
+                rows = args[1].split(',')
+                for r in rows:
+                    row=int(r)
+                    val=args[2]
+                    if val in ["pending","ignored"]:
+                        with listener.lock_:                    
+                            listener.messages.at[ row, "state" ] = val
+                    else:
+                        WARN("Cannot set state to %s"%val)
 
         else:
 
