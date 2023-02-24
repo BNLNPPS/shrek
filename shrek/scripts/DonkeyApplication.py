@@ -365,6 +365,14 @@ class DonkeyShell( cmd.Cmd ):
         """
         pass
 
+    def do_shell(self,arg):
+        """
+        > shell command
+
+        Execute specified command in the system shell.
+        """
+        os.system(arg)
+
     def do_sleep(self,n_):
         """
         > sleep n
