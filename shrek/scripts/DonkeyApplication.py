@@ -493,10 +493,6 @@ class DonkeyShell( cmd.Cmd ):
 
             ERROR("SET: Argument %s not recognized"%args[0])
 
-            
-
-
-
     def do_load(self, arg):
         """
         > load conditions filename
@@ -535,7 +531,60 @@ class DonkeyShell( cmd.Cmd ):
 
         else:
             ERROR("LOAD: Argument %s not recognized"%arg)            
+
+
+    def do_addcon(self,cond):
+        """
+        This is primarily intended for testing purposes.  Use with great care.
+
+        > addcon actor,prescale,scope,regex,count,enable
+
+        e.g.
+        addcon helloWorld,1,user.jwebb2,u*,0,yes
+        """
+        global listener
+        global dmanager
+        cond_ = cond.split(",")
+        with dmanager.lock_:
+            dispatch.loc[ len(dispatch.index) ] = cond_
+
+    def do_rmcon(self,index):
+        """
+        This is an expert level command... use at your own risk.  Removes
+        a condition at index.
+
+        > rmcon index
+        """
+        global listener
+        global dmanager
+        with dmanager.lock_:
+            dispatch = dispatch.drop( int(index) )
             
+    def do_addmsg(self,msg):
+        """
+        This is primarily intended for testing purposes.  Use with great care.
+        
+        > addmsg account scope name expired_at state recieved childscope childtype childname
+
+        e.g.
+        addmsg sphnxpro,user.jwebb2,user.jwebb2.test-dataset,nan,pending,2023-02-23 19:35:34.049738,nan,nan,nan
+        """
+        global listener        
+        msg_ = msg.split(",")
+        with listener.lock_:
+            listener.messages.loc[ len(listener.messages.index) ] = msg_
+
+    def do_rmmsg(self,index):
+        """
+        This is an expert level command... use at your own risk.  Removes
+        a message at index.
+
+        > rmmsg index
+        """
+        global listener
+        with listener.lock_:
+            listener.messages = listener.messages.drop( int(index) )
+        
 
     def do_dispatch(self,arg):
         """
