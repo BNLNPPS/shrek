@@ -362,6 +362,16 @@ class DonkeyShell( cmd.Cmd ):
         """
         pass
 
+    def do_sleep(self,n_):
+        """
+        > sleep n
+
+        Puts the command line to sleep for N seconds.  Both the listener
+        and dispatch manager continue to run in the background.
+        """
+        time.sleep( int(n_) )
+        
+
     def do_info(self,arg):
         """
         > info message
