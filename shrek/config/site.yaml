@@ -3,12 +3,11 @@ Shrek:
   submissionPrefix: ../submit/
   defaultBranch: master
 
-# ython -m stomp -H spmq01.sdcc.bnl.gov --user=donkey --password=donkey --listen=/queue/events
 Donkey:
   period: 900
   scope: user.jwebb2
   match: "*"
-  config: $HOME/.donkey
+  config: ".donkey"
   host: spmq01.sdcc.bnl.gov
   queue: /queue/events
   port: 61613
@@ -18,9 +17,13 @@ PanDA:
   site: BNL_OSG_SPHENIX
   prodSourceLabel: test
   workingGroup: sphenix
-  url:     http://pandaserver-doma.cern.ch:25080/server/panda
-  url_ssl: https://pandaserver-doma.cern.ch:25443/server/panda
+  url:        https://sphenix-pandaserver.apps.rcf.bnl.gov/server/panda
+  url_ssl:    https://sphenix-pandaserver.apps.rcf.bnl.gov/server/panda
+  cache_url:  https://sphenix-pandaserver.apps.rcf.bnl.gov/server/panda
+  mon_url:    https://sphenix-pandaserver.apps.rcf.bnl.gov/server/panda
+  use_native_httplib: "1"
+  behind_real_lb: "1"
   auth: oidc
   verify_host: "off"
   auth_vo: sphenix
-  config_root: $HOME/.pathena
+  config_root: $HOME/.pathena/
