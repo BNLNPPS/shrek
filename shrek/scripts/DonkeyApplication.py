@@ -308,10 +308,22 @@ class DispatchManager:
                         #        continue  
 
                         # Call the matching actor
-                        dc['actor']( " %s"%row['name'], index, _out=captureActorOutput, _err=captureActorError, _env=os.environ.copy() )
 
-                        # Mark the dataset as dispatched
-                        listener.messages.loc[ int(index), ["state"] ] = ["dispatched"]
+                        myactor =  dc['actor']
+
+                        try:
+                            myactor( " %s"%row['name'], index, _out=captureActorOutput, _err=captureActorError, _env=os.environ.copy() )
+
+                            # Only mark to state dispatched if actor succeeded
+                            listener.messages.loc[ int(index), ["state"] ] = ["dispatched"]
+                            
+                        except sh.ErrorReturnCode:
+                            WARN("Actor returned error code")
+
+
+                            
+
+
 
         
 #___________________________________________________________________________________
