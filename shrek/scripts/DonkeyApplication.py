@@ -340,18 +340,21 @@ class DonkeyShell( cmd.Cmd ):
 
         # Process batch files on command line
         go = True
-        for bf in self.args.batchfile:
-            if not os.path.exists(bf):
-                WARN("Batch file %s not found.")
-                go = False
+
+        # Verify that all provided batch files exist
+        if self.args.batchfile != [None]:
+            for bf in self.args.batchfile:
+                if not os.path.exists(bf):
+                    WARN("Batch file %s not found.")
+                    go = False
         
         # Execute any pending batch files
-        if go==True:
+        if go==True and self.args.batchfile != [None]:
             for bf in self.args.batchfile:
                 with open(bf,'r') as bf_:
                     for line in bf_:
                         self.cmdqueue.append(line)
-        else:
+        elif self.args.batchfile != [None]: 
             CRITICAL("One or more batch files could not be found.  Exiting.")
             self.cmdqueue.append("exit")
     
@@ -748,7 +751,7 @@ def parse_args( defaults ):
 
     parser.add_argument( '--watch-file', dest='watchfile', default=[], nargs='+', type=str, help="Definition file")
 
-    parser.add_argument( 'batchfile', default=[], nargs='?', type=str, help="Batch file", action="append")
+    parser.add_argument( 'batchfile', nargs='?', type=str, help="Batch file", action="append")
 
     return parser.parse_known_args()
 
