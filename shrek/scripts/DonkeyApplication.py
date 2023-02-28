@@ -310,30 +310,30 @@ class DispatchManager:
 
                         # Increment the count on the dispatcher and check prescale
                         jndex    = dc['index']
-                        prescale = dc['prescale']
-                        
-                        #with self.lock_:
-                        #    count = dispatch.loc[ jndex, ["count"] ]
-                        #    dispatch.loc[ jndex, ["count"] ] = [count+1]
-                        #    if count % prescale > 0:
-                        #        INFO("Skip for prescale")
-                        #        continue  
+                        prescale = int(dc['prescale'])
 
-                        # Call the matching actor
+                        # Increment the count (do not submit the first instance)
+                        dc['count'] = int(dc['count']) + 1
 
-                        myactor =  dc['actor']
+                        count    = int(dc['count'])                        
 
-                        try:
-                            myactor( " %s"%row['name'], index, _out=captureActorOutput, _err=captureActorError, _env=os.environ.copy() )
+                        # Message is accepted for processing if it satisfies the prescale
+                        if count % prescale == 0:
 
-                            # Only mark to state dispatched if actor succeeded
-                            listener.messages.loc[ int(index), ["state"] ] = ["dispatched"]
+                            myactor =  dc['actor']
 
-                            # And only increment the count on the dispatch conditions if the actor succeeded
-                            dc['count'] = int(dc['count']) + 1
+                            try:
+                                myactor( " %s"%row['name'], index, _out=captureActorOutput, _err=captureActorError, _env=os.environ.copy() )
+
+                                # Only mark to state dispatched if actor succeeded
+                                listener.messages.loc[ int(index), ["state"] ] = ["dispatched"]
+
+                                # Return the count to zero
+                                dc['count'] = 0
+
                             
-                        except sh.ErrorReturnCode:
-                            WARN("Actor returned error code")
+                            except sh.ErrorReturnCode:
+                                WARN("Actor returned error code")
 
 
         # Now lock dispatch again.  Loop over all active dispatch conditions and update
