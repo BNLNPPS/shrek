@@ -276,7 +276,8 @@ class DispatchManager:
 
                 #
                 # Ensure that the specified actor is available.  If not, issue warning
-                # and mark as disabled.
+                # and mark as disabled.  A missing actor will not be considered a (fatal)
+                # error.
                 #
                 actor = None
                 try:
@@ -289,8 +290,9 @@ class DispatchManager:
                 regex    = row['match'] 
                 scope    = row['scope']
                 prescale = row['prescale']
+                count    = row['count']
 
-                active.append( {'actor':actor, 'scope':scope, 'regex':regex, 'index':int(index), 'prescale':prescale } )
+                active.append( {'index':index, 'actor':actor, 'scope':scope, 'regex':regex, 'index':int(index), 'prescale':prescale, 'count':count } )
 
         # Lock the listener
         with listener.lock_:
@@ -326,9 +328,19 @@ class DispatchManager:
 
                             # Only mark to state dispatched if actor succeeded
                             listener.messages.loc[ int(index), ["state"] ] = ["dispatched"]
+
+                            # And only increment the count on the dispatch conditions if the actor succeeded
+                            dc['count'] = int(dc['count']) + 1
                             
                         except sh.ErrorReturnCode:
                             WARN("Actor returned error code")
+
+
+        # Now lock dispatch again.  Loop over all active dispatch conditions and update
+        # the count.  
+        with self.lock_:
+            for dc in active:
+                dispatch.loc[ int(dc['index']), "count" ] = dc['count']
 
 
                             
