@@ -627,19 +627,43 @@ class DonkeyShell( cmd.Cmd ):
         """
         global listener        
         msg_ = msg.split(",")
+
+        WARN("addmsg %s"%' '.join(msg_))
+             
         with listener.lock_:
             listener.messages.loc[ len(listener.messages.index) ] = msg_
 
     def do_rmmsg(self,index):
         """
         This is an expert level command... use at your own risk.  Removes
-        a message at index.
+        messages at specified index (indices).  Note: each row must exist,
+        else the dataframe will throw an exception.
 
         > rmmsg index
+        > rmmsg index1,index2,...,indexN
+        > rmmsg index1:indexN                
+        
         """
-        global listener
+        global listener        
         with listener.lock_:
-            listener.messages = listener.messages.drop( int(index) )
+
+            WARN("rmmsg %s"%index)
+
+            # Case where single message is specified
+            if index.isdigit():
+                listener.messages = listener.messages.drop( int(index) )
+
+            # Comma separated list of indices
+            elif ',' in index:
+                for i in index.split(','):
+                    listener.messages = listener.messages.drop( int(i) )
+
+            # Range from mn:mx
+            elif ':' in index:
+                (mn,mx)=index.split(':')
+                for i in range(int(mn),int(mx)+1):
+                    listener.messages = listener.messages.drop( int(i) )                    
+
         
 
     def do_dispatch(self,arg):
