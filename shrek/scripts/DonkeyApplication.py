@@ -276,7 +276,8 @@ class DispatchManager:
 
                 #
                 # Ensure that the specified actor is available.  If not, issue warning
-                # and mark as disabled.
+                # and mark as disabled.  A missing actor will not be considered a (fatal)
+                # error.
                 #
                 actor = None
                 try:
@@ -289,8 +290,9 @@ class DispatchManager:
                 regex    = row['match'] 
                 scope    = row['scope']
                 prescale = row['prescale']
+                count    = row['count']
 
-                active.append( {'actor':actor, 'scope':scope, 'regex':regex, 'index':int(index), 'prescale':prescale } )
+                active.append( {'index':index, 'actor':actor, 'scope':scope, 'regex':regex, 'index':int(index), 'prescale':prescale, 'count':count } )
 
         # Lock the listener
         with listener.lock_:
@@ -308,27 +310,37 @@ class DispatchManager:
 
                         # Increment the count on the dispatcher and check prescale
                         jndex    = dc['index']
-                        prescale = dc['prescale']
-                        
-                        #with self.lock_:
-                        #    count = dispatch.loc[ jndex, ["count"] ]
-                        #    dispatch.loc[ jndex, ["count"] ] = [count+1]
-                        #    if count % prescale > 0:
-                        #        INFO("Skip for prescale")
-                        #        continue  
+                        prescale = int(dc['prescale'])
 
-                        # Call the matching actor
+                        # Increment the count (do not submit the first instance)
+                        dc['count'] = int(dc['count']) + 1
 
-                        myactor =  dc['actor']
+                        count    = int(dc['count'])                        
 
-                        try:
-                            myactor( " %s"%row['name'], index, _out=captureActorOutput, _err=captureActorError, _env=os.environ.copy() )
+                        # Message is accepted for processing if it satisfies the prescale
+                        if count % prescale == 0:
 
-                            # Only mark to state dispatched if actor succeeded
-                            listener.messages.loc[ int(index), ["state"] ] = ["dispatched"]
+                            myactor =  dc['actor']
+
+                            try:
+                                myactor( " %s"%row['name'], index, _out=captureActorOutput, _err=captureActorError, _env=os.environ.copy() )
+
+                                # Only mark to state dispatched if actor succeeded
+                                listener.messages.loc[ int(index), ["state"] ] = ["dispatched"]
+
+                                # Return the count to zero
+                                dc['count'] = 0
+
                             
-                        except sh.ErrorReturnCode:
-                            WARN("Actor returned error code")
+                            except sh.ErrorReturnCode:
+                                WARN("Actor returned error code")
+
+
+        # Now lock dispatch again.  Loop over all active dispatch conditions and update
+        # the count.  
+        with self.lock_:
+            for dc in active:
+                dispatch.loc[ int(dc['index']), "count" ] = dc['count']
 
 
                             
