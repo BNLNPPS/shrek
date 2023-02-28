@@ -199,9 +199,9 @@ class DispatchListener( stomp.ConnectionListener ):
                 temp = pd.DataFrame( payload, columns=payload.keys(), index=[0] )
                 self.messages = pd.concat( [self.messages,temp], ignore_index = True )
 
-    #def on_disconnected(self):
-    #    WARN("disconnected, attempting to reconnect...")
-    #    connectAndSubscribe( self.connection )
+            # update persistency file
+            self.messages.to_csv( ".donkey/messages.csv", mode='w', index=False, header=True )                
+
 
 
 #___________________________________________________________________________________
