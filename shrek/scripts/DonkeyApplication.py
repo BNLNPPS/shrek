@@ -161,6 +161,16 @@ class DispatchListener( stomp.ConnectionListener ):
         self.messages     = pd.DataFrame() # any write OR read op should be w/in a locked context
         self.lock_        = threading.Lock()
 
+    def showfilt( self, keyval ):
+
+        if '==' in keyval:
+            (key,val)=keyval.split('==')
+            print( self.messages[ self.messages[key] == val ].to_markdown() )
+        elif '!=' in keyval:
+            (key,val)=keyval.split('!=')
+            print( self.messages[ self.messages[key] != val ].to_markdown() )             
+
+        
     def show( self, n=0 ):
         with self.lock_:
             if self.messages.empty:
@@ -679,9 +689,10 @@ class DonkeyShell( cmd.Cmd ):
         show only the n most recent lines.  First n if negative value given.
         > show messages [n]
 
-        Display the history
-        > show history
-        
+        Show messages filtered on the column.  "==" and "!=" are supported.
+        There cannot be spaces between the key, operator and value.
+        > show messages account==sphnxpro
+        > show messages scope!=user.jwebb2        
         """
         global dispatch
         global listener
@@ -691,11 +702,14 @@ class DonkeyShell( cmd.Cmd ):
         # NOTE These should be context locked...
         if args[0]=='dispatch':
             print(dispatch.to_markdown())
+
         if args[0]=='messages':
-            n = 0
-            if len(args) > 1:
-                n = int(args[1])
-            listener.show(n)
+            if len(args)==1:
+                listener.show(0) # shows all messages
+            elif len(args)>1 and args[1].lstrip('-').isdigit():
+                listener.show( int(args[1]) )
+            elif len(args)>1:
+                listener.showfilt( args[1] )
 
     def do_history(self,arg):        
         for i in range(readline.get_current_history_length()):
