@@ -262,12 +262,12 @@ class DispatchManager:
         global listener
         if os.path.exists(filename):
             WARN("Messages restored from %s"%filename)            
-            with listener.lock_:        
-                readin = pd.read_csv( filename )                
-                if len(readin.index) > 0:
-                    listener.messages = readin
-                else:
-                    WARN("... file was empty.  skip it.")
+            with listener.lock_:
+                try:
+                    readin = pd.read_csv( filename )
+                    listener.messages = readin                    
+                except pd.errors.EmptyDataError:
+                    WARN("Corrupt %s ... no messages restored"%filename)
             
 
     def dispatch(self):
