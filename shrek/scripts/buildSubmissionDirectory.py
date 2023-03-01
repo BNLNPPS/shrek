@@ -190,7 +190,12 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
 
 
         md.write( "## PanDA Monitoring\n" )
-        taskname = 'user.%s.%s_*'%(args.user,opts['taguuid'])
+        taskname = ''
+        if args.group == "":
+            taskname = 'user.%s.%s_*'%(args.user,opts['taguuid'])
+        else:
+            taskname = 'group.%s.%s_*'%(args.group,opts['taguuid'])            
+        
         md.write( "[panda monitoring](https://sphenix-panda.apps.rcf.bnl.gov/tasks/?taskname=%s)\n"%taskname )
 
     # Print the monitoring link

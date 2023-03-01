@@ -16,7 +16,9 @@ import time
 import pprint
 import inspect
 import logging
-from io import StringIO 
+from io import StringIO
+
+#import cProfile
 
 from shrek.scripts.buildJobScript import buildJobScript
 from shrek.scripts.buildCommonWorklow import buildCommonWorkflow
@@ -89,7 +91,11 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, taguuid  ):
     #pchain . append( '--dumpTaskParams %s.task.parameters'%args.name )
 
     # Output data set
-    pchain . append('--outDS user.%s.%s'%( args.user, taguuid ) )
+    if args.group == "":
+        pchain . append('--outDS user.%s.%s'%( args.user, taguuid ) )
+    else:
+        pchain . append('--outDS group.%s.%s'%( args.group, taguuid ) )
+        pchain . append('--official');
 
     # Output data files
     output = '--outputs '
@@ -212,6 +218,7 @@ def main():
     parser.add_argument('--prodSourceLabel', type=str, default=pandaOpts['prodSourceLabel'])
     parser.add_argument('--workingGroup', type=str,    default=pandaOpts['workingGroup'])
     parser.add_argument('--user', type=str,            default=getpass.getuser())
+    parser.add_argument('--group', type=str,           default="" )
     parser.add_argument('--branch', type=str,          default=shrekOpts['defaultBranch'])
 
     # Unrecognized flags
@@ -278,7 +285,11 @@ def main():
         pchain . append( '--workingGroup %s'%args.workingGroup )
         pchain . append( '--prodSourceLabel %s'%args.prodSourceLabel )
 
-        pchain . append('--outDS user.%s.%s'%( args.user, taguuid ) )    
+        if args.group == "":
+            pchain . append('--outDS user.%s.%s'%( args.user, taguuid ) )
+        else:
+            pchain . append('--outDS group.%s.%s'%( args.group, taguuid ) )
+            pchain . append('--official');            
         pchain . append('--cwl %s'%cwlfile )
         pchain . append('--yaml %s'%yamlfile )
 
@@ -434,5 +445,7 @@ def main():
         doit.write( '%s\n'% ' '.join(pchain) )
 
 if __name__ == '__main__':
+    
+    #cProfile.run("main()",sort="cumtime")
     main()
     
