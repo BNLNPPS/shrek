@@ -399,9 +399,9 @@ def main():
             try:
                 sh.git.commit ( '-m "%s"'%message,                  _cwd=subdir )
             except sh.ErrorReturnCode_1:
-                print("WARN: git commit duplicate code?")
+                WARN("git commit duplicate code?")
             except sh.ErrorReturnCode:
-                print("WARN: git commit duplicate code?")
+                WARN("git commit duplicate code?")
 
             if args.push:
                 sh.git.push   (                                       _cwd=subdir )
@@ -409,9 +409,21 @@ def main():
             # Hash for current commit
             githash = sh.git('rev-parse', '--short', 'HEAD',         _cwd=subdir ) .rstrip()
 
+
+            # git config --get remote.origin.url
+            # https://git.racf.bnl.gov/gitea/jwebb2/shrek-submission.git            
+
+            githashurl = '-not set-'
+            githashurl = sh.git.config('--get','remote.origin.url', _cwd=subdir)
+
+            #INFO(githashurl)
+
+            githashurl = githashurl.replace('.git','/src/branch/master/%s'%(taguuid))
+            WARN(githashurl)
+
             # n.b. this line is too hardcoded for production / release... contains my github account...
-            # githashurl = 'https://github.com/klendathu2k/sPHENIX-test-production/commit/%s'%githash
-            githashurl = 'https://github.com/klendathu2k/sPHENIX-test-production/tree/%s/%s'%(githash,args.tag)
+            #githashurl = 'https://github.com/klendathu2k/sPHENIX-test-production/tree/%s/%s'%(githash,args.tag)
+            #INFO(githashurl)
 
             # Open readme file to place a oneliner table entry
             print( shrekOpts['submissionPrefix'] + 'README.md' )
