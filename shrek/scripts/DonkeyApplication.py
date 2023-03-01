@@ -210,8 +210,8 @@ class DispatchListener( stomp.ConnectionListener ):
                 self.messages = pd.concat( [self.messages,temp], ignore_index = True )
 
             # update persistency file
-            self.messages.to_csv( ".donkey/messages.csv", mode='w', index=False, header=True )                
-
+            if len(self.messages.index)>0:
+                self.messages.to_csv( ".donkey/messages.csv", mode='w', index=False, header=True )
 
 
 #___________________________________________________________________________________
@@ -252,16 +252,22 @@ class DispatchManager:
     def save(self,filename=".donkey/messages.csv"):        
         global listener
         with listener.lock_:
-            INFO("Save to message persistency file %s"%filename)                
-            listener.messages.to_csv( filename, mode='w', index=False, header=True )
+            INFO("Save to message persistency file %s"%filename)
+            if len(listener.messages.index)>0:            
+                listener.messages.to_csv( filename, mode='w', index=False, header=True )
+            else:
+                WARN("... no messages to save.  skip.")
 
     def restore(self,filename=".donkey/messages.csv"):
         global listener
         if os.path.exists(filename):
             WARN("Messages restored from %s"%filename)            
-            with listener.lock_:        
-                readin = pd.read_csv( filename )
-                listener.messages = readin
+            with listener.lock_:
+                try:
+                    readin = pd.read_csv( filename )
+                    listener.messages = readin                    
+                except pd.errors.EmptyDataError:
+                    WARN("Corrupt %s ... no messages restored"%filename)
             
 
     def dispatch(self):
