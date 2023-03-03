@@ -157,18 +157,19 @@ class DispatchListener( stomp.ConnectionListener ):
     NOTE:  This should be a singleton class
     """
     def __init__(self,connection):
-        self.connection = connection
-        self.messages     = pd.DataFrame() # any write OR read op should be w/in a locked context
-        self.lock_        = threading.Lock()
+        self.connection       = connection
+        self.messages         = pd.DataFrame() # any write OR read op should be w/in a locked context
+        self.lock_            = threading.Lock()
+        self.monitor_accounts = "sphnxpro"
 
     def showfilt( self, keyval ):
-
-        if '==' in keyval:
-            (key,val)=keyval.split('==')
-            print( self.messages[ self.messages[key] == val ].to_markdown() )
-        elif '!=' in keyval:
-            (key,val)=keyval.split('!=')
-            print( self.messages[ self.messages[key] != val ].to_markdown() )             
+        with self.lock_:
+            if '==' in keyval:
+                (key,val)=keyval.split('==')
+                print( self.messages[ self.messages[key] == val ].to_markdown() )
+            elif '!=' in keyval:
+                (key,val)=keyval.split('!=')
+                print( self.messages[ self.messages[key] != val ].to_markdown() )             
 
         
     def show( self, n=0 ):
@@ -194,30 +195,78 @@ class DispatchListener( stomp.ConnectionListener ):
             print( str(frame.headers) )            
             print( str(frame.body) )
         
-        with self.lock_:            
-            payload = json.loads( str(frame.body) )["payload"]
-            payload['state']='pending'
-            payload['recieved']=utcnow
+        with self.lock_:
 
-            # Check if this is a child dataset
-            childscope = payload.get( 'childscope', 'nan')
-            childname  = payload.get( 'childname',  'nan' )
-            childtype  = payload.get( 'childtype',  'nan' )
-            if childscope != 'nan' or childname != 'nan' or childtype != 'nan':
-                payload['state'] = 'workflow product'
+            body = json.loads( str(frame.body) )
 
-            if payload['account']=='iddsv1':
-                payload['state'] = 'workflow product'           
+            event_type = body["event_type"]
+            payload    = body["payload"]            
+
+            dataset = {}
+
+            if event_type == "create_dts":
             
-            if self.messages.empty:
-                self.messages = pd.DataFrame( payload, columns=payload.keys(), index=[0] )
-            else:
-                temp = pd.DataFrame( payload, columns=payload.keys(), index=[0] )
-                self.messages = pd.concat( [self.messages,temp], ignore_index = True )
+                payload = json.loads( str(frame.body) )["payload"]
 
-            # update persistency file
+                dataset['state']    = 'created'              # dataset has been created and is in the open stae
+                dataset['created']  = utcnow                 # timestamp of message reciept
+                dataset['closed']   = 'nan'                  # will hold the timestamp that the dataset is closed
+                dataset['dispatch'] = 'nan'                  # will hold the timestamp that the dataset has been dispatched
+                dataset['account'] = payload['account']      # dataset account
+                dataset['scope']   = payload['scope']        # dataset scope
+                dataset['name']    = payload['name']         # dataset name
+                dataset['bytes']   = 'nan'                   # ...
+                dataset['length']  = 'nan'                   # ...
+
+                tempDF = None
+                if payload['account'] in self.monitor_accounts:
+                    tempDF = pd.DataFrame( dataset, columns=dataset.keys(), index=[0] )
+
+                    if self.messages.empty:
+                        self.messages = tempDF
+                    else:
+                        self.messages = pd.concat( [self.messages, temp], ignore_index = True )
+
+
+            elif event_type == "close":
+                if verbose > 10:
+                    WARN( str(frame.body) )
+                    WARN( str(frame.headers) )
+
+
+                name = payload['name']
+                self.messages.loc[ self.messages['name']==name, 'state'  ]  = 'closed'
+                self.messages.loc[ self.messages['name']==name, 'closed' ] = utcnow
+                self.messages.loc[ self.messages['name']==name, 'bytes'  ] = payload['bytes']
+                self.messages.loc[ self.messages['name']==name, 'length' ] = payload['length']                
+                
+
+
+            elif event_type == "open":
+                if verbose > 10:
+                    WARN( str(frame.body) )
+                    WARN( str(frame.headers) )
+
+                name = payload['name']
+                self.messages.loc[ self.messages['name']==name, 'state' ] = 'reopened'
+                self.messages.loc[ self.messages['name']==name, 'closed' ] = 'nan'                
+                self.messages.loc[ self.messages['name']==name, 'bytes'  ] = 'nan'
+                self.messages.loc[ self.messages['name']==name, 'length' ] = 'nan'
+
+            else:
+                
+                WARN( str(frame.body) )
+                WARN( str(frame.headers) )                                                
+
+
+            # update (overwrite) persistency file
             if len(self.messages.index)>0:
-                self.messages.to_csv( ".donkey/messages.csv", mode='w', index=False, header=True )
+                self.messages.to_csv( ".donkey/messages.csv", mode='w', index=False, header=True )                    
+
+            
+                    
+
+
 
 
                 
@@ -315,8 +364,8 @@ class DispatchManager:
                 WARN("No messages found")
 
             else:
-                # Loop over all messages which are in the pending state
-                for index,row in listener.messages[ listener.messages['state']=='pending' ].iterrows():
+                # Loop over all messages which are in the closed state
+                for index,row in listener.messages[ listener.messages['state']=='closed' ].iterrows():
 
                     for dc in active:
                         
@@ -524,7 +573,7 @@ class DonkeyShell( cmd.Cmd ):
 
         > set state row value
               For the specified row (or comma-separated list of rows), set the message state
-              to the specified value [pending or ignore]
+              to the specified value 
               
             
         """
@@ -566,7 +615,7 @@ class DonkeyShell( cmd.Cmd ):
                 for r in rows:
                     row=int(r)
                     val=args[2]
-                    if val in ["pending","ignored"]:
+                    if val in ["closed","created","reopened"]:
                         with listener.lock_:                    
                             listener.messages.at[ row, "state" ] = val
                     else:
