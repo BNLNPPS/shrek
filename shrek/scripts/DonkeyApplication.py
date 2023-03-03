@@ -41,7 +41,7 @@ listener = None  # DispatchListener
 dmanager = None  # DispatchManager
 connection = None
 
-verbose  = 0
+verbose  = int(0)
 
 from shrek.scripts.simpleLogger import DEBUG, INFO, WARN, ERROR, CRITICAL
 from shrek.scripts.ShrekConfiguration import readSiteConfig
@@ -144,7 +144,7 @@ def connectAndSubscribe( args, defaults, connection ):
 
 class Message:
     def __init__(self, frame ):
-        #self.headers = json.loads( str(frame.headers) )
+        #self.headers = json.loads( str(frame.headers) )        
         self.body    = json.loads( str(frame.body) )
     
 #___________________________________________________________________________________
@@ -187,7 +187,13 @@ class DispatchListener( stomp.ConnectionListener ):
         ERROR('recieved %s' % frame.body)
 
     def on_message( self, frame ):
+        global verbose
         utcnow = datetime.datetime.utcnow()
+
+        if verbose>10:
+            print( str(frame.headers) )            
+            print( str(frame.body) )
+        
         with self.lock_:            
             payload = json.loads( str(frame.body) )["payload"]
             payload['state']='pending'
@@ -214,13 +220,16 @@ class DispatchListener( stomp.ConnectionListener ):
                 self.messages.to_csv( ".donkey/messages.csv", mode='w', index=False, header=True )
 
 
+                
+
+
 #___________________________________________________________________________________
 class DispatchManager:
     def __init__(self,name):
         self.name = name
         self.lock_ = threading.Lock()
         self.enabled = True
-        self.verbose = False
+        self.verbose = int(0)
         self.delay   = 30 # seconds
 
     def stop(self):
@@ -527,7 +536,7 @@ class DonkeyShell( cmd.Cmd ):
         args = arg.split()
 
         if args[0]=='verbose':
-            verbose = args[1]
+            verbose = int(args[1])
 
         elif args[0]=='condition':
             
