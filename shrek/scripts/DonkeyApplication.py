@@ -25,12 +25,13 @@ def captureActorError( out ):
     INFO('| ' + out)
 
 # Watch file column descriptions
-watch_file_columns = ["actors","prescale","scope","match","count", "enable"]
+watch_file_columns = ["actors","prescale","scope","event","match","count", "enable"]
 watch_file_template = """
 actors:
   - [user script]
 prescale: 1
 scope:  [rucio scope]
+event:  close
 match:  "[regular expression]"
 count:  0
 enable: "no"
@@ -649,7 +650,9 @@ class DonkeyShell( cmd.Cmd ):
                 if rwf.get('count',None) == None:
                     rwf['count']=0 # initialize zero count
                 if rwf.get('enable',None) == None:
-                    rwf['enable']="yes"  # yes/no                
+                    rwf['enable']="yes"  # yes/no
+                if rwf.get('event',None) == None:
+                    rwf['event']="close"
                 dfwf = pd.DataFrame( rwf, columns=watch_file_columns )
                 # NOTE: We really need to lock down the share data model!!!  i.e. DispatchManager
                 # object should manager all reads and writes to the dispatch dataframe (and choose
@@ -968,8 +971,12 @@ def main():
             WARN("%s does not exist, ignored"%wf)
         else:
             rwf = readWatchFile(wf)
-            rwf['count']=0 # initialize zero count
-            rwf['enable']="yes"  # yes/no
+            if rwf.get('count',None) == None:
+                rwf['count']=0 # initialize zero count
+            if rwf.get('enable',None) == None:
+                rwf['enable']="yes"  # yes/no
+            if rwf.get('event',None) == None:
+                rwf['event']="close"            
             dfwf = pd.DataFrame( rwf, columns=watch_file_columns )
             dispatch = pd.concat( [dispatch, dfwf], ignore_index=True )
 
