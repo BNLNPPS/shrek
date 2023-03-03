@@ -144,7 +144,7 @@ def connectAndSubscribe( args, defaults, connection ):
 
 class Message:
     def __init__(self, frame ):
-        #self.headers = json.loads( str(frame.headers) )
+        #self.headers = json.loads( str(frame.headers) )        
         self.body    = json.loads( str(frame.body) )
     
 #___________________________________________________________________________________
@@ -187,7 +187,13 @@ class DispatchListener( stomp.ConnectionListener ):
         ERROR('recieved %s' % frame.body)
 
     def on_message( self, frame ):
+        global verbose
         utcnow = datetime.datetime.utcnow()
+
+        if verbose>10:
+            print( str(frame.headers) )            
+            print( str(frame.body) )
+        
         with self.lock_:            
             payload = json.loads( str(frame.body) )["payload"]
             payload['state']='pending'
@@ -212,6 +218,9 @@ class DispatchListener( stomp.ConnectionListener ):
             # update persistency file
             if len(self.messages.index)>0:
                 self.messages.to_csv( ".donkey/messages.csv", mode='w', index=False, header=True )
+
+
+                
 
 
 #___________________________________________________________________________________
