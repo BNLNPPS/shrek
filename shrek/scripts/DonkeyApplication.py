@@ -205,7 +205,7 @@ class DispatchListener( stomp.ConnectionListener ):
 
             dataset = {}
 
-            if event_type == "create_dts":
+            if event_type == "create_dts":                   # dataset created
             
                 payload = json.loads( str(frame.body) )["payload"]
 
@@ -229,7 +229,7 @@ class DispatchListener( stomp.ConnectionListener ):
                         self.messages = pd.concat( [self.messages, temp], ignore_index = True )
 
 
-            elif event_type == "close":
+            elif event_type == "close":                      # closed
                 if verbose > 10:
                     WARN( str(frame.body) )
                     WARN( str(frame.headers) )
@@ -243,7 +243,7 @@ class DispatchListener( stomp.ConnectionListener ):
                 
 
 
-            elif event_type == "open":
+            elif event_type == "open":                       # re-opened
                 if verbose > 10:
                     WARN( str(frame.body) )
                     WARN( str(frame.headers) )
@@ -254,8 +254,7 @@ class DispatchListener( stomp.ConnectionListener ):
                 self.messages.loc[ self.messages['name']==name, 'bytes'  ] = 'nan'
                 self.messages.loc[ self.messages['name']==name, 'length' ] = 'nan'
 
-            else:
-                
+            elif verbose>10:
                 WARN( str(frame.body) )
                 WARN( str(frame.headers) )                                                
 
