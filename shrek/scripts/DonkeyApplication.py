@@ -31,7 +31,7 @@ actors:
   - [user script]
 prescale: 1
 scope:  [rucio scope]
-event:  close
+event:  closed
 match:  "[regular expression]"
 count:  0
 enable: "no"
@@ -355,8 +355,9 @@ class DispatchManager:
                 scope    = row['scope']
                 prescale = row['prescale']
                 count    = row['count']
+                event    = row['event'] # n.b. poor name, as this will be used to check against the *state* of the dataset
 
-                active.append( {'index':index, 'actor':actor, 'scope':scope, 'regex':regex, 'index':int(index), 'prescale':prescale, 'count':count } )
+                active.append( {'index':index, 'actor':actor, 'scope':scope, 'regex':regex, 'index':int(index), 'prescale':prescale, 'count':count, 'event':event } )
 
         # Lock the listener
         with listener.lock_:
@@ -370,6 +371,7 @@ class DispatchManager:
                     for dc in active:
                         
                         if dc['scope'] != row['scope']: continue
+                        if dc['event'] != row['state']: continue # Poorly chosen name for the match condition... TODO: fix this
                         if re.search( dc['regex'], row['name'] ) == None: continue
 
                         # Increment the count on the dispatcher and check prescale
