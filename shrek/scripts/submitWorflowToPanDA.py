@@ -16,6 +16,7 @@ import time
 import pprint
 import inspect
 import logging
+import json
 from io import StringIO
 
 #import cProfile
@@ -221,6 +222,9 @@ def main():
     parser.add_argument('--group', type=str,           default="" )
     parser.add_argument('--branch', type=str,          default=shrekOpts['defaultBranch'])
 
+    #
+    parser.add_argument('--dump-file', dest="dumpfile", type=str, default=None )
+
     # Unrecognized flags
     args, globalvars = parser.parse_known_args()
 
@@ -256,6 +260,7 @@ def main():
         WARN("Possibly non-unique tag %s"%taguuid)
         pass
 
+   
     shrekOpts['taguuid'] = taguuid
 
     (subdir,cwlfile,yamlfile,jobs) = buildSubmissionDirectory( taguuid, args.yaml, args.site, args, shrekOpts, glvars )
@@ -455,6 +460,22 @@ def main():
             if k[:5]=='PANDA':
                 doit.write('%s=%s\n'%(k,v))
         doit.write( '%s\n'% ' '.join(pchain) )
+
+
+    if args.dumpfile:
+        todump = {
+            'args' : vars(args),
+            'shrek' : shrekOpts,
+            'panda' : pandaOpts
+            }
+
+        if args.dumpfile=="stdout":
+            INFO("--BEGIN-SHREK-SUMMARY--")
+            pprint.pprint( todump )
+            INFO("--END-SHREK-SUMMARY--")
+        else:
+            with open(args.dumpfile,'w') as f:
+                pprint.pprint( todump, f )
 
 if __name__ == '__main__':
     
