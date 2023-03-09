@@ -18,12 +18,6 @@ import threading
 import editor
 import readline
 
-def captureActorOutput( out ):
-    INFO('| ' + out)
-
-def captureActorError( out ):
-    INFO('| ' + out)
-
 # Watch file column descriptions
 watch_file_columns = ["actors","prescale","scope","event","match","count", "enable"]
 watch_file_template = """
