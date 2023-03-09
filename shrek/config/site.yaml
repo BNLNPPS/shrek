@@ -20,7 +20,7 @@ PanDA:
   url:        https://sphenix-pandaserver.apps.rcf.bnl.gov/server/panda
   url_ssl:    https://sphenix-pandaserver.apps.rcf.bnl.gov/server/panda
   cache_url:  https://sphenix-pandaserver.apps.rcf.bnl.gov/server/panda
-  mon_url:    https://sphenix-pandaserver.apps.rcf.bnl.gov/server/panda
+  mon_url:    https://sphenix-panda.apps.rcf.bnl.gov
   use_native_httplib: "1"
   behind_real_lb: "1"
   auth: oidc
