@@ -853,10 +853,13 @@ def readWatchFile( filename ):
     return result
 
 def captureActorOutput( out ):
-    INFO('| ' + out)
+    global verbose
+    if verbose>0:
+        INFO('| ' + out)
 
 def captureActorError( out ):
-    INFO('| ' + out)    
+    if verbose>0:    
+        INFO('| ' + out)    
 
 def parse_args( defaults ):
     """
