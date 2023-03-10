@@ -325,6 +325,7 @@ class DispatchManager:
     def dispatch(self):
         global listener
         global dispatch
+        global verbose
         
         active = []
         with self.lock_:
@@ -352,6 +353,9 @@ class DispatchManager:
                 event    = row['event'] # n.b. poor name, as this will be used to check against the *state* of the dataset
 
                 active.append( {'index':index, 'actor':actor, 'scope':scope, 'regex':regex, 'index':int(index), 'prescale':prescale, 'count':count, 'event':event } )
+
+        if verbose>100:
+            pprint.pprint( active )
 
         # Lock the listener
         with listener.lock_:
