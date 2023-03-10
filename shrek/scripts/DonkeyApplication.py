@@ -547,6 +547,10 @@ class DonkeyShell( cmd.Cmd ):
         """
         global dmanager
         global messagefile
+        global verbose
+        if verbose>100:
+            INFO("save %s"%arg)
+            
         if arg == "":
             dmanager.save(messagefile)
         else:
@@ -725,7 +729,22 @@ class DonkeyShell( cmd.Cmd ):
         WARN("addmsg %s"%' '.join(msg_))
              
         with listener.lock_:
-            listener.messages.loc[ len(listener.messages.index) ] = msg_
+            dataset = {}
+            dataset['state']    = msg_[0]              # dataset has been created and is in the open stae
+            dataset['created']  = msg_[1]              # timestamp of message reciept
+            dataset['closed']   = msg_[2]              # will hold the timestamp that the dataset is closed
+            dataset['dispatch'] = msg_[3]              # will hold the timestamp that the dataset has been dispatched
+            dataset['account']  = msg_[4]              # dataset account
+            dataset['scope']    = msg_[5]              # dataset scope
+            dataset['name']     = msg_[6]              # dataset name
+            dataset['bytes']    = msg_[7]              # ...
+            dataset['length']   = msg_[8]
+            #listener.messages.loc[ len(listener.messages.index) ] = msg_
+            if listener.messages.empty:
+                listener.messages = pd.DataFrame( dataset, columns=dataset.keys(), index=[0] )
+            else:
+                tempDF = pd.DataFrame( dataset, columns=dataset.keys(), index=[0] )
+                listener.messgaes = pd.concat( [listener.messages, tempDF], ignore_index = True )
 
     def do_rmmsg(self,index):
         """
@@ -848,9 +867,10 @@ class DonkeyShell( cmd.Cmd ):
         """
         global dmanager
         global connection
+        global messagefile
 
         connection.disconnect()
-        dmanager.save()
+        dmanager.save(messagefile)
         dmanager.stop()
         INFO("This is the end of donkey shell.  Goodbye.")
         return True
