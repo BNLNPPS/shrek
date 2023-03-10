@@ -223,7 +223,7 @@ class DispatchListener( stomp.ConnectionListener ):
                     if self.messages.empty:
                         self.messages = tempDF
                     else:
-                        self.messages = pd.concat( [self.messages, temp], ignore_index = True )
+                        self.messages = pd.concat( [self.messages, tempDF], ignore_index = True )
 
 
             elif event_type == "closed":                      # closed
