@@ -214,7 +214,8 @@ class DispatchListener( stomp.ConnectionListener ):
                 dataset['length']  = 'nan'                   # ...
 
                 tempDF = None
-                if payload['account'] in self.monitor_accounts:
+                if payload['account'] in self.monitor_accounts or
+                    payload['account'].lower() in ["any","all","*"]:
                     tempDF = pd.DataFrame( dataset, columns=dataset.keys(), index=[0] )
 
                     if self.messages.empty:
