@@ -223,7 +223,7 @@ class DispatchListener( stomp.ConnectionListener ):
                         self.messages = pd.concat( [self.messages, temp], ignore_index = True )
 
 
-            elif event_type == "close":                      # closed
+            elif event_type == "closed":                      # closed
                 if verbose > 10:
                     WARN( str(frame.body) )
                     WARN( str(frame.headers) )
@@ -237,7 +237,7 @@ class DispatchListener( stomp.ConnectionListener ):
                 
 
 
-            elif event_type == "open":                       # re-opened
+            elif event_type == "opened":                       # re-opened
                 if verbose > 10:
                     WARN( str(frame.body) )
                     WARN( str(frame.headers) )
@@ -698,10 +698,22 @@ class DonkeyShell( cmd.Cmd ):
         """
         This is primarily intended for testing purposes.  Use with great care.
         
-        > addmsg account scope name expired_at state recieved childscope childtype childname
+        > addmsg state,created,closed,dispatch,account,scope,name,bytes,length
 
-        e.g.
-        addmsg sphnxpro,user.jwebb2,user.jwebb2.test-dataset,nan,pending,2023-02-23 19:35:34.049738,nan,nan,nan
+        state is the messaging event, one of [ created, closed, opened ], indicating
+              a dataset hase been ...
+
+        e.g. create a dataset
+        add message created,2023-03-03 15:27:59.051734,nan,nan,sphnxpro,group.sphenix,group.sphenix.test-dataset-12345,0,0
+        e.g. close a dataset
+        add message closed,15:27:59.051734,2023-03-03 16:00:01,true,nan,sphnxpro,group.sphenix,group.sphenix.test-dataset-12345,0,0
+       
+
+        |    | state   | created                    |   closed |   dispatch | account   | scope       | name                                                          |   bytes |   length |
+        |---:|:--------|:---------------------------|---------:|-----------:|:----------|:------------|:--------------------------------------------------------------|--------:|---------:|
+        |  0 | created | 2023-03-03 15:27:59.051734 |      nan |        nan | sphnxpro  | user.jwebb2 | user.jwebb2.test.dataset.24b0d1c9-46b4-422e-9e9b-95be25de5995 |     nan |      nan |
+        
+        
         """
         global listener        
         msg_ = msg.split(",")
