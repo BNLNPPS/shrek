@@ -1,0 +1,7 @@
+warn Beware the ides of march... adding test messages to the que
+info addmsg created,2023-03-15 15:00:00,nan,nan,sphnxpro,group.sphenix,group.sphenix.test-dataset-12345,0,0
+     addmsg created,2023-03-15 15:00:00,nan,nan,sphnxpro,group.sphenix,group.sphenix.test-dataset-12345,0,0
+info addmsg closed, 2023-03-15 15:00:01,true,nan,sphnxpro,group.sphenix,group.sphenix.test-dataset-12346,0,0
+     addmsg closed, 2023-03-15 15:00:01,true,nan,sphnxpro,group.sphenix,group.sphenix.test-dataset-12346,0,0
+show messages
+exit
