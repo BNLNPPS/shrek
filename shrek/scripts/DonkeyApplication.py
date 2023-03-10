@@ -472,6 +472,9 @@ class DonkeyShell( cmd.Cmd ):
 
         Execute specified command in the system shell.
         """
+        global verbose
+        if verbose>100:
+            INFO("shell %s"%arg)        
         os.system(arg)
 
     def do_sleep(self,n_):
@@ -481,6 +484,8 @@ class DonkeyShell( cmd.Cmd ):
         Puts the command line to sleep for N seconds.  Both the listener
         and dispatch manager continue to run in the background.
         """
+        if verbose>100:
+            INFO("sleep %s"%n_)        
         time.sleep( int(n_) )
         
 
@@ -520,6 +525,9 @@ class DonkeyShell( cmd.Cmd ):
         Execute the commands contained in the specified batch file(s).
         
         """
+        if verbose>100:
+            INFO("exec %s"%arg)
+            
         args = arg.split()
 
         go = True
@@ -561,6 +569,10 @@ class DonkeyShell( cmd.Cmd ):
         """
         > edit filename
         """
+        global verbose
+        if verbose>100:
+            INFO( "edit %s"%arg )
+            
         if os.path.exists(arg):
             editor.edit(arg)
         else:
@@ -589,6 +601,8 @@ class DonkeyShell( cmd.Cmd ):
         global dmanager
         global dispatch
         global verbose
+        if verbose > 100:
+            INFO("set %s"%arg)
 
         args = arg.split()
 
@@ -598,7 +612,6 @@ class DonkeyShell( cmd.Cmd ):
         elif args[0]=='condition':
             
             filename = "/tmp/watchfile-"+str(uuid.uuid4())
-            print(len(args))
             if len(args)>1:
                 filename=args[1]
 
@@ -647,6 +660,9 @@ class DonkeyShell( cmd.Cmd ):
         global listener
         global dmanager
         global dispatch
+        global verbose
+        if verbose>100:
+            INFO("load %s"%arg)                
         
         args=arg.split()
 
@@ -686,6 +702,10 @@ class DonkeyShell( cmd.Cmd ):
         """
         global listener
         global dmanager
+        global verbose
+        if verbose>100:
+            INFO("addcon %s"%cond)        
+        
         cond_ = cond.split(",")
         with dmanager.lock_:
             dispatch.loc[ len(dispatch.index) ] = cond_
@@ -699,6 +719,10 @@ class DonkeyShell( cmd.Cmd ):
         """
         global listener
         global dmanager
+        global verbose
+        if verbose>100:
+            INFO("rmcon %s"%index)
+            
         with dmanager.lock_:
             dispatch = dispatch.drop( int(index) )
             
@@ -723,7 +747,11 @@ class DonkeyShell( cmd.Cmd ):
         
         
         """
-        global listener        
+        global listener
+        global verbose
+        if verbose>100:
+            INFO("addmsg %s"%msg_)
+            
         msg_ = msg.split(",")
 
         WARN("addmsg %s"%' '.join(msg_))
@@ -757,7 +785,11 @@ class DonkeyShell( cmd.Cmd ):
         > rmmsg index1:indexN                
         
         """
-        global listener        
+        global listener
+        global verbose
+        if verbose>100:
+            INFO("rmmsg %s"%index)
+            
         with listener.lock_:
 
             WARN("rmmsg %s"%index)
@@ -790,6 +822,9 @@ class DonkeyShell( cmd.Cmd ):
         """
         global dmanager
         global dmthread
+        global verbose
+        if verbose>100:
+            INFO("dispatch %s"%arg)
 
         # Single call to dispatch
         if arg=="once":
@@ -834,6 +869,9 @@ class DonkeyShell( cmd.Cmd ):
         """
         global dispatch
         global listener
+        global verbose
+        if verbose>100:
+            INFO("show %s"%arg)
 
         args=arg.split()
         
@@ -849,16 +887,29 @@ class DonkeyShell( cmd.Cmd ):
             elif len(args)>1:
                 listener.showfilt( args[1] )
 
-    def do_history(self,arg):        
+    def do_history(self,arg):
+        global verbose
+        if verbose>100:
+            INFO("history %s"%arg)
+            
         for i in range(readline.get_current_history_length()):
             print("%i %s"%(i,readline.get_history_item(i + 1)))
 
 
     def do_enable(self, arg):
         global dispatch
+        global verbose
+        if verbose>100:
+            INFO("enable %s"%arg)
+            
         dispatch.loc[ int(arg), ["enable"] ] = ["yes"]
+        
     def do_disable(self, arg):
         global dispatch
+        global verbose
+        if verbose>100:
+            INFO("disable %s"%arg)
+            
         dispatch.loc[ int(arg), ["enable"] ] = ["no"]
 
     def do_exit(self,arg):
