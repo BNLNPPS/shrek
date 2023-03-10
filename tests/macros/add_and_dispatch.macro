@@ -3,7 +3,7 @@ set verbose 111
 info addmsg closed,2245-04-11 17:01,true,nan,sphnxpro,group.sphenix,group.sphenix.test-dataset-dunsel,0,0
      addmsg closed,2245-04-11 17:01,true,nan,sphnxpro,group.sphenix,group.sphenix.test-dataset-dunsel,0,0
 show messages
-     addcon helloWorld,1,group.sphenix,closed,*dunsel*,0,yes
+     addcon helloWorld,1,group.sphenix,closed,g*dunsel*,0,yes
 show conditions
 dispatch once
 show conditions
