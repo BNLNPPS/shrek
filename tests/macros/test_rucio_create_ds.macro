@@ -1,0 +1,5 @@
+warn Test rucio add dataset
+set verbose 111
+shell rucio add-dataset group.sphenix:group.sphenix-test-dataset-`uuidgen`
+sleep 30
+show messages
