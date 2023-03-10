@@ -37,6 +37,8 @@ listener = None  # DispatchListener
 dmanager = None  # DispatchManager
 connection = None
 
+messagefile = ".donkey/messages.csv"
+
 verbose  = int(0)
 
 from shrek.scripts.simpleLogger import DEBUG, INFO, WARN, ERROR, CRITICAL
@@ -256,7 +258,7 @@ class DispatchListener( stomp.ConnectionListener ):
 
             # update (overwrite) persistency file
             if len(self.messages.index)>0:
-                self.messages.to_csv( ".donkey/messages.csv", mode='w', index=False, header=True )                    
+                self.messages.to_csv( messagefile, mode='w', index=False, header=True )                    
 
             
                     
@@ -302,7 +304,7 @@ class DispatchManager:
             with self.lock_:
                 self.delay = delay_
 
-    def save(self,filename=".donkey/messages.csv"):        
+    def save(self,filename=messagefile):        
         global listener
         with listener.lock_:
             INFO("Save to message persistency file %s"%filename)
@@ -311,7 +313,7 @@ class DispatchManager:
             else:
                 WARN("... no messages to save.  skip.")
 
-    def restore(self,filename=".donkey/messages.csv"):
+    def restore(self,filename=messagefile):
         global listener
         if os.path.exists(filename):
             WARN("Messages restored from %s"%filename)            
@@ -544,8 +546,9 @@ class DonkeyShell( cmd.Cmd ):
         file.
         """
         global dmanager
+        global messagefile
         if arg == "":
-            dmanager.save()
+            dmanager.save(messagefile)
         else:
             dmanager.save(arg)
 
@@ -903,6 +906,7 @@ def parse_args( defaults ):
     parser.set_defaults( password=None )
 
     parser.add_argument( '--watch-file', dest='watchfile', default=[], nargs='+', type=str, help="Definition file")
+    parser.add_argument( '--message-file',dest='messagefile',default=None,type=str,help="Set message persistency file")
 
     parser.add_argument( 'batchfile', nargs='?', type=str, help="Batch file", action="append")
 
@@ -918,6 +922,7 @@ def main():
     global listener
     global dmanager
     global connection
+    global messagefile
 
     defaults = readConfig()
     args, extras = parse_args( defaults )
@@ -933,11 +938,18 @@ def main():
     # cmd loop.
     dmanager = DispatchManager('manager')
 
+    # Set the
+    if args.messagefile:
+        WARN("Setting mesage file to %s for this session"%args.messagefile)
+        messagefile = args.messagefile
+
     # Restore messages
-    dmanager.restore()
+    dmanager.restore(messagefile)
     
     curr_subid   = None
     past_subid   = None
+
+
 
     if args.subscription !=None and not args.newsubscription:
         """
