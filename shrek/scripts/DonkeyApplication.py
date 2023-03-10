@@ -325,6 +325,7 @@ class DispatchManager:
     def dispatch(self):
         global listener
         global dispatch
+        global verbose
         
         active = []
         with self.lock_:
@@ -351,6 +352,9 @@ class DispatchManager:
                 count    = row['count']
 
                 active.append( {'index':index, 'actor':actor, 'scope':scope, 'regex':regex, 'index':int(index), 'prescale':prescale, 'count':count } )
+
+        if verbose>100:
+            pprint.pprint( active )
 
         # Lock the listener
         with listener.lock_:
