@@ -17,6 +17,7 @@ import pandas as pd
 import threading
 import editor
 import readline
+import pprint
 
 # Watch file column descriptions
 watch_file_columns = ["actors","prescale","scope","event","match","count", "enable"]
