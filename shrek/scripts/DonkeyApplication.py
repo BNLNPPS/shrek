@@ -750,7 +750,7 @@ class DonkeyShell( cmd.Cmd ):
         global listener
         global verbose
         if verbose>100:
-            INFO("addmsg %s"%msg_)
+            INFO("addmsg %s"%msg)
             
         msg_ = msg.split(",")
 
