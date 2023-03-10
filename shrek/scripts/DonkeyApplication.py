@@ -671,10 +671,10 @@ class DonkeyShell( cmd.Cmd ):
         """
         This is primarily intended for testing purposes.  Use with great care.
 
-        > addcon actor,prescale,scope,regex,count,enable
+        > addcon actor,prescale,scope,event,regex,count,enable
 
         e.g.
-        addcon helloWorld,1,user.jwebb2,u*,0,yes
+        addcon helloWorld,1,group.sphenix,closed,*test*,0,yes
         """
         global listener
         global dmanager
@@ -796,8 +796,9 @@ class DonkeyShell( cmd.Cmd ):
 
     def do_show(self, arg):
         """
-        Display actions when messages match user criteria
+        Display conditions tested against messages used to dispatch workflows
         > show dispatch
+        > show conditions
 
         Display all messages recieved during session.  If n is provided,
         show only the n most recent lines.  First n if negative value given.
@@ -814,7 +815,7 @@ class DonkeyShell( cmd.Cmd ):
         args=arg.split()
         
         # NOTE These should be context locked...
-        if args[0]=='dispatch':
+        if args[0]=='dispatch' or args[0]=='conditions':
             print(dispatch.to_markdown())
 
         if args[0]=='messages':

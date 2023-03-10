@@ -1,0 +1,5 @@
+info addcon helloWorld,1,group.sphenix,closed,*test*,0,yes
+     addcon helloWorld,1,group.sphenix,closed,*test*,0,yes
+show conditions
+exit
+
