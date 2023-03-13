@@ -454,7 +454,16 @@ class DonkeyShell( cmd.Cmd ):
             for bf in self.args.batchfile:
                 with open(bf,'r') as bf_:
                     for line in bf_:
-                        self.cmdqueue.append(line)
+                        try:
+                            self.cmdqueue.append(line.format(**os.environ))
+                        except KeyError:
+                            CRITICAL("Reference to undefined environment variable in macro %s"%bf)
+                            CRITICAL("No batch files executed")
+                            self.cmdqueue = ["exit"]
+                            break                            
+
+                                
+                        
         elif self.args.batchfile != [None]: 
             CRITICAL("One or more batch files could not be found.  Exiting.")
             self.cmdqueue.append("exit")
