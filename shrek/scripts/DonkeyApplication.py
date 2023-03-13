@@ -44,6 +44,11 @@ verbose  = int(0)
 from shrek.scripts.simpleLogger import DEBUG, INFO, WARN, ERROR, CRITICAL
 from shrek.scripts.ShrekConfiguration import readSiteConfig
 
+def vINFO( s, lvl=1000 ):
+    global verbose
+    if verbose>lvl:
+        INFO(s)
+
 
 
 def readConfig( filename = None ):    
@@ -129,7 +134,7 @@ INFO( "" )
 INFO("... I mean, white sparkly teeth! I know you probably hear this all the time from your food,")
 INFO(" but you must bleach or something 'cause that's one dazzling smile you got there! And do I")
 INFO(" detect a hint of minty freshness?")
-INFO( "-----------------------------------------------------------------------------------------")
+INFO("-----------------------------------------------------------------------------------------")
 
 def connectAndSubscribe( args, defaults, connection ):
     user     = args.user
@@ -367,13 +372,23 @@ class DispatchManager:
 
             else:
                 # Loop over all messages which are in the closed state
-                for index,row in listener.messages[ listener.messages['state']=='closed' ].iterrows():
+                for index,row in listener.messages[ listener.messages['state']!='dispatched' ].iterrows():
+
+                    INFO("index=%i row=%s"%( index, str(row) ))
 
                     for dc in active:
-                        
+
+                        if verbose>100:
+                            INFO( "considering " +str(dc) )
+
                         if dc['scope'] != row['scope']: continue
+                        vINFO( '... in scope', 100 )                        
+                        
                         if dc['event'] != row['state']: continue # Poorly chosen name for the match condition... TODO: fix this
-                        if re.search( dc['regex'], row['name'] ) == None: continue
+                        vINFO('... accepted state', 100 )
+                            
+                        if re.search( dc['regex'], row['name'] ) == None:  continue
+                        vINFO( '... pattern match' )
 
                         # Increment the count on the dispatcher and check prescale
                         jndex    = dc['index']
