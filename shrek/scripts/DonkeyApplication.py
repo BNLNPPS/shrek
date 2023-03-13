@@ -226,7 +226,7 @@ class DispatchListener( stomp.ConnectionListener ):
                         self.messages = pd.concat( [self.messages, tempDF], ignore_index = True )
 
 
-            elif event_type == "closed":                      # closed
+            elif event_type == "close":                      # closed
                 if verbose > 10:
                     WARN( str(frame.body) )
                     WARN( str(frame.headers) )
@@ -240,7 +240,7 @@ class DispatchListener( stomp.ConnectionListener ):
                 
 
 
-            elif event_type == "opened":                       # re-opened
+            elif event_type == "open":                        # re-opened
                 if verbose > 10:
                     WARN( str(frame.body) )
                     WARN( str(frame.headers) )
