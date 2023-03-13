@@ -1,0 +1,6 @@
+info This macro tests variable substitution
+info ... run the macro as follows
+info $ DONKEY_TEST=12345 donkey tests/macros/test_env_vars.macro
+info Expect:
+info   result = 12345
+info   result = {DONKEY_TEST}
