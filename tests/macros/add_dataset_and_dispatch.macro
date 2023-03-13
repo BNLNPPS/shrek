@@ -1,0 +1,39 @@
+warn Testing work dispatch on a fake dataset
+info .......................................
+set verbose 1111
+info Macro requires a unique identifier
+info Run the macro as 
+info 
+info $ UUID=`uuidgen` donkey tests/macros/add_dataset_and_dispatch.macro
+info 
+warn UUID = {UUID}
+info 
+info Adding dataset to rucio:
+info .......................................
+info    rucio add-dataset group.sphenix.test-dataset-{UUID}
+shell   rucio add-dataset group.sphenix.test-dataset-{UUID}
+info
+info Setting condition on dataset
+info .......................................
+addcon helloWorld,1,group.sphenix,closed,g*{UUID},0,yes
+show conditions
+info
+info Sleeping for 1 min for notification
+info .......................................
+sleep 60
+show messages
+info
+info  Closing group.sphenix.test-dataset-{UUID}
+info .......................................
+shell rucio close group.sphenix.test-dataset-{UUID}
+info
+info Sleeping for 1 min for notification
+info .......................................
+sleep 60
+show messages
+info Dispatching work 
+info .......................................
+     dispatch once
+show messages
+
+#exit

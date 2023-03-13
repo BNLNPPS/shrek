@@ -44,6 +44,11 @@ verbose  = int(0)
 from shrek.scripts.simpleLogger import DEBUG, INFO, WARN, ERROR, CRITICAL
 from shrek.scripts.ShrekConfiguration import readSiteConfig
 
+def vINFO( s, lvl=1000 ):
+    global verbose
+    if verbose>lvl:
+        INFO(s)
+
 
 
 def readConfig( filename = None ):    
@@ -129,7 +134,7 @@ INFO( "" )
 INFO("... I mean, white sparkly teeth! I know you probably hear this all the time from your food,")
 INFO(" but you must bleach or something 'cause that's one dazzling smile you got there! And do I")
 INFO(" detect a hint of minty freshness?")
-INFO( "-----------------------------------------------------------------------------------------")
+INFO("-----------------------------------------------------------------------------------------")
 
 def connectAndSubscribe( args, defaults, connection ):
     user     = args.user
@@ -226,7 +231,7 @@ class DispatchListener( stomp.ConnectionListener ):
                         self.messages = pd.concat( [self.messages, tempDF], ignore_index = True )
 
 
-            elif event_type == "closed":                      # closed
+            elif event_type == "close":                      # closed
                 if verbose > 10:
                     WARN( str(frame.body) )
                     WARN( str(frame.headers) )
@@ -240,7 +245,7 @@ class DispatchListener( stomp.ConnectionListener ):
                 
 
 
-            elif event_type == "opened":                       # re-opened
+            elif event_type == "open":                        # re-opened
                 if verbose > 10:
                     WARN( str(frame.body) )
                     WARN( str(frame.headers) )
@@ -367,13 +372,23 @@ class DispatchManager:
 
             else:
                 # Loop over all messages which are in the closed state
-                for index,row in listener.messages[ listener.messages['state']=='closed' ].iterrows():
+                for index,row in listener.messages[ listener.messages['state']!='dispatched' ].iterrows():
+
+                    INFO("index=%i row=%s"%( index, str(row) ))
 
                     for dc in active:
-                        
+
+                        if verbose>100:
+                            INFO( "considering " +str(dc) )
+
                         if dc['scope'] != row['scope']: continue
+                        vINFO( '... in scope', 100 )                        
+                        
                         if dc['event'] != row['state']: continue # Poorly chosen name for the match condition... TODO: fix this
-                        if re.search( dc['regex'], row['name'] ) == None: continue
+                        vINFO('... accepted state', 100 )
+                            
+                        if re.search( dc['regex'], row['name'] ) == None:  continue
+                        vINFO( '... pattern match' )
 
                         # Increment the count on the dispatcher and check prescale
                         jndex    = dc['index']
@@ -454,7 +469,20 @@ class DonkeyShell( cmd.Cmd ):
             for bf in self.args.batchfile:
                 with open(bf,'r') as bf_:
                     for line in bf_:
-                        self.cmdqueue.append(line)
+
+                        # Everything right of a "#" is a comment
+                        if '#' in line: line = line.split('#')[1].lstrip()
+                            
+                        try:
+                            self.cmdqueue.append(line.format(**os.environ))
+                        except KeyError:
+                            CRITICAL("Reference to undefined environment variable in macro %s"%bf)
+                            CRITICAL("No batch files executed")
+                            self.cmdqueue = ["exit"]
+                            break                            
+
+                                
+                        
         elif self.args.batchfile != [None]: 
             CRITICAL("One or more batch files could not be found.  Exiting.")
             self.cmdqueue.append("exit")
