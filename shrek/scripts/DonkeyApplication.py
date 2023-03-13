@@ -749,11 +749,12 @@ class DonkeyShell( cmd.Cmd ):
         """
         global listener
         global verbose
+
+        msg_ = msg.split(",")
+        
         if verbose>100:
             INFO("addmsg %s"%msg_)
             
-        msg_ = msg.split(",")
-
         WARN("addmsg %s"%' '.join(msg_))
              
         with listener.lock_:
@@ -767,12 +768,11 @@ class DonkeyShell( cmd.Cmd ):
             dataset['name']     = msg_[6]              # dataset name
             dataset['bytes']    = msg_[7]              # ...
             dataset['length']   = msg_[8]
-            #listener.messages.loc[ len(listener.messages.index) ] = msg_
+           
             if listener.messages.empty:
                 listener.messages = pd.DataFrame( dataset, columns=dataset.keys(), index=[0] )
             else:
-                tempDF = pd.DataFrame( dataset, columns=dataset.keys(), index=[0] )
-                listener.messgaes = pd.concat( [listener.messages, tempDF], ignore_index = True )
+                listener.messages.loc[ len(listener.messages.index) ] = msg_
 
     def do_rmmsg(self,index):
         """
