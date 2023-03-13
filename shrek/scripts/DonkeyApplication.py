@@ -454,6 +454,10 @@ class DonkeyShell( cmd.Cmd ):
             for bf in self.args.batchfile:
                 with open(bf,'r') as bf_:
                     for line in bf_:
+
+                        # Everything right of a "#" is a comment
+                        if '#' in line: line = line.split('#')[1].lstrip()
+                            
                         try:
                             self.cmdqueue.append(line.format(**os.environ))
                         except KeyError:
