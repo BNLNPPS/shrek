@@ -8,24 +8,32 @@ info $ UUID=`uuidgen` donkey tests/macros/add_dataset_and_dispatch.macro
 info 
 warn UUID = {UUID}
 info 
-#info Adding dataset to rucio:
-#info    rucio add-dataset group.sphenix.test-dataset-{UUID}
-#shell   rucio add-dataset group.sphenix.test-dataset-{UUID}
+info Adding dataset to rucio:
+info .......................................
+info    rucio add-dataset group.sphenix.test-dataset-{UUID}
+shell   rucio add-dataset group.sphenix.test-dataset-{UUID}
+info
 info Setting condition on dataset
-#info  addcon helloWorld,1,group.sphenix,closed,group.sphenix*{UUID}*,0,yes
-      addcon helloWorld,1,group.sphenix,created,group.sphenix*{UUID}*,0,yes
-      addcon helloWorld,1,group.sphenix,closed,group.sphenix*{UUID}*,0,yes
-      addcon helloWorld,1,group.sphenix,opened,group.sphenix*{UUID}*,0,yes
+info .......................................
+addcon helloWorld,1,group.sphenix,closed,g*{UUID},0,yes
 show conditions
-info Sleeping for 1 min for message to appear
+info
+info Sleeping for 1 min for notification
+info .......................................
 sleep 60
 show messages
-info  rucio close group.sphenix.test-dataset-{UUID}
+info
+info  Closing group.sphenix.test-dataset-{UUID}
+info .......................................
 shell rucio close group.sphenix.test-dataset-{UUID}
-info sleeping for 1 min for message to appear
+info
+info Sleeping for 1 min for notification
+info .......................................
 sleep 60
 show messages
-info dispatch work one time
+info Dispatching work 
+info .......................................
      dispatch once
 show messages
-exit
+
+#exit
