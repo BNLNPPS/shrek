@@ -432,9 +432,9 @@ def main():
             #INFO(githashurl)
 
             # Open readme file to place a oneliner table entry
-            print( shrekOpts['submissionPrefix'] + 'README.md' )
+            print( shrekOpts['submissionPrefix'] + '/README.md' )
         
-            with open( shrekOpts['submissionPrefix'] + 'README.md', 'a' ) as readme:
+            with open( shrekOpts['submissionPrefix'] + '/README.md', 'a' ) as readme:
                 update = '|%s|%s|[%s](%s)|%s|\n'%(args.tag,utcnow,githash,githashurl,args.user)
                 readme.write( update )
 
