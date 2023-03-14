@@ -418,12 +418,13 @@ def main():
             # git config --get remote.origin.url
             # https://git.racf.bnl.gov/gitea/jwebb2/shrek-submission.git            
 
-            githashurl = '-not set-'
-            githashurl = sh.git.config('--get','remote.origin.url', _cwd=subdir)
+            githashurl = '-no remote origin-'
+            try:
+                githashurl = sh.git.config('--get','remote.origin.url', _cwd=subdir)
+                githashurl = githashurl.replace('.git','/src/branch/master/%s'%(taguuid))                
+            except sh.ErrorReturnCode_1:
+                WARN("GIT: Submission directory has no remote origin url")
 
-            #INFO(githashurl)
-
-            githashurl = githashurl.replace('.git','/src/branch/master/%s'%(taguuid))
             WARN(githashurl)
 
             # n.b. this line is too hardcoded for production / release... contains my github account...
