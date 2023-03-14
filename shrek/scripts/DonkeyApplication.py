@@ -781,7 +781,7 @@ class DonkeyShell( cmd.Cmd ):
         msg_ = msg.split(",")
         
         if verbose>100:
-            INFO("addmsg %s"%msg_)
+            INFO("addmsg %s"%msg)
             
         WARN("addmsg %s"%' '.join(msg_))
              
