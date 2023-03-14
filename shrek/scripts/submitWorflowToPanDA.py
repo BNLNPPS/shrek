@@ -375,7 +375,15 @@ def main():
         pchain_result = subprocess.run( ' '.join(pchain), shell=True, cwd=os.path.abspath(subdir), env=pandaEnv, capture_output=True, check=False )
         INFO("sdtout:")
         for line in pchain_result.stdout.decode('UTF-8').split('\n'):
-            INFO(line)
+            if 'WARN' in line:
+                WARN(line)
+            elif 'DEBUG' in line:
+                DEBUG(line)
+            elif 'ERROR' in line:
+                ERROR(line)
+            else:
+                INFO(line)
+                
         INFO("sdterr:")            
         for line in pchain_result.stderr.decode('UTF-8').split('\n'):
             WARN(line)
