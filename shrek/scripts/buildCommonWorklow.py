@@ -37,6 +37,7 @@ PANDA_OPTS = [ "nJobs",
                # "nEventsPerFile",  # These are attached to inputs
                # "nEventsPerChunk",
                "cpuTimePerEvent",
+               "stage",             # primary, secondary, all or none.
                "merge" ]
 
 def ceil_power_of_10(n):
@@ -194,6 +195,7 @@ def cwl_opt_args( job ):
     params = job.parameters
     
     hasMaxAttempt = False
+    stageMode = "none"
     for par in PANDA_OPTS:
         val = getattr(params,par,None)
 
@@ -205,6 +207,9 @@ def cwl_opt_args( job ):
 
             if par=='maxAttempt':
                 hasMaxAttempt = True
+
+            if par=='stage' and val in ["all", "none", "primary", "secondary"]:
+                stageMode = val
                 
 
     # Override annoying PanDA default...
@@ -270,10 +275,10 @@ def cwl_opt_args( job ):
     if len(reusableStreams)>0:
         optargs += ' --reusableSecondary ' + ','.join(reusableStreams)
 
-    if hasInput:
+    if hasInput and stageMode in ["primary","all"]:            
         optargs += ' --forceStaged '                
 
-    if hasSecondary:
+    if hasSecondary and stageMode in ["secondary","all"]:            
         optargs += ' --forceStagedSecondary '                
         
     return optargs
