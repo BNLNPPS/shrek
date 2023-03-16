@@ -1,0 +1,13 @@
+#!/usr/bin/bash -f
+echo Hello Shrek $0 $1 $2
+
+shopt -s expand_aliases
+
+alias shrek=shrek/scripts/submitWorflowToPanDA.py
+
+# Pick up run# from dataset
+mytag=`echo $1 | awk '{split($0,a,"."); print a[3]}'`
+
+echo shrek --dump-file stdout --no-pause --no-submit --no-check --no-uuid --no-timestamp --tag ${mytag} tests/simple-chain/top.yaml tests/simple-chain/bottom.yaml
+     shrek --dump-file stdout --no-pause --no-submit --no-check --no-uuid --no-timestamp --tag ${mytag} tests/simple-chain/top.yaml tests/simple-chain/bottom.yaml
+

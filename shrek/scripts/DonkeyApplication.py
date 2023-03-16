@@ -405,8 +405,13 @@ class DispatchManager:
 
                             myactor =  dc['actor']
 
+                            captureActorOutput = OutputCapture( "--BEGIN-SHREK-SUMMARY--", "--END-SHREK-SUMMARY--" )
+                            captureActorError  = OutputCapture( None, None )
+
                             try:
                                 myactor( " %s"%row['name'], index, _out=captureActorOutput, _err=captureActorError, _env=os.environ.copy() )
+
+                                captureActorOutput.print()
 
                                 # Only mark to state dispatched if actor succeeded
                                 listener.messages.loc[ int(index), ["state"] ] = ["dispatched"]
@@ -969,15 +974,30 @@ def readWatchFile( filename ):
 
     return result
 
-def captureActorOutput( out ):
-    global verbose
-    if verbose>0:
-        INFO('| ' + out)
-
-def captureActorError( out ):
-    if verbose>0:    
-        INFO('| ' + out)    
-
+class OutputCapture:
+    def __init__(self,enter_,exit_):
+        self.inblock = False
+        self.enter_ = enter_
+        self.exit_  = exit_
+        self.result = None
+    def reset(self):
+        self.result = None
+    def print(self):
+        print(self.result)
+    def __call__(self, line ):
+        global verbose
+        if self.enter_ == None:
+            if verbose>0: INFO( '|' + line)
+        else:
+            if verbose>100: INFO( '|' + line)            
+            if self.exit_  in line:
+                self.inblock = False
+            if self.inblock:
+                self.result += line            
+            if self.enter_ in line:
+                self.result  = ""
+                self.inblock = True
+        
 def parse_args( defaults ):
     """
     Parse the command line arguments.  Defaults will be set from the shrek site configuraion file.
