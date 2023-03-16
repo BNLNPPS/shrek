@@ -1,0 +1,12 @@
+warn Testing work dispatch on a fake dataset
+set verbose 1111
+
+addmsg closed,2245-04-11 17:01,true,nan,sphnxpro,group.sphenix,group.sphenix.test-dataset-dunsel,0,0
+addcon tests/macros/dumpShrekParam,1,group.sphenix,closed,g*dunsel*,0,yes
+
+dispatch once
+
+addmsg closed,2245-04-11 17:01,true,nan,sphnxpro,group.sphenix,group.sphenix.test-dataset-dunsel,0,0
+dispatch once
+
+exit

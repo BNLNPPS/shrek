@@ -479,9 +479,9 @@ def main():
             }
 
         if args.dumpfile=="stdout":
-            INFO("--BEGIN-SHREK-SUMMARY--")
+            pprint.pprint("--BEGIN-SHREK-SUMMARY--")
             pprint.pprint( todump )
-            INFO("--END-SHREK-SUMMARY--")
+            pprint.pprint("--END-SHREK-SUMMARY--")
         else:
             with open(args.dumpfile,'w') as f:
                 pprint.pprint( todump, f )

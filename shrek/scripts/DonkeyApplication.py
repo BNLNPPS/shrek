@@ -20,7 +20,7 @@ import readline
 import pprint
 
 # Watch file column descriptions
-watch_file_columns = ["actors","prescale","scope","event","match","count", "enable"]
+watch_file_columns = ["actors","prescale","scope","event","match","count","enable"]
 watch_file_template = """
 actors:
   - [user script]
@@ -405,6 +405,9 @@ class DispatchManager:
 
                             myactor =  dc['actor']
 
+                            captureActorOutput = OutputCapture( "--BEGIN-SHREK-SUMMARY--", "--END-SHREK-SUMMARY--" )
+                            captureActorError  = OutputCapture( None, None )
+
                             try:
                                 myactor( " %s"%row['name'], index, _out=captureActorOutput, _err=captureActorError, _env=os.environ.copy() )
 
@@ -414,6 +417,22 @@ class DispatchManager:
                                 # Return the count to zero
                                 dc['count'] = 0
 
+                                # Read the shrek parameters
+                                if captureActorOutput.result != None:
+                                    result = captureActorOutput.result
+
+                                    result = result.replace("\'", "\"")
+                                    result = result.replace("True","true")
+                                    result = result.replace("False","false")
+                                   
+                                    shrek_param = json.loads( result )
+                                    pprint.pprint(shrek_param)
+
+                                    panda = shrek_param['panda']
+                                    shrek = shrek_param['shrek']
+
+                                    url = '%s/tasks/?taskname=user.%s.%s/'%( panda['mon_url'], shrek['user'], shrek['taguuid'] )
+                                    print(url)
                             
                             except sh.ErrorReturnCode:
                                 WARN("Actor returned error code")
@@ -727,7 +746,7 @@ class DonkeyShell( cmd.Cmd ):
         > addcon actor,prescale,scope,event,regex,count,enable
 
         e.g.
-        addcon helloWorld,1,group.sphenix,closed,*test*,0,yes
+        addcon helloWorld,1,group.sphenix,closed,*test*,0,yes,none
         """
         global listener
         global dmanager
@@ -969,15 +988,30 @@ def readWatchFile( filename ):
 
     return result
 
-def captureActorOutput( out ):
-    global verbose
-    if verbose>0:
-        INFO('| ' + out)
-
-def captureActorError( out ):
-    if verbose>0:    
-        INFO('| ' + out)    
-
+class OutputCapture:
+    def __init__(self,enter_,exit_):
+        self.inblock = False
+        self.enter_ = enter_
+        self.exit_  = exit_
+        self.result = None
+    def reset(self):
+        self.result = None
+    def print(self):
+        print(self.result)
+    def __call__(self, line ):
+        global verbose
+        if self.enter_ == None:
+            if verbose>0: INFO( '|' + line)
+        else:
+            if verbose>100: INFO( '|' + line)            
+            if self.exit_  in line:
+                self.inblock = False
+            if self.inblock:
+                self.result += line            
+            if self.enter_ in line:
+                self.result  = ""
+                self.inblock = True
+        
 def parse_args( defaults ):
     """
     Parse the command line arguments.  Defaults will be set from the shrek site configuraion file.
