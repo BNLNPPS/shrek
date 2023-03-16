@@ -374,7 +374,8 @@ class DispatchManager:
                 # Loop over all messages which are in the closed state
                 for index,row in listener.messages[ listener.messages['state']!='dispatched' ].iterrows():
 
-                    INFO("index=%i row=%s"%( index, str(row) ))
+                    if verbose>100:
+                        INFO("index=%i\n%s"%( index, str(row) ))
 
                     for dc in active:
 
