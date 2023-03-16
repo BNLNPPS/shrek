@@ -20,7 +20,7 @@ import readline
 import pprint
 
 # Watch file column descriptions
-watch_file_columns = ["actors","prescale","scope","event","match","count", "enable"]
+watch_file_columns = ["actors","prescale","scope","event","match","count","enable"]
 watch_file_template = """
 actors:
   - [user script]
@@ -411,14 +411,28 @@ class DispatchManager:
                             try:
                                 myactor( " %s"%row['name'], index, _out=captureActorOutput, _err=captureActorError, _env=os.environ.copy() )
 
-                                captureActorOutput.print()
-
                                 # Only mark to state dispatched if actor succeeded
                                 listener.messages.loc[ int(index), ["state"] ] = ["dispatched"]
 
                                 # Return the count to zero
                                 dc['count'] = 0
 
+                                # Read the shrek parameters
+                                if captureActorOutput.result != None:
+                                    result = captureActorOutput.result
+
+                                    result = result.replace("\'", "\"")
+                                    result = result.replace("True","true")
+                                    result = result.replace("False","false")
+                                   
+                                    shrek_param = json.loads( result )
+                                    pprint.pprint(shrek_param)
+
+                                    panda = shrek_param['panda']
+                                    shrek = shrek_param['shrek']
+
+                                    url = '%s/tasks/?taskname=user.%s.%s/'%( panda['mon_url'], shrek['user'], shrek['taguuid'] )
+                                    print(url)
                             
                             except sh.ErrorReturnCode:
                                 WARN("Actor returned error code")
@@ -732,7 +746,7 @@ class DonkeyShell( cmd.Cmd ):
         > addcon actor,prescale,scope,event,regex,count,enable
 
         e.g.
-        addcon helloWorld,1,group.sphenix,closed,*test*,0,yes
+        addcon helloWorld,1,group.sphenix,closed,*test*,0,yes,none
         """
         global listener
         global dmanager
