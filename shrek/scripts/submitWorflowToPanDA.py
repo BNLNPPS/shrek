@@ -106,6 +106,11 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, taguuid  ):
     pchain.append(output)        
     
     # Input data files
+    inputs = '--inDS'
+    for inds in job.inputs:
+        inputs += ' %s'%inds.datasets
+    if inputs != '--inDS':
+        pchain.append(inputs)
 
     
     
