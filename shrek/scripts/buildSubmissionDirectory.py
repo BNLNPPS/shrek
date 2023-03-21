@@ -120,12 +120,10 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
             for r in job.resources:
                 if r.type=='file':
                     INFO("Linking %s --> %s"%(r.url,jobdir))
-                    for f in glob.glob(r.url):
+                    myurl = os.path.expanduser( os.path.expandvars( r.url ) )
+                    for f in glob.glob(myurl):
                         head,tail = os.path.split( f )
-
-                        fpath = os.path.expanduser( os.path.expandvars( f ) )
-                        os.symlink( os.path.abspath(fpath), jobdir + '/' + tail )
-
+                        os.symlink( os.path.abspath(f), jobdir + '/' + tail )
                         job_resources.append( os.path.abspath(f) )
 
     # Build CWL for PanDA submission
