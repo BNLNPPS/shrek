@@ -122,7 +122,9 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
                     INFO("Linking %s --> %s"%(r.url,jobdir))
                     for f in glob.glob(r.url):
                         head,tail = os.path.split( f )
-                        os.symlink( os.path.abspath(f), jobdir + '/' + tail )
+
+                        fpath = os.path.expanduser( os.path.expandvars( f ) )
+                        os.symlink( os.path.abspath(fpath), jobdir + '/' + tail )
 
                         job_resources.append( os.path.abspath(f) )
 
@@ -192,9 +194,14 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
         md.write( "## PanDA Monitoring\n" )
         taskname = ''
         if args.group == "":
-            taskname = 'user.%s.%s_*'%(args.user,opts['taguuid'])
+            taskname = 'user.%s.%s'%(args.user,opts['taguuid'])
         else:
-            taskname = 'group.%s.%s_*'%(args.group,opts['taguuid'])            
+            taskname = 'group.%s.%s'%(args.group,opts['taguuid'])
+
+        if len(jobs)==1:      # prun tasks taskname url takes a trailing /
+            taskname += "/"
+        else:
+            taskname += "_*"  # pchain tasks taskname url is a wildcard
         
         md.write( "[panda monitoring](https://sphenix-panda.apps.rcf.bnl.gov/tasks/?taskname=%s)\n"%taskname )
 
