@@ -1,7 +1,7 @@
 Parameters:
   name: BobTheEventBuilder
   comment: Perform event building
-  nJobs:   80
+  nJobs:   50000
   macro: Fun4All_G4_EventCombine.C
   runnumber: 10000
   rawDataDirect: /sphenix/lustre01/sphnxpro/mdc2/rawdata
@@ -16,7 +16,7 @@ Parameters:
   mxSeg: 17
   nSeg: 18
   topDir: /sphenix/lustre01/sphnxpro/mdc2/rawdata/stripe5
-  nRepeat: 1
+  nRepeat: 20
 
 
 Resources:
