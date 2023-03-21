@@ -1,0 +1,72 @@
+Parameters:
+  name: BobTheEventBuilder
+  comment: Perform event building
+  nJobs:   80
+  macro: Fun4All_G4_EventCombine.C
+  runnumber: 10000
+  rawDataDirect: /sphenix/lustre01/sphnxpro/mdc2/rawdata
+  maxAttempt: 3
+  memory: 2048
+  maxWalltime: 48
+  cpuTimePerEvent: 75000
+  mnRun: 250
+  mxRun: 299
+  nRun: 50
+  mnSeg: 0
+  mxSeg: 17
+  nSeg: 18
+  topDir: /sphenix/lustre01/sphnxpro/mdc2/rawdata/stripe5
+  nRepeat: 1
+
+
+Resources:
+  - file: ../MDC2/shrek/rawdata/eventcombine/rundir/Fun4All_G4_EventCombine.C
+
+
+OutputDataSets:
+  - name: EventBuilder/outDS
+    comment: Built up events
+    filelist:
+       - "required:BobTheEventBuilder.outDS.tar"
+
+
+JobCommands: |-
+  echo START ${name} `date` 
+
+  # Initialize sPHENIX software environment
+  source /opt/sphenix/core/bin/sphenix_setup.sh 
+
+  # run number from mnRun to mxRun
+  # seg number from mnSeg to mxSeg
+  # So...
+
+  # rn=$( printf "%010d" $(( uniqueId % 400 + 10000 )) )
+  # sn=$( printf "%05d"  $(( uniqueId / 400 + 1 )) )
+
+  rn=$(( (uniqueId/nSeg) % 50 + mnRun )) 
+  sn=$(( uniqueId % nSeg + mnSeg ))
+
+  addmetadata shrek_runnumber ${rn}
+  addmetadata shrek_sequence  ${sn}
+
+  echo run $rn seq $sn
+
+  textf=${name}-$( printf "%010d" $rn )-$( printf "%05d" $sn).txt
+  jsonf=${name}-$( printf "%010d" $rn )-$( printf "%05d" $sn).json
+  
+  prmon --filename ${textf} --json-summary ${jsonf} -- root.exe -q -b Fun4All_G4_EventCombine.C\(0,${rn},${sn},\"${topDir}\",${nRepeat}\)
+  #touch $textf $jsonf
+
+  echo $rn $sn
+
+  ls -la 
+
+  tar cvf BobTheEventBuilder.outDS.tar ${name}-*.{txt,json}
+
+
+
+  echo END   ${name} `date` 
+
+  cp _${name}.log /sphenix/u/sphnxpro/shrek/${name}-${uniqueId}.log
+  #cp ${txtf} ${jsonf} /sphenix/u/sphnxpro/stress-event
+
