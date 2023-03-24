@@ -475,6 +475,21 @@ def main():
                 doit.write('%s=%s\n'%(k,v))
         doit.write( '%s\n'% ' '.join(pchain) )
 
+    # Copy token to submission directory
+    config_root = os.path.expandvars( pandaOpts.get("config_root") )       
+    sh.cp( '-r', '%s'%config_root, '%s/'%subdir )
+
+    # Create pbook wrapper with token that submitted the job
+    wrapperEnv = pandaEnv.copy()
+    wrapperEnv['PANDA_CONFIG_ROOT']='.pathena/'  # NOTE: this is a bit too hardcoded...
+    with open( '%s/pbook-wrapper'%subdir, 'w' ) as doit:        
+        for k,v in wrapperEnv.items():
+            if k[:5]=='PANDA':
+                doit.write('%s=%s\n'%(k,v))
+        doit.write( 'pbook\n\n' )
+    
+    
+
 
     if args.dumpfile:
         todump = {
