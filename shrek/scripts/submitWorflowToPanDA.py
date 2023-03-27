@@ -179,6 +179,10 @@ def main():
     # 
     parser.add_argument('--tag',  type=str, help='production tag', required=True )
     parser.add_argument('--offset', type=int, dest='offset', help='job unique id offset')
+    parser.add_argument('--basename', type=str, dest='basename',
+                        help="Specifies an optional basename that users may include"
+                        "in the name of their output file(s)." )
+    parser.set_defaults(basename="None")
     parser.set_defaults(offset=0)
 
     # 
@@ -267,6 +271,7 @@ def main():
 
    
     shrekOpts['taguuid'] = taguuid
+    shrekOpts['basename'] = args.basename
 
     (subdir,cwlfile,yamlfile,jobs) = buildSubmissionDirectory( taguuid, args.yaml, args.site, args, shrekOpts, glvars )
 

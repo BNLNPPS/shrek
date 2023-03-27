@@ -87,7 +87,8 @@ def buildJobScript( yaml_, tag_, opts_, glvars_ ):
     # Export username, tag, etc...
     output += 'export shrek_username=%s\n'%opts_['user']
     output += 'export shrek_tag=%s\n'%opts_['taguuid']
-    output += 'export rucio_dsname=user.%s.%s\n'%(opts_['user'],opts_['taguuid'])
+    output += 'export shrek_basename=%s\n'%opts_['basename']
+    output += 'export rucio_dsname=user.%s.%s\n'%(opts_['user'],opts_['taguuid']) # NOTE: Does not respect group scope!
 
     if job == None:
         print("Job not valid... probably no yaml file?")
