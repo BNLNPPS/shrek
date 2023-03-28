@@ -19,11 +19,30 @@ client = Client() # Get the rucio client
 from shrek.scripts.simpleLogger import DEBUG, INFO, WARN, ERROR, CRITICAL
 
 def parse_args( defaults=None ):
-    parser = argparse.ArgumentParser(description='Registers data files and datasets with rucio')
+
+    epilog="""
+    Example usage:
+    --------------
+
+    Create a dataset to add files to
+    $ farquaad add-dataset --dataset TEST-RUN-2304010001
+
+    Add files to the dataset created above.  The data identifiers in rucio will be
+    the name of the added physical files.
+    $ farquaad add-file --pfn /path/to/physical/files/* --dataset TEST-RUN-2304010001
+
+    Add a single file and specify the data identifier for rucio
+    $ farquaad add-file --pfn /path/to/a/single/file --did something-different
+
+    Close the dataset.  From this point you can no longer add files
+    $ farquaad close-dataset --dataset TEST-RUN-2304010001    
+    """
+    
+    parser = argparse.ArgumentParser(description='Registers data files and datasets with rucio',epilog=epilog,formatter_class=argparse.RawTextHelpFormatter)
 
     # NOTE: This should be done as sub-parsers.  TODO.
     subcommands=['add-file','add-dataset','close-dataset' ]
-    parser.add_argument('cmd', metavar="COMMAND", type=str, choices=subcommands, help="Subcommand to execute")
+    parser.add_argument('cmd', metavar="COMMAND", type=str, choices=subcommands, help="Subcommand to execute [%s]"%','.join(subcommands))
 
     parser.add_argument('--pfn',     type=str, default=[], nargs="+",help="Physical location of file(s) to register to rucio.  DID will be the tail of the path unless specified with --did.")
     parser.add_argument('--did',     type=str,default=None,help="Specifies the DID for the file if provided.  Only makes sense for a single file.")
