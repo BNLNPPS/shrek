@@ -12,6 +12,8 @@ import pprint
 from rucio.client       import Client
 from rucio.common.utils import adler32
 
+from rucio.common.exception import DataIdentifierNotFound
+
 client = Client() # Get the rucio client
 
 from shrek.scripts.simpleLogger import DEBUG, INFO, WARN, ERROR, CRITICAL
@@ -64,16 +66,32 @@ def register_single_file( path_, args ):
 
         replica = {
             'scope'  : scope_,    # user scope
-            'name'   : name_,     # filename
+            'name'   : name_,     # filename / data identifier
             'pfn'    : pfn_,      # physical filename (full path to file)
             'bytes'  : bytes_,    # size of file in bytes
             'adler32': adler32_,  # adler32 checksum
         }
+
         if args.verbose>0:
             INFO("Add %s @%s to %s with %s"%(path,args.rse,args.dataset,scope_))
             pprint.pprint(replica)
 
-        if args.simulate == False:
+       
+        if args.simulate==False:
+
+            # Verify that the dataset exists and is open
+            try:
+                rdataset = client.get_did( args.scope, args.dataset )
+                if rdataset['open'] != True:
+                    CRITICAL('%s is not open.  Cannot assoicate to this dataset'%args.dataset)
+                    return
+
+            # Create the dataset if we were not able to find it
+            except DataIdentifierNotFound:             
+                WARN("Creating dataset %s:%s"%(args.scope,args.dataset))
+                client.add_dataset( scope_, args.dataset, rse=args.rse )
+
+            # And add the file to the dataset
             client.add_files_to_dataset( scope_, args.dataset, [replica,], args.rse )
            
                 
