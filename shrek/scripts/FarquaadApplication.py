@@ -21,8 +21,12 @@ from shrek.scripts.simpleLogger import DEBUG, INFO, WARN, ERROR, CRITICAL
 def parse_args( defaults=None ):
     parser = argparse.ArgumentParser(description='Registers data files and datasets with rucio')
 
-    parser.add_argument('pfn',metavar='FILENAME',type=str,help="Physical location of file to register to rucio.  DID will be the tail of the path unless specified with --did.")
-    parser.add_argument('--did',     type=str,default=None,help="Specifies the DID for the file if provided")
+    # NOTE: This should be done as sub-parsers.  TODO.
+    subcommands=['add-file','add-dataset','close-dataset' ]
+    parser.add_argument('cmd', metavar="COMMAND", type=str, choices=subcommands, help="Subcommand to execute")
+
+    parser.add_argument('--pfn',     type=str, default=[], nargs="+",help="Physical location of file(s) to register to rucio.  DID will be the tail of the path unless specified with --did.")
+    parser.add_argument('--did',     type=str,default=None,help="Specifies the DID for the file if provided.  Only makes sense for a single file.")
     parser.add_argument('--scope',   type=str,default='group.sphenix',help="Scope into which we place the dataset / files")
     parser.add_argument('--rse',     type=str,default='MOCK',help="Specifies the rucio storage element")
     parser.add_argument('--dataset', type=str,help="Name of the dataset to register the file to")
@@ -46,6 +50,32 @@ def get_file_path( path_ ):
     path = path.replace('direct/','')
     path = path.replace('+','/')
     return path
+
+def add_dataset_to_rucio( args ):
+    did = None
+    if args.simulate==False:
+
+        # Verify that the dataset exists and is open
+        try:
+            did = client.get_did( args.scope, args.dataset )
+            WARN("%s:%s already exists"%(args.scope,args.dataset))
+
+        # Create the dataset if we were not able to find it
+        except DataIdentifierNotFound:             
+            WARN("Creating dataset %s:%s"%(args.scope,args.dataset))
+            client.add_dataset( args.scope_, args.dataset, rse=args.rse )
+            did = client.get_did( args.scope, args.dataset )
+
+    else:
+
+        did = client.get_did( args.scope, args.dataset )
+
+    if args.verbose>0:
+        pprint.pprint(did)
+
+    return did
+
+
 
 def register_single_file( path_, args ):
 
@@ -79,17 +109,10 @@ def register_single_file( path_, args ):
        
         if args.simulate==False:
 
-            # Verify that the dataset exists and is open
-            try:
-                rdataset = client.get_did( args.scope, args.dataset )
-                if rdataset['open'] != True:
-                    CRITICAL('%s is not open.  Cannot assoicate to this dataset'%args.dataset)
-                    return
-
-            # Create the dataset if we were not able to find it
-            except DataIdentifierNotFound:             
-                WARN("Creating dataset %s:%s"%(args.scope,args.dataset))
-                client.add_dataset( scope_, args.dataset, rse=args.rse )
+            rdataset = add_dataset_to_rucio( args )
+            if rdataset['open'] != True:
+                CRITICAL('%s is not open.  Cannot assoicate to this dataset'%args.dataset)
+                return            
 
             # And add the file to the dataset
             client.add_files_to_dataset( scope_, args.dataset, [replica,], args.rse )
@@ -100,13 +123,59 @@ def register_single_file( path_, args ):
         WARN("%s was not found / skip")
 
     
+def close_dataset( args ):
+    did = None
+    if args.simulate==False:
+
+        # Verify that the dataset exists and is open
+        try:
+            did = client.get_did( args.scope, args.dataset )
+            if did['open']==True:
+                client.close( args.scope,args.dataset )
+            else:
+                # Warn if it was already closed
+                WARN('%s:%s is already closed'%(args.scope,args.dataset) )
+                
+        # Warn if it doesn't exist
+        except DataIdentifierNotFound:             
+            WARN('%s:%s does not exist'%(args.scope,args.dataset) )
+
+    else:
+
+        did = client.get_did( args.scope, args.dataset )
+
+    if args.verbose>0:
+        pprint.pprint(did)
+
+    return did
+
 
 def main():
     args, globalvars = parse_args()
     if args.simulate:
         args.verbose = 1000
 
-    register_single_file( args.pfn, args )
+    if args.cmd == 'add-file':
+
+        if args.did and len(args.pfn)>1:
+            CRITICAL("Cannot specify --did when registering more than one file")
+            return
+
+        for pfn in args.pfn:
+
+            if os.path.isdir( pfn ):
+                WARN("%s is a directory, skip") # in future recurse?
+                continue
+            
+            register_single_file( pfn, args )
+
+    elif args.cmd == 'add-dataset':
+
+        add_dataset_to_rucio( args )
+
+    elif args.cmd == 'close-dataset':
+
+        close_dataset( args ) 
 
     
 
