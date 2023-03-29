@@ -162,7 +162,7 @@ def main():
     if pandaOpts.get('behind_real_lb') != None:
         pandaEnv['PANDA_BEHIND_REAL_LB'] = pandaOpts.get('behind_real_lb')
     if pandaOpts.get("config_root") != None:
-        pandaEnv['PANDA_CONFIG_ROOT'] = os.path.expandvars( pandaOpts.get("config_root") )
+        pandaEnv['PANDA_CONFIG_ROOT'] = os.path.abspath( os.path.expandvars( pandaOpts.get("config_root") ) )
         
     if pandaOpts.get("virtualenv") != None:
         pandaEnv['SHREK_VIRTUAL_ENV_SCRIPT'] = pandaOpts.get("virtualenv")
@@ -381,7 +381,7 @@ def main():
         
         INFO("==========================================================")
         INFO("PanDA submission")
-        INFO("==========================================================")                    
+        INFO("==========================================================")
         pchain_result = subprocess.run( ' '.join(pchain), shell=True, cwd=os.path.abspath(subdir), env=pandaEnv, capture_output=True, check=False )
         INFO("sdtout:")
         for line in pchain_result.stdout.decode('UTF-8').split('\n'):
