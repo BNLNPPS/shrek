@@ -253,10 +253,13 @@ def main():
         for pfn in args.pfn:
 
             if os.path.isdir( pfn ):
-                WARN("%s is a directory, skip") # in future recurse?
-                continue
-            
-            register_single_file( pfn, args )
+                WARN("%s is a directory, walking") # in future recurse?
+                for root,dirs,files in os.walk( pfn ):
+                    for name in files:
+                        register_single_file( os.path.join(root, name), args )
+                        
+            else:
+                register_single_file( pfn, args )
 
     elif args.cmd == 'add-dataset':
 
