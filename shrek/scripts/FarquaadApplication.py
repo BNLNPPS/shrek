@@ -24,8 +24,8 @@ def parse_args( defaults=None ):
     Example usage:
     --------------
 
-    Create a dataset to add files to
-    $ farquaad add-dataset --dataset TEST-RUN-2304010001
+    Create a dataset
+    $ farquaad add-dataset --dataset TEST-RUN-2304010001 --containers /SPHENIX-TEST-2023/AAABBB
 
     Add files to the dataset created above.  The data identifiers in rucio will be
     the name of the added physical files.
@@ -49,6 +49,7 @@ def parse_args( defaults=None ):
     parser.add_argument('--scope',   type=str,default='group.sphenix',help="Scope into which we place the dataset / files")
     parser.add_argument('--rse',     type=str,default='MOCK',help="Specifies the rucio storage element")
     parser.add_argument('--dataset', type=str,help="Name of the dataset to register the file to")
+    parser.add_argument('--containers',type=str,help="Container hierarchy into which the datset will be attached",default=None)
     parser.add_argument('--verbose', type=int,default=0,help="Sets verbosity flag")
     parser.add_argument('--simulate',action='store_true',help="Simulates the action (and raises verbosity)",default=False)
 
@@ -88,8 +89,14 @@ def add_dataset_to_rucio( args ):
 
     else:
 
-        did = client.get_did( args.scope, args.dataset )
+        try:
+            did = client.get_did( args.scope, args.dataset )
+            WARN("%s:%s already exists"%(args.scope,args.dataset))
 
+        except DataIdentifierNotFound:             
+            WARN("Creating dataset %s:%s"%(args.scope,args.dataset))
+            did = None
+                        
     if args.verbose>0:
         pprint.pprint(did)
 
@@ -169,6 +176,68 @@ def close_dataset( args ):
 
     return did
 
+def add_containers_and_attach( args ):
+
+    containers = args.containers.lstrip('/').rstrip('/').split('/')
+
+    prev = None
+    for c in containers:
+
+        did = None
+        if args.simulate:
+
+            INFO('Simulate add container %s:%s'%(args.scope,c) )
+
+            if prev:
+                INFO('... attach %s to %s'%(c,prev))
+
+        else:
+
+            try:
+                did = client.get_did( args.scope, c )
+                WARN("%s:%s already exists"%(args.scope,c))
+            except DataIdentifierNotFound:
+                client.add_container( args.scope, c )
+                did = client.get_did( args.scope, c )
+
+            # If there was a previous container we will attach
+            # this container to it (assuming that it has not
+            # already been attached)
+            if prev:
+                att ={ 'scope': args.scope, 'name':c }
+                for content in client.list_content( args.scope, prev ):
+                    if content['name']==att['name']:
+                        att = None
+                        break
+                if att:
+                    client.attach_dids( args.scope, prev, [att,] )
+                else:
+                    WARN('%s already attached to %s'%(c,prev))
+
+
+        # Set the previoius container name
+        prev = c
+
+    # Finally attach the dataset to the last container
+    if args.simulate:
+
+        if prev:
+            INFO('... attach %s to %s'%(args.dataset,prev))
+
+    else:
+
+        if prev:
+            att = { 'scope':args.scope, 'name':args.dataset }
+            client.attach_dids( args.scope, prev, [att,] )
+            
+
+
+
+
+
+            
+        
+
 
 def main():
     args, globalvars = parse_args()
@@ -191,7 +260,12 @@ def main():
 
     elif args.cmd == 'add-dataset':
 
+        # Create and add the dataset to rucio
         add_dataset_to_rucio( args )
+
+        # If containers have been specified, create and attach
+        if args.containers:
+            add_containers_and_attach( args )
 
     elif args.cmd == 'close-dataset':
 
