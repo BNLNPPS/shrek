@@ -71,6 +71,7 @@ def get_file_path( path_ ):
     return path
 
 def add_dataset_to_rucio( args ):
+    
     did = None
     if args.simulate==False:
 
@@ -82,7 +83,7 @@ def add_dataset_to_rucio( args ):
         # Create the dataset if we were not able to find it
         except DataIdentifierNotFound:             
             WARN("Creating dataset %s:%s"%(args.scope,args.dataset))
-            client.add_dataset( args.scope_, args.dataset, rse=args.rse )
+            client.add_dataset( args.scope, args.dataset, rse=args.rse )
             did = client.get_did( args.scope, args.dataset )
 
     else:
