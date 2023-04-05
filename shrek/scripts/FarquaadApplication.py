@@ -50,6 +50,7 @@ def parse_args( defaults=None ):
     parser.add_argument('--rse',     type=str,default='MOCK',help="Specifies the rucio storage element")
     parser.add_argument('--dataset', type=str,help="Name of the dataset to register the file to")
     parser.add_argument('--containers',type=str,help="Container hierarchy into which the datset will be attached",default=None)
+    parser.add_argument('--md5',type=str,help="Specify the md5 checksum rather than calculating it",default=None)
     parser.add_argument('--verbose', type=int,default=0,help="Sets verbosity flag")
     parser.add_argument('--simulate',action='store_true',help="Simulates the action (and raises verbosity)",default=False)
 
@@ -119,14 +120,16 @@ def register_single_file( path_, args ):
             name_ = args.did
 
         bytes_   = os.path.getsize( path )
-        adler32_ = adler32( path )
+        md5_ = args.md5
+        if md5_ == None:
+            md5_ = sh.md5sum( path )
 
         replica = {
             'scope'  : scope_,    # user scope
             'name'   : name_,     # filename / data identifier
             'pfn'    : pfn_,      # physical filename (full path to file)
             'bytes'  : bytes_,    # size of file in bytes
-            'adler32': adler32_,  # adler32 checksum
+            'md5'    : md5_,      # md5 checksum  
         }
 
         if args.verbose>0:
