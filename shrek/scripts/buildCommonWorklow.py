@@ -21,6 +21,8 @@ from shrek.yaml.workflow import WorkflowGraph
 from shrek.scripts.buildJobScript import buildJobDefinition
 from shrek.scripts.buildWorkflowGraph import buildWorkflowGraph
 
+from shrek.scripts.simpleLogger import DEBUG, INFO, WARN, ERROR, CRITICAL
+
 from math import ceil, log
 
 # List of user parameters which get translated into PANDA (prun) options
@@ -33,7 +35,8 @@ PANDA_OPTS = [ "nJobs",
                "memory",
                "dumpTaskParams",
                "maxWalltime",
-               "nEventsPerJob",               
+               "nEventsPerJob",
+               "processingType",
                # "nEventsPerFile",  # These are attached to inputs
                # "nEventsPerChunk",
                "cpuTimePerEvent",
@@ -210,6 +213,12 @@ def cwl_opt_args( job ):
 
             if par=='stage' and val in ["all", "none", "primary", "secondary"]:
                 stageMode = val
+
+            if par=='processingType':
+                if len(val)>2:
+                    CRITICAL("processingType must be <=2 characters")
+                    assert(0)
+
                 
 
     # Override annoying PanDA default...
