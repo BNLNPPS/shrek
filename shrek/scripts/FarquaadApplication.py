@@ -119,14 +119,16 @@ def register_single_file( path_, args ):
             name_ = args.did
 
         bytes_   = os.path.getsize( path )
-        adler32_ = adler32( path )
+        #adler32_ = adler32( path )
+        md5_ = sh.md5sum( path )
 
         replica = {
             'scope'  : scope_,    # user scope
             'name'   : name_,     # filename / data identifier
             'pfn'    : pfn_,      # physical filename (full path to file)
             'bytes'  : bytes_,    # size of file in bytes
-            'adler32': adler32_,  # adler32 checksum
+            #'adler32': adler32_, # adler32 checksum
+            'md5' : md5_,         # md5 checksum  
         }
 
         if args.verbose>0:
