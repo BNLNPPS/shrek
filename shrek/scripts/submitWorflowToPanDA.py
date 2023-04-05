@@ -56,6 +56,7 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, taguuid  ):
     numInputs      = job.numInputs
     numOutputs     = job.numOutputs
     numSecondaries = job.numSecondaries
+    
 
     #print('numInputs = '+str(numInputs))
     #print('numOutputs = '+str(numOutputs))
