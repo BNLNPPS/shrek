@@ -2,6 +2,7 @@ Parameters:
   name: top1
   comment: "Simple chain from panda examples"
   nJobs: 5
+  processingType: test
 
 OutputDataSets:
   - name: top1/outDS

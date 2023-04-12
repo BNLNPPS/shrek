@@ -1,6 +1,7 @@
 Parameters:
   name: bottom
   comment: "Simple example from panda"
+  processingType: default
 
 InputDataSets:
   - name: top1/outDS
