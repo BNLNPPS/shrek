@@ -23,8 +23,11 @@ from io import StringIO
 
 from shrek.scripts.buildJobScript import buildJobScript
 from shrek.scripts.buildCommonWorklow import buildCommonWorkflow
+from shrek.scripts.buildCommonWorklow import prodtypes
 from shrek.scripts.buildSubmissionDirectory import buildSubmissionDirectory
 from shrek.scripts.ShrekConfiguration import readSiteConfig
+
+
 
 from shrek.scripts.simpleLogger import DEBUG, INFO, WARN, ERROR, CRITICAL
 
@@ -34,6 +37,9 @@ INFO("The Super Handsome Remote Execution Koordinator")
 defaults  = readSiteConfig()
 shrekOpts = defaults['Shrek']
 pandaOpts = defaults['PanDA']
+
+
+#pprint.pprint(prodtypes)
 
 def progressbar(it, prefix="", size=60, out=sys.stdout): # Python3.3+
     count = len(it)
@@ -57,7 +63,6 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, taguuid  ):
     numOutputs     = job.numOutputs
     numSecondaries = job.numSecondaries
     
-
     #print('numInputs = '+str(numInputs))
     #print('numOutputs = '+str(numOutputs))
     #print('numSecondaries = '+str(numSecondaries))
@@ -133,6 +138,14 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, taguuid  ):
             if par=='merge':
                 pchain.append( '--mergeOutput' )
                 pchain.append( '--mergeScript=\\\"%s\\\"' % val )
+            elif par=='processingType':
+
+                try:
+                    ptype=prodtypes[val]
+                    pchain.append('--processingType %s'%ptype)
+                except KeyError:
+                    WARN('-- processingType %s not recognized --'%val)
+                
             else:            
                 pchain.append( ' --%s %s '%( par, str(val)) )
                 if par=='maxAttempt':

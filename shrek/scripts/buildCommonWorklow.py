@@ -23,6 +23,9 @@ from shrek.scripts.buildWorkflowGraph import buildWorkflowGraph
 
 from shrek.scripts.simpleLogger import DEBUG, INFO, WARN, ERROR, CRITICAL
 
+from shrek.scripts.ShrekConfiguration import readProductionTypes
+prodtypes = readProductionTypes()['ProductionTypes']
+
 from math import ceil, log
 
 # List of user parameters which get translated into PANDA (prun) options
@@ -215,10 +218,11 @@ def cwl_opt_args( job ):
                 stageMode = val
 
             if par=='processingType':
-                if len(val)>2:
-                    CRITICAL("processingType must be <=2 characters")
-                    assert(0)
-
+                try:
+                    ptype = prodtypes[val]
+                    optargs += ' --processingType %s'%ptype
+                except KeyError:
+                    WARN('-- unknown processing type %s --'%val )
                 
 
     # Override annoying PanDA default...

@@ -2,6 +2,7 @@ Parameters:
   name: top2
   comment: "Simple chain from panda examples"
   nJobs: 5
+  processingType: user
 
 OutputDataSets:
   - name: top2/outDS
