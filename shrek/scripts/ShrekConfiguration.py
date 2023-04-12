@@ -4,6 +4,19 @@ from os.path import exists
 
 from shrek.scripts.simpleLogger import DEBUG, INFO, WARN, ERROR, CRITICAL
 
+def readProductionTypes(default='shrek/config/prod.yaml'):
+
+    shreksys = os.environ.get( 'SHREK_SYS', '.' )      # shrek system installation (defaults to pwd)
+
+    result = {}
+    with open(default,"r") as stream:
+        try:
+            result = yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            print(exc)
+
+    return result
+
 def readSiteConfig(default='site.yaml'):
 
     shreksys = os.environ.get( 'SHREK_SYS', '.' )      # shrek system installation (defaults to pwd)

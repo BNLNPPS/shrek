@@ -1,0 +1,9 @@
+ProductionTypes:
+  default: NA
+  testing: Ts
+  test:    Ts
+  user:    Us
+  calorimeter: Ca
+  calibration: Cb
+  
+  
