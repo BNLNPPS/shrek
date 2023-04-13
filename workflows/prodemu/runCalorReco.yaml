@@ -21,6 +21,16 @@ Parameters:
 Resources:
   - file: ../MDC2/shrek/rawdata/caloreco/rundir/Fun4All_CaloReco.C
 
+InputDataSets:                                                                                                                                                                                                                                                                      
+  - name: RawEventData
+    datasets: group.sphenix:mdc2.rawdata.junk.rhic2023-03-29
+    match: "*00000273*.evt"
+    nFilesPerJob: 39
+  - name: G4Hits
+    datasets: group.sphenix:mdc2.shijing_hepmc.fm_0_20.g4hits.run0006
+    match: "*.root"
+    nFilesPerJob: 1
+
 
 OutputDataSets:
   - name: CalorReco/outDS
@@ -31,6 +41,8 @@ OutputDataSets:
 
 JobCommands: |-
   echo START ${name} `date` 
+
+  echo $@
 
   # Initialize sPHENIX software environment
   source /opt/sphenix/core/bin/sphenix_setup.sh 
@@ -50,6 +62,8 @@ JobCommands: |-
 
   addmetadata shrek_runnumber ${rn}
   addmetadata shrek_sequence  ${sn}
+  addmetadata shrek_rawrunnumber ${rawrn}
+  addmetadata shrek_rawsequence  ${rawsn}
 
   echo run $rn seq $sn
 
@@ -89,5 +103,4 @@ JobCommands: |-
 
   # Hack to copy the log file
   cp _${name}.log /sphenix/u/sphnxpro/shrek/${name}-${uniqueId}.log
-  #cp ${txtf} ${jsonf} /sphenix/u/sphnxpro/stress-event
 
