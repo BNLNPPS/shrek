@@ -14,7 +14,7 @@ JobCommands: |-
   echo   echo $uniqueId $sleepytime > sleep.txt
   sleep ${sleepytime}
 
-  cp sleep.txt /sphenix/u/sphnxpro/shrek/xsleep-$uniqueId.txt
+
   
 
 
