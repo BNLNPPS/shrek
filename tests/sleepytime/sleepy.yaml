@@ -1,0 +1,21 @@
+Parameters:
+  name: top
+  comment: "Simple chain that sleeps for a randomly specified amount of time"
+  nJobs: 10
+
+OutputDataSets:
+  - name: top/outDS
+    filelist:
+      - "required: sleep.txt"
+
+JobCommands: |-
+
+  export sleepytime=$(shuf -i ${SLEEP_MIN}-${SLEEP_MAX} -n1)m
+  echo   echo $uniqueId $sleepytime > sleep.txt
+  sleep ${sleepytime}
+
+  cp sleep.txt /sphenix/u/sphnxpro/shrek/xsleep-$uniqueId.txt
+  
+
+
+
