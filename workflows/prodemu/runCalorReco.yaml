@@ -1,0 +1,106 @@
+Parameters:
+  name: BobTheCalorimeter
+  comment: Perform calorimeter reconstruction
+  nJobs:   10
+  nEvents: 100
+  macro: Fun4All_CaloReco.C
+  runnumber: 10000
+  maxAttempt: 3
+  memory: 2048
+  maxWalltime: 48
+  cpuTimePerEvent: 75000
+  mnRun: 250
+  mxRun: 299
+  nRun: 50
+  mnSeg: 0
+  mxSeg: 17
+  nSeg: 18
+  topDir: /sphenix/lustre01/sphnxpro/mdc2/rawdata/stripe5
+  nRepeat: 1
+
+Resources:
+  - file: ../MDC2/shrek/rawdata/caloreco/rundir/Fun4All_CaloReco.C
+
+InputDataSets:                                                                                                                                                                                                                                                                      
+  - name: RawEventData
+    datasets: group.sphenix:mdc2.rawdata.junk.rhic2023-03-29
+    match: "*00000273*.evt"
+    nFilesPerJob: 39
+  - name: G4Hits
+    datasets: group.sphenix:mdc2.shijing_hepmc.fm_0_20.g4hits.run0006
+    match: "*.root"
+    nFilesPerJob: 1
+
+
+OutputDataSets:
+  - name: CalorReco/outDS
+    comment: Calorimetry Reconstruction
+    filelist:
+       - "required:CalorReco.outDS.tar"
+
+
+JobCommands: |-
+  echo START ${name} `date` 
+
+  echo $@
+
+  # Initialize sPHENIX software environment
+  source /opt/sphenix/core/bin/sphenix_setup.sh 
+
+  # run number from mnRun to mxRun
+  # seg number from mnSeg to mxSeg
+  # So...
+
+  # rn=$( printf "%010d" $(( uniqueId % 400 + 10000 )) )
+  # sn=$( printf "%05d"  $(( uniqueId / 400 + 1 )) )
+
+  rawrn=$(( (uniqueId/nSeg) % 50 + mnRun )) 
+  rawsn=$(( uniqueId % nSeg + mnSeg ))
+
+  rn=$runnumber # 
+  sn=$uniqueId # max 999999 
+
+  addmetadata shrek_runnumber ${rn}
+  addmetadata shrek_sequence  ${sn}
+  addmetadata shrek_rawrunnumber ${rawrn}
+  addmetadata shrek_rawsequence  ${rawsn}
+
+  echo run $rn seq $sn
+
+  textf=${name}-$( printf "%010d" $rn )-$( printf "%05d" $sn).txt
+  jsonf=${name}-$( printf "%010d" $rn )-$( printf "%05d" $sn).json
+
+  # Name of the output file
+  outfile=$( printf "DST_RECO_CLUSTER_sHijing_0_20fm_50kHz_bkg_0_20fm-%010d-%05d.root" $rn $sn )
+  outdir=.
+
+  # arguments 
+  arg1=${nEvents}      # $1: number of events
+  arg2=${runnumber}    # $2: run number
+  arg3=${outfile}      # $3: output file
+  arg4=${outdir}       # $4: output dir
+  #arg5=${g4hitslist}   # $5: calo g4hits file list
+  #arg6=${vertexlist}   # $6: vertex file list
+  arg7=${rawrn} # $7: raw run number
+  arg8=${rawsn} # $8: raw sequence number
+  arg9=${topDir}       # $9: raw data dir
+
+  echo NEV ${arg1} number of events
+  echo RUN ${arg2} run number
+  echo OUT ${arg3} output filename
+  echo DIR ${arg4} output directory
+  echo RRN ${arg7} raw event run number
+  echo RSN ${arg8} raw event sequence number
+  echo RAW ${arg9} raw event directory
+ 
+  #  echo  prmon --filename ${textf} --json-summary ${jsonf} -- 
+  #root.exe -q -b  Fun4All_CaloReco.C\($1,\"$4\",\"$5\",\"$6\",\"$7\",$8,$9,\"${10}\"\)
+  # tar cvf BobTheEventBuilder.outDS.tar ${name}-*.{txt,json}
+
+  # Ensure a successful run
+  touch CalorReco.outDS.tar
+  echo END   ${name} `date` 
+
+  # Hack to copy the log file
+  cp _${name}.log /sphenix/u/sphnxpro/shrek/${name}-${uniqueId}.log
+

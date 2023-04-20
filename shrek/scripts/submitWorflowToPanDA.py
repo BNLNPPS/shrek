@@ -111,12 +111,59 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, taguuid  ):
     output = output.replace('required:','')
     pchain.append(output)        
     
-    # Input data files
-    inputs = '--inDS'
-    for inds in job.inputs:
-        inputs += ' %s'%inds.datasets
-    if inputs != '--inDS':
-        pchain.append(inputs)
+    ## Input data files
+    #inputs = '--inDS'
+    #for inds in job.inputs:
+    #    inputs += ' %s'%inds.datasets
+    #if inputs != '--inDS':
+    #    pchain.append(inputs)
+    # From input (secondary) data sets
+
+    inputs = []
+    reusableStreams = []
+    count = 0
+    hasInput = False
+    hasSecondary = False
+    for inp in job.inputs:
+
+        # Name of the dataset
+        DSname = 'DS' + str(count)
+        #DSn = '%{DS' + str(count) + '}'
+        DSn = inp.datasets
+        count += 1
+
+        # Stream name
+        INn = 'IN' + str(count)
+        if inp.reusable:
+            reusableStreams.append( INn )
+        
+        name = inp.name        
+        nfpj = inp.nFilesPerJob
+        nepf = inp.nEventsPerFile
+
+        # Handle principle (input) data set
+        if count==1:
+            hasInput = True
+            pchain .append( ' --inDS %s'%(inp.datasets))
+            if nfpj:
+                pchain.append( ' --nFilesPerJob='+str(nfpj) )
+            if nepf:
+                pchain .append(' --nEventsPerFile='+str(nepf))
+            continue # skip to secondaries
+
+        # Secondaries only from this point...
+        hasSecondary = True
+        if nfpj == None:
+            nfpj = 1
+        inputs.append( INn + ':' + str(nfpj) + ':' + DSn )
+
+    if len(inputs)>0:
+        pchain.append( ' --secondaryDSs ' + ','.join(inputs))
+
+    #print('Reusable streams: ' + str(reusableStreams) )
+    if len(reusableStreams)>0:
+        pchain .append( ' --reusableSecondary ' + ','.join(reusableStreams))
+    
 
     
     
