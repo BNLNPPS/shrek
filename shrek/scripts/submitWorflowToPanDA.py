@@ -281,7 +281,9 @@ def main():
 
     parser.add_argument('--no-pause', dest='pause', action='store_false', help='Do not pause before submitting job' )
 
-    parser.add_argument('--no-scouting', dest='scouting', action='store_false', help='Disable scouting jobs, intended for production manager(s).  Users strongly discouraged from using.')
+    parser.add_argument('--no-scouting', dest='scouting', action='store_false', help='Disable scouting jobs')
+    parser.add_argument('--scouting', dest='scouting', action='store_true', help='Enable scouting jobs')
+    parser.set_defaults( scouting=False )
 
     #
     parser.add_argument('--vo', type=str,              default=pandaOpts['vo'])
