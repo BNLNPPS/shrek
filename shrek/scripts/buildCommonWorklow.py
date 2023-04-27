@@ -193,7 +193,7 @@ def cwl_outputs( wfgraph ):
 
 
 
-def cwl_opt_args( job ):
+def cwl_opt_args( job, glvars ):
 
     optargs = ""
 
@@ -206,6 +206,9 @@ def cwl_opt_args( job ):
         val = getattr(params,par,None)
 
         if val:
+
+            val = glvars.get( val, val )            
+            
             if par=='merge':
                 optargs += ' --mergeOutput --mergeScript=\\\"%s\\\"' % val
             else:            
@@ -296,7 +299,7 @@ def cwl_opt_args( job ):
         
     return optargs
 
-def cwl_steps( wfgraph, site, args ):
+def cwl_steps( wfgraph, site, args, glvars ):
     steps=""
     G = wfgraph.graph
 
@@ -347,7 +350,7 @@ def cwl_steps( wfgraph, site, args ):
         steps += ' >& _%s.log' % ( job.name ) 
         steps += ' "'
 
-        optargs = cwl_opt_args(job)
+        optargs = cwl_opt_args(job, glvars)
 
         if args.scouting == False:
             optargs += " --expertOnly_skipScout "
@@ -386,7 +389,7 @@ def buildCommonWorkflow( yamllist, tag_, site, args, glvars_ ):
     output += cwl_requirements()
     output += cwl_inputs( wfg )
     output += cwl_outputs( wfg )
-    output += cwl_steps( wfg, site, args )
+    output += cwl_steps( wfg, site, args, glvars_ )
 
     yaml = ""
     yaml += yml_inputs( wfg, glvars_ )
