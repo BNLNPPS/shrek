@@ -53,7 +53,7 @@ def progressbar(it, prefix="", size=60, out=sys.stdout): # Python3.3+
     print("\n", flush=True, file=out)
                                                                 
 
-def buildPrunCommand( submissionDirectory, jobDefinitions, args, taguuid  ):  
+def buildPrunCommand( submissionDirectory, jobDefinitions, args, glvars, taguuid  ):  
     assert( len(jobDefinitions)==1 )
     from shrek.scripts.buildCommonWorklow import PANDA_OPTS
     
@@ -180,8 +180,11 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, taguuid  ):
     params = job.parameters
     hasMaxAttempt = False
     for par in PANDA_OPTS:
-        val = getattr(params,par,None)
+        val = getattr(params,par,None)        
         if val:
+
+            val = glvars.get( val, val )
+
             if par=='merge':
                 pchain.append( '--mergeOutput' )
                 pchain.append( '--mergeScript=\\\"%s\\\"' % val )
@@ -344,7 +347,7 @@ def main():
     if len(jobs)==1:
         WARN("Single job description (yaml) found.")
         WARN("This looks like a prun job to me")
-        pruncmd = buildPrunCommand( subdir, jobs, args, taguuid )
+        pruncmd = buildPrunCommand( subdir, jobs, args, glvars, taguuid )
         # Do not execute workflow check
         if args.check==True:
             WARN("Setting option --no-check")
