@@ -42,6 +42,8 @@ PANDA_OPTS = [ "nJobs",
                "processingType",
                # "nEventsPerFile",  # These are attached to inputs
                # "nEventsPerChunk",
+               "writeInputToTxt",
+               "maxNFilesPerJob",
                "cpuTimePerEvent",
                "stage",             # primary, secondary, all or none.
                "merge" ]
