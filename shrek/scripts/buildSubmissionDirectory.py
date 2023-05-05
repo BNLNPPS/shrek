@@ -72,6 +72,10 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
         INFO('PanDA submission directory %s'%s)            
         break
 
+    # Copy plugins
+    if os.path.exists( './plugins/' ):
+        sh.cp( '-r', './plugins', subdir )        
+
         
     # Copy job description files to staging area
     for j in jdfs:
