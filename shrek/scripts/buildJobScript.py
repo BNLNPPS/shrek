@@ -119,6 +119,17 @@ def buildJobScript( yaml_, tag_, opts_, glvars_ ):
         output += 'export shrek_tag=%s\n'%(tag_)
 
 
+        #
+        # Source the plugins
+        #
+        output += """
+# Import any functions and/or environment variables in plugins directory        
+for f in plugins/*.sh; do
+  echo "Importing environment from $f"
+  source "$f"
+done
+        """
+        
 
 
         #
