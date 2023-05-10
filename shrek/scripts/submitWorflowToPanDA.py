@@ -62,6 +62,7 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, glvars, taguuid
     numInputs      = job.numInputs
     numOutputs     = job.numOutputs
     numSecondaries = job.numSecondaries
+
     
     #print('numInputs = '+str(numInputs))
     #print('numOutputs = '+str(numOutputs))
@@ -72,6 +73,15 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, glvars, taguuid
     #print( job.filename )
     #print( job.definition )
     #print( job.name )
+    pfnList = None
+    try:
+        pfnList = job.parameters.pfnList
+    except AttributeError:
+        pfnList = None
+
+    print("pfnList = " + str(pfnList) )
+
+        
 
     #for outds in job.outputs:
     #    print( outds.filelist )
@@ -164,15 +174,22 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, glvars, taguuid
     if len(reusableStreams)>0:
         pchain .append( ' --reusableSecondary ' + ','.join(reusableStreams))
     
-
-    
-    
     # Build the shell exec command
     shargs = "%s.sh %%RNDM:%i"%(job.name,args.offset)
 
     for (i,IN) in enumerate(job.inputs):
-        if i==0: shargs += " %IN"
+        if i==0: shargs += " %IN"               
         else:    shargs += " %%IN%i"%(i+1)
+
+    # Check if the pfnList was set in job parameters.  If so, append IN.
+    # Need to error check to ensure that there was no input.
+    print( str(pfnList) )
+    if pfnList != None:
+        shargs += " %IN"
+
+    if hasInput and pfnList:
+        CRITICAL("Cannot specify pfnList in parameter block if inputdata is defined.")
+        assert(0)
 
     shargs += ' >& _%s.log' % ( job.name ) 
     pchain . append("--exec '%s'"% (shargs) )

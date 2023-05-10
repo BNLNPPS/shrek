@@ -42,6 +42,7 @@ PANDA_OPTS = [ "nJobs",
                "processingType",
                # "nEventsPerFile",  # These are attached to inputs
                # "nEventsPerChunk",
+               "pfnList",           
                "writeInputToTxt",
                "maxNFilesPerJob",
                "cpuTimePerEvent",
@@ -346,9 +347,18 @@ def cwl_steps( wfgraph, site, args, glvars ):
         # Jobs have a unique identifier (starting at 1)
         steps += " %%RNDM:%i" % ( args.offset )
 
+        # PanDA will substitute the input files for %IN %IN2 %IN3 etc... 
         for (i,IN) in enumerate(job.inputs):
             if i==0: steps += " %IN"
             else   : steps += " %%IN%i"%(i+1)
+
+        # If we specified a pfnList in job parameters, add the %IN tag
+        pfnlist = getattr(job.parameters,'pfnList',None)
+        if pfnlist != None:
+            steps += " %IN"
+
+
+                
         steps += ' >& _%s.log' % ( job.name ) 
         steps += ' "'
 
