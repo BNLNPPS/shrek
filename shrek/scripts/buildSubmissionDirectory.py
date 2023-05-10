@@ -76,7 +76,6 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
     if os.path.exists( './plugins/' ):
         sh.cp( '-r', './plugins', subdir )        
 
-        
     # Copy job description files to staging area
     for j in jdfs:
         INFO('Copy %s to submission directory %s'%(j,subdir))                    
@@ -107,8 +106,10 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
             f.write('#!/usr/bin/env bash\n\n')
             if len(job.resources):            
                 f.write('# Stage resources into working directory\n')
-                f.write('cp -R __%s/* .\n'%name)                        
+                f.write('cp -R __%s/* .\n'%name)
+            f.write("# ... start of the user script ................................................\n")
             f.write(script)
+            f.write("# ... end of the user script   ................................................\n")
 
         # Make script executable
         chmod_plus_x(subdir + '/' + name + '.sh') 
@@ -129,6 +130,20 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
                         head,tail = os.path.split( f )
                         os.symlink( os.path.abspath(f), jobdir + '/' + tail )
                         job_resources.append( os.path.abspath(f) )
+
+    # Copy pfnLists to submission directory (if any)
+    for job in jobs:
+        try:
+            pfnList = job.parameters.pfnList
+            sh.cp(pfnList, subdir)
+            print( sh.pwd() )
+            sh.ls()
+            with open( pfnList, 'r' ) as myfile:
+                for pfn in myfile:
+                    sh.cp( pfn.strip(), subdir )
+
+        except AttributeError:
+            pass
 
     # Build CWL for PanDA submission
     ( cwf, yml, dgr ) = buildCommonWorkflow( jdfs, tag, site, args, glvars )

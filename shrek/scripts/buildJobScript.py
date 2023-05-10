@@ -114,6 +114,18 @@ def buildJobScript( yaml_, tag_, opts_, glvars_ ):
             arg = arg + 1
 
         #
+        # Alternatively we may have a pfnlist specified in the parameter
+        # block.  If so, set that up as IN1
+        #
+        try:
+            pfnlist=job.parameters.pfnList
+            output += "export IN1_name=pfnlist_%s\n"%pfnlist
+            output += "export IN1_task=%s\n"%pfnlist
+            output += "export IN1=%s\n"%pfnlist            
+        except AttributeError:
+            pass
+
+        #
         # Set the tag
         #
         output += 'export shrek_tag=%s\n'%(tag_)
