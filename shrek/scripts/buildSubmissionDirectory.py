@@ -126,6 +126,7 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
                 if r.type=='file':
                     INFO("Linking %s --> %s"%(r.url,jobdir))
                     myurl = os.path.expanduser( os.path.expandvars( r.url ) )
+                    myurl = glvars.get( myurl, myurl ) # Command line substitution
                     for f in glob.glob(myurl):
                         head,tail = os.path.split( f )
                         os.symlink( os.path.abspath(f), jobdir + '/' + tail )
