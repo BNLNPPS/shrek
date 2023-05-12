@@ -1,7 +1,7 @@
 Parameters:
   name: top2
   comment: "Simple chain from panda examples"
-  nJobs: 5
+  nJobs: top2.njobs
   processingType: user
 
 OutputDataSets:
