@@ -134,17 +134,25 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
 
     # Copy pfnLists to submission directory (if any)
     for job in jobs:
-        try:
-            pfnList = job.parameters.pfnList
-            sh.cp(pfnList, subdir)
-            print( sh.pwd() )
-            sh.ls()
+
+        # Job specifies a pfnList
+        if hasattr( job.parameters, "pfnList" ):
+        
+            # Try global substitution for the pfnlist name.  If there is no substitution
+            # registered, use the value provided in the parameter block
+            pfnList = glvars.get(job.parameters.pfnList,job.parameters.pfnList) 
+
+            # Copy the content files to the submission directory
+            pfnOut = ""
             with open( pfnList, 'r' ) as myfile:
                 for pfn in myfile:
                     sh.cp( pfn.strip(), subdir )
+                    pfnOut+=os.path.basename(pfn)
+            with open( subdir+'/'+os.path.basename(pfnList),'w' ) as of:
+                of.write(pfnOut)
+                
 
-        except AttributeError:
-            pass
+                
 
     # Build CWL for PanDA submission
     ( cwf, yml, dgr ) = buildCommonWorkflow( jdfs, tag, site, args, glvars )

@@ -121,7 +121,8 @@ def buildJobScript( yaml_, tag_, opts_, glvars_ ):
             pfnlist=job.parameters.pfnList
             output += "export IN1_name=pfnlist_%s\n"%pfnlist
             output += "export IN1_task=%s\n"%pfnlist
-            output += "export IN1=%s\n"%pfnlist            
+            output += 'export IN1=(`echo $2 | tr "," " "`)\n'
+
         except AttributeError:
             pass
 
