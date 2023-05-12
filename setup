@@ -8,18 +8,19 @@ source /opt/sphenix/core/bin/sphenix_setup.sh
 
 
 echo "Setting up PanDA environment"
+
 export PANDA_ROOT_ENV=/cvmfs/sphenix.sdcc.bnl.gov/gcc-12.1.0/opt/sphenix/core/stow/Python-3.10.8/
 export PANDA_SERVER=https://sphenix-pandaserver.apps.rcf.bnl.gov
-
 source ${PANDA_ROOT_ENV}/etc/panda/panda_setup.sh
 
+PANDA_CONFIG_ROOT=.pathena/
 
 export PANDA_URL_SSL=${PANDA_SERVER}/server/panda
 export PANDA_URL=${PANDA_SERVER}/server/panda
 export PANDACACHE_URL=${PANDA_SERVER}/server/panda
 export PANDAMON_URL=https://sphenix-panda.apps.rcf.bnl.gov
 export PANDA_AUTH=oidc
-export PANDA_AUTH_VO=sphenix
+export PANDA_AUTH_VO=sphenix.production
 export PANDA_USE_NATIVE_HTTPLIB=1
 export PANDA_BEHIND_REAL_LB=1
 
