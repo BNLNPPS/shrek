@@ -450,6 +450,8 @@ class DonkeyShell( cmd.Cmd ):
 
 
     def preloop(self):
+        DEBUG("DS preloop")
+        
         # Load history file
         if os.path.exists(self.hist):
             readline.read_history_file(self.hist)
@@ -486,6 +488,8 @@ class DonkeyShell( cmd.Cmd ):
         elif self.args.batchfile != [None]: 
             CRITICAL("One or more batch files could not be found.  Exiting.")
             self.cmdqueue.append("exit")
+
+        DEBUG("Done w/ preloop")
     
 
     def emptyline(self):
@@ -1023,18 +1027,22 @@ def main():
     global connection
     global messagefile
 
+    DEBUG("Read defaults")
     defaults = readConfig()
     args, extras = parse_args( defaults )
 
+    DEBUG("Get connection")
     connection = stomp.Connection( [( defaults['host'], defaults['port'] )] )
 
     # Listener montiors the activemq channel for new datasets
+    DEBUG("Start listener")
     listener = DispatchListener( connection )
     # Listener operates in a seperate thread
     connection.set_listener( 'dispatch', listener )
 
     # Setup the dispatch manager... May be executed in own thread or by the
     # cmd loop.
+    DEBUG("Start dispatch")
     dmanager = DispatchManager('manager')
 
     # Set the
@@ -1048,7 +1056,7 @@ def main():
     curr_subid   = None
     past_subid   = None
 
-
+    DEBUG("Subsciption handling")
 
     if args.subscription !=None and not args.newsubscription:
         """
@@ -1091,6 +1099,8 @@ def main():
     # Load watch file into a dataframe... results in one entry per actor, not one entry
     # per watch file.
     #
+
+    DEBUG("Loading watch files")
     
 
     for wf in args.watchfile:
@@ -1107,11 +1117,15 @@ def main():
             dfwf = pd.DataFrame( rwf, columns=watch_file_columns )
             dispatch = pd.concat( [dispatch, dfwf], ignore_index=True )
 
+    DEBUG("Connecting")
 
     connectAndSubscribe(args, defaults, connection)
 
+    DEBUG("Go to shell")
+
     # Instantiate and run the donkey shell
-    DonkeyShell(args).cmdloop()    
+    #DonkeyShell(args).cmdloop()
+    time.sleep(120)
 
     
 
