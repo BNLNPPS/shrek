@@ -38,3 +38,7 @@ export EDITOR='vim'
 alias shrek='shrek/scripts/submitWorflowToPanDA.py'
 alias donkey='shrek/scripts/DonkeyApplication.py --user donkey --password donkey' 
 alias farquaad='shrek/scripts/FarquaadApplication.py'
+
+function pshow() {
+      echo "show(limit=10)" | pbook
+}
