@@ -1,0 +1,100 @@
+Parameters:
+  name:         runTrackerChain.Job0
+  comment:      "Top level  tracker chain"
+  nEvents:      100                                     
+  nEventsMax:   400
+  RunMC:        6
+  RunRaw:       329
+  OutDir:       . 
+  pfnList:      filelist
+  nFilesPerJob: 1
+  macro:        Fun4All_Job0.C
+  memory:       4096
+  cpuTimePerEvent: 75000
+  runNumber: 329
+
+Resources:
+  - file: ../MDC2/shrek/rawdata/job0/rundir/Fun4All_Job0.C
+
+OutputDataSets:
+  - name: TrackerChain.Job0/outDS
+    filelist:
+      - "required: DST_TRKR_CLUSTER*.root"
+
+JobCommands: |-
+
+  # Initialize environment... using the "build" environment, unless it
+  # was not specified
+  if [ -z ${build+x} ]; then 
+     echo "build is unset [default to pro]"
+     source /opt/sphenix/core/bin/sphenix_setup.sh -n pro
+  else 
+     echo "build is set to ${build}"
+     source /opt/sphenix/core/bin/sphenix_setup.sh -n ${build}
+  fi  
+
+  echo ..........................................................................
+  echo Running ${name} ${runNumber} ${uniqueId} $@
+  echo ..........................................................................
+
+  # Range (first and last event to process)
+  range=( `awk '/RANGE/{ print $2 " " $3 }' $IN1` )
+
+  # TRKR event file
+  tk=`awk '/TRKR/{ print $2 }' $IN1`
+
+  # RAW event files
+  raw=( `awk '/RAW/{ print $2  }' $IN1` )
+
+  # VTX file
+  vtx=( `awk '/VTX/{ print $2 }' $IN1` )
+
+  tk_file_info=( $(decode_dst_trkr_filename ${tk}) )
+  ev_file_info=( $(decode_raw_filename ${raw[1]} ) )
+  vx_file_info=( $(decode_dst_vtx_filename ${vtx}) )
+
+  # Get the MC and raw event run number and sequence number from the filenames  
+  TKrn=${mc_file_info[5]}
+  TKsn=${mc_file_info[6]}
+  TKdir=`dirname $mc`
+
+  VXrn=${vx_file_info[6]}
+  VXsn=${vx_file_info[7]}
+  VXdir=`dirname $vtx`
+
+  EVrn=${ev_file_info[2]}
+  EVsn=${ev_file_info[3]}
+  EVdir=`dirname ${raw[1]}`
+
+  check_runsequence $MCrn $VXrn $MCsn $VXsn "Fail Message: MC and VTX files have run/sequence mismatch"
+
+  # Setup the arguments for the payload macro
+  arg1=${nEvents}   # number of evens to process from MC file
+  # Tracker run/seq numbers
+  #arg5=`echo ${TKrn} | awk '{x=$0+0;print x}'`  # strip leading zeros
+  #arg6=`echo ${TKsn} | awk '{x=$0+0;print x}'`  # strip leading zeros
+  # Raw event run/seq numbers
+  arg5=`echo ${EVrn} | awk '{x=$0+0;print x}'`  # strip leading zeros
+  arg6=`echo ${EVsn} | awk '{x=$0+0;print x}'`  # strip leading zeros
+
+  arg2=$( printf "DST_TRKR_CLUSTER_sHijing_0_20fm_50kHz_bkg_0_20fm-%010d-%05d.root" $arg5 $arg6 )
+  arg3=./                 # output directory
+  arg4=trackerinput.txt   # input list
+  ls ${tk} > ${arg4}
+
+  arg7=${EVdir}
+
+  echo arg1 \(events\) : $arg1
+  echo arg2 \(outfile name\) : $arg2
+  echo arg4 \(dst file list\) : $arg4
+  cat ${arg4}
+  echo arg3 \(output dir\): $arg3
+  echo arg5 \(runnumber\): $arg5
+  echo arg6 \(sequence\): $arg6
+  echo arg7 \(input dir\): $arg7
+   
+  root -q -b  ${macro}\($arg1,\"$arg2\",\"$arg4\",\"$arg3\",$arg5,$arg6,\"$arg7\"\)
+
+  cp _${name}.log /sphenix/u/sphnxpro/shrek/${name}-${runNumber}-${uniqueId}.log
+
+

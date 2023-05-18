@@ -1,0 +1,116 @@
+Parameters:
+  name:         runCalorimeterChain
+  comment:      "Top level calorimeter chain"
+  nEvents:      10                                     
+  nEventsMax:   400
+  RunMC:        6
+  RunRaw:       329
+  OutDir:       . 
+  pfnList:      filelist
+  nFilesPerJob: 1
+  macro:        Fun4All_CaloReco.C
+  memory:       2048
+  cpuTimePerEvent: 75000
+
+Resources:
+  - file: ../MDC2/shrek/rawdata/caloreco/rundir/Fun4All_CaloReco.C
+
+OutputDataSets:
+  - name: CalorimeterChain/outDS
+    filelist:
+      - "required: manifest.txt"
+
+JobCommands: |-
+
+  # Initialize environment
+  source /opt/sphenix/core/bin/sphenix_setup.sh
+
+  echo Running ${name} ${runNumber} ${uniqueId} $@
+  ls >> manifest.txt
+
+  # Range (first and last event to process)
+  range=( `awk '/RANGE/{ print $2 " " $3 }' $IN1` )
+
+  # MC event file
+  mc=`awk '/MC/{ print $2 }' $IN1`
+
+  # RAW event files
+  raw=( `awk '/RAW/{ print $2  }' $IN1` )
+
+  # VTX file
+  vtx=( `awk '/VTX/{ print $2 }' $IN1` )
+
+  #echo Event range
+  #echo ${range[@]}
+
+  #echo Raw event files
+  #for r in ${raw[@]}; do
+  #   echo $r
+  #done
+
+  #echo MC file 
+  #echo $mc
+
+  mc_file_info=( $(decode_dst_calo_filename ${mc}) )
+  ev_file_info=( $(decode_raw_filename ${raw[1]} ) )
+  vx_file_info-( $(decode_dst_vtx_filename ${vtx}) )
+
+  #echo ${mc_file_info[@]}
+  #echo ${ev_file_info[@]}
+
+  # Get the MC and raw event run number and sequence number from the filenames  
+  MCrn=${mc_file_info[6]}
+  MCsn=${mc_file_info[7]}
+  MCdir=`dirname $mc`
+
+  VXrn=${vx_file_info[6]}
+  VXsn=${vx_file_info[7]}
+  VXdir=`dirname $vtx`
+
+  EVrn=${ev_file_info[2]}
+  EVsn=${ev_file_info[3]}
+  EVdir=`dirname ${raw[1]}`
+
+  check_runsequence $MCrn $VXrn $MCsn $VXsn "Fail Message: MC and VTX files have run/sequence mismatch"
+
+  # Output filename
+  outfile=$( printf "DST_RECO_CLUSTER_sHijing_0_20fm_50kHz_bkg_0_20fm-%010d-%05d.root" $MCrn $MCsn )
+
+  # Setup the arguments for the payload macro
+  arg1=${nEvents}   # number of evens to process from MC file
+  arg2=${MCrn}      # MC run number
+  arg3=${MCsn}      # MC seq number
+
+  arg4=${outfile}   # output file
+  arg5=.            # output directory
+
+  arg6=calorinput.txt # calorimeter input file
+  arg7=vertexinput.txt # vertex input file
+
+  arg8=${EVrn}         # raw run number
+  arg9=${EVsn}         # raw event sequence number 
+  arg10=${EVdir}       # raw event data directory
+
+  echo arg1 \(events\) : $arg1                                                                                                                                                                                  
+  echo arg2 \(runnumber\): $arg2                                                                                                                                                                                
+  echo arg3 \(sequence\): $arg3                                                                                                                                                                                 
+  echo arg4 \(output file\): $arg4                                                                                                                                                                              
+  echo arg5 \(output dir\): $arg5                                                                                                                                                                               
+  echo arg6 \(calo g4hits file\): $arg6                                                                                                                                                                         
+  echo arg7 \(vertex file\): $arg7                                                                                                                                                                              
+  echo arg8 \(raw runnumber\): $arg8                                                                                                                                                                            
+  echo arg9 \(raw sequence\): $arg9                                                                                                                                                                             
+  echo arg10 \(raw data dir\): $arg10
+
+  ls ${mc}  > $arg6
+  ls ${vtx} > $arg7
+
+  echo $PATH
+  
+  
+  #root.exe -q -b  Fun4All_CaloReco.C\($1,\"$4\",\"$5\",\"$6\",\"$7\",$8,$9,\"${10}\"\)
+
+  cat _${name}.log >> manifest.txt
+  cp _${name}.log /sphenix/u/sphnxpro/shrek/${name}-${runNumber}-${uniqueId}.log
+
+

@@ -32,7 +32,13 @@ function decode_dst_calo_filename() {
 
 function decode_dst_bbc_filename() {
 # decode_dst_bbc_filename /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/DST_BBC_G4HIT_sHijing_0_20fm_50kHz_bkg_0_20fm-0000000006-00007.root    
-#                                                                       1    2    3     4     5  6    7     8  9  10      11       12
+  local filename=`basename $1 .root` 
+  local temp=( `echo $filename  | awk -F'[_-]' '{print $1 "_" $2 "_" $3 " " $4 " " $5 "_" $6 " " $7 "_" $8 " " $9 "_" $10 " " $11 " " $12 }'` )
+  echo ${temp[@]}
+}
+
+function decode_dst_trkr_filename() {
+# decode_dst_trkr_filename DST_TRKR_HIT_sHijing_0_20fm_50kHz_bkg_0_20fm-0000000006-00007.root    
   local filename=`basename $1 .root` 
   local temp=( `echo $filename  | awk -F'[_-]' '{print $1 "_" $2 "_" $3 " " $4 " " $5 "_" $6 " " $7 "_" $8 " " $9 "_" $10 " " $11 " " $12 }'` )
   echo ${temp[@]}
