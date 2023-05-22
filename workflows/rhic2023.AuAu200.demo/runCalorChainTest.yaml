@@ -1,0 +1,20 @@
+Parameters:
+  name:         runCalorimeterChain
+  comment:      "Top level calorimeter chain"
+  nJobs:        1
+  nEvents:      10                                     
+  nEventsMax:   400
+  macro:        Fun4All_CaloReco.C
+  memory:       2048
+  cpuTimePerEvent: 75000
+
+Resources:
+  - file: /sphenix/u/jwebb2/work/2023/MDC2/shrek/rawdata/caloreco/rundir/Fun4All_CaloReco.C
+
+OutputDataSets:
+  - name: CalorimeterChain/outDS
+    filelist:
+      - "required: manifest.txt"
+
+JobCommands: |-
+  touch manifest.txt

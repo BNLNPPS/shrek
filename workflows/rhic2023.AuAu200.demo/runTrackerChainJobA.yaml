@@ -1,0 +1,61 @@
+Parameters:
+  name:         jobA
+  comment:      "Top level  tracker chain"
+  nEvents:      100                                     
+  nEventsMax:   400
+  RunMC:        6
+  RunRaw:       329
+  OutDir:       . 
+  nFilesPerJob: 1
+  macro:        Fun4All_G4_sPHENIX_jobA.C
+  memory:       2048
+  cpuTimePerEvent: 75000
+  runNumber: 329
+
+Resources:
+  - file: ../MDC2/shrek/rawdata/jobA/rundir/Fun4All_G4_sPHENIX_jobA.C
+
+InputDataSets:
+  - name: job0/outDS
+    comment: Tracker chain pass 0 
+    nFilesPerJob: 1
+
+OutputDataSets:
+  - name: jobA/outDS
+    filelist:
+      - "required: DST_JOBA*.root"
+
+JobCommands: |-
+
+  # Initialize environment... using the "build" environment, unless it
+  # was not specified
+  if [ -z ${build+x} ]; then 
+     echo "build is unset [default to pro]"
+     source /opt/sphenix/core/bin/sphenix_setup.sh -n pro
+  else 
+     echo "build is set to ${build}"
+     source /opt/sphenix/core/bin/sphenix_setup.sh -n ${build}
+  fi  
+
+  echo ..........................................................................
+  echo Running ${name} ${runNumber} ${uniqueId} $@
+  echo ..........................................................................
+
+  # Range (first and last event to process)
+  range=( `awk '/RANGE/{ print $2 " " $3 }' $IN1` )
+
+  arg1=${nEvents}   # number of evens to process from MC file
+  arg2=${IN1}       # single input file expected
+  arg3=`echo ${IN1} | awk '{ gsub("DST_TRKR_CLUSTER","DST_JOBA",$1); print $1 }'`  # in DST_TRKR_CLUSTER / out DST_JOBA
+  arg4=./
+  
+  echo arg1 \(events\) : $arg1
+  echo arg2 \(trkr cluster file\): $arg2
+  echo arg3 \(output file\): $arg3
+  echo arg4 \(output dir\): $arg4
+   
+  root -q -b  ${macro}\($arg1,0,\"$arg2\",\"$arg3\",\"$arg4\"\)
+
+  cp _${name}.log /sphenix/u/sphnxpro/shrek/${name}-${runNumber}-${uniqueId}.log
+
+
