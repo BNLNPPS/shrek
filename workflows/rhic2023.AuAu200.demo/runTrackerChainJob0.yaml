@@ -1,5 +1,5 @@
 Parameters:
-  name:         runTrackerChain.Job0
+  name:         job0
   comment:      "Top level  tracker chain"
   nEvents:      100                                     
   nEventsMax:   400
@@ -17,7 +17,7 @@ Resources:
   - file: ../MDC2/shrek/rawdata/job0/rundir/Fun4All_Job0.C
 
 OutputDataSets:
-  - name: TrackerChain.Job0/outDS
+  - name: job0/outDS
     filelist:
       - "required: DST_TRKR_CLUSTER*.root"
 
@@ -94,6 +94,10 @@ JobCommands: |-
   echo arg7 \(input dir\): $arg7
    
   root -q -b  ${macro}\($arg1,\"$arg2\",\"$arg4\",\"$arg3\",$arg5,$arg6,\"$arg7\"\)
+
+  echo ... Did we produce the output? ..............................................
+  ls -l *.root
+  echo .............................................................................
 
   cp _${name}.log /sphenix/u/sphnxpro/shrek/${name}-${runNumber}-${uniqueId}.log
 

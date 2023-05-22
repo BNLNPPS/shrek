@@ -1,28 +1,27 @@
 Parameters:
-  name:         runTrackerChain.JobA
+  name:         jobA
   comment:      "Top level  tracker chain"
   nEvents:      100                                     
   nEventsMax:   400
   RunMC:        6
   RunRaw:       329
   OutDir:       . 
-  pfnList:      filelist
   nFilesPerJob: 1
-  macro:        Fun4All_JobA.C
+  macro:        Fun4All_G4_sPHENIX_jobA.C
   memory:       2048
   cpuTimePerEvent: 75000
   runNumber: 329
 
 Resources:
-  - file: ../MDC2/shrek/rawdata/jobA/rundir/Fun4All_JobA.C
+  - file: ../MDC2/shrek/rawdata/jobA/rundir/Fun4All_G4_sPHENIX_jobA.C
 
 InputDataSets:
-  - name: TrackerChain.Job0/outDS
-    match: DST_TRKR_CLUSTER*.root
+  - name: job0/outDS
+    comment: Tracker chain pass 0 
     nFilesPerJob: 1
 
 OutputDataSets:
-  - name: TrackerChain.JobA/outDS
+  - name: jobA/outDS
     filelist:
       - "required: DST_JOBA*.root"
 

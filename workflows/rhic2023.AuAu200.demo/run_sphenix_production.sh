@@ -56,10 +56,10 @@ array=$( get_file_list ${dataset} )
 #mcarray=$( get_file_list ${mcdataset} )
 #mcarray=( `ls /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/DST_CALO_G4HIT
 
-mcarray=( `find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/ -type f -name DST_CALO_G4HIT*-000??.root | sort` )
-vxarray=( `find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/ -type f -name DST_VERTEX*-000??.root | sort` )
-bbarray=( `find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/ -type f -name DST_BBC_G4HIT*-000??.root | sort` )
-trarray=( `find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/trkrhit/run0006/ -type f -name DST_TRKR_HIT*-000??.root | sort` )
+mcarray=( `find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/ -type f -name DST_CALO_G4HIT*-00101.root | sort` )
+vxarray=( `find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/ -type f -name DST_VERTEX*-00101.root | sort` )
+bbarray=( `find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/ -type f -name DST_BBC_G4HIT*-00101.root | sort` )
+trarray=( `find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/trkrhit/run0006/ -type f -name DST_TRKR_HIT*-00101.root | sort` )
 
 #build_dst_list /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/ 'DST_BBC_G4HIT*' 10
 
@@ -158,5 +158,7 @@ find /tmp/run${runnumber}/ -type f -name 'DST_CALO_G4HIT*.filelist' | sort > run
 
 #ls /tmp/run${runnumber}/G4*.filelist > run${runnumber}.filelist
 
-#echo Submitting calorimeter workflow
-echo shrek --no-submit --tag test-calo-workflow rhic2023.AuAu200.pfnlist/runCalorChain.yaml --runNumber=${runnumber} --filelist=run${runnumber}.filelist
+echo submitting workflows .......................
+#shrek --no-pause --submit --tag calor-workflow   workflows/rhic2023.AuAu200.demo/runCalorChain.yaml       --runNumber=${runnumber} --filelist=run${runnumber}.filelist --build=ana.352 > calor-workflow.log
+#shrek --no-pause --submit --tag global-workflow  workflows/rhic2023.AuAu200.demo/runGlobalChain.yaml      --runNumber=${runnumber} --filelist=run${runnumber}.filelist --build=ana.352 > global-workflow.log
+shrek --no-pause --submit --tag tracker-workflow workflows/rhic2023.AuAu200.demo/runTrackerChainJob*.yaml --runNumber=${runnumber} --filelist=run${runnumber}.filelist --build=ana.352 > tracker-workflow.log
