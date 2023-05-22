@@ -312,6 +312,7 @@ def main():
     parser.add_argument('--workingGroup', type=str,    default=pandaOpts['workingGroup'])
     parser.add_argument('--user', type=str,            default=getpass.getuser())
     parser.add_argument('--group', type=str,           default="" )
+    parser.add_argument('--outDS',type=str,            default=None)
     parser.add_argument('--branch', type=str,          default=shrekOpts['defaultBranch'])
 
     #
@@ -383,11 +384,22 @@ def main():
         pchain . append( '--workingGroup %s'%args.workingGroup )
         pchain . append( '--prodSourceLabel %s'%args.prodSourceLabel )
 
-        if args.group == "":
-            pchain . append('--outDS user.%s.%s'%( args.user, taguuid ) )
+        outputDS = ""
+        if args.outDS == None:
+            if args.group == "":
+                outputDS = 'user.%s.%s'%( args.user, taguuid )
+                INFO('Output dataset: %s'%outputDS )
+            else:
+                outputDS = 'group.%s.%s'%( args.group, taguuid )
+                INFO('Output dataset: %s'%outputDS )                
+                pchain . append('--official');
         else:
-            pchain . append('--outDS group.%s.%s'%( args.group, taguuid ) )
-            pchain . append('--official');            
+            outputDS = args.outDS
+            WARN('User specified output dataset: %s'%outputDS )
+
+        pchain . append('--outDS %s'%outputDS )
+            
+            
         pchain . append('--cwl %s'%cwlfile )
         pchain . append('--yaml %s'%yamlfile )
 
