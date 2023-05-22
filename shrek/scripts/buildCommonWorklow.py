@@ -47,7 +47,7 @@ PANDA_OPTS = [ "nJobs",
                "maxNFilesPerJob",
                "cpuTimePerEvent",
                "stage",             # primary, secondary, all or none.
-               "merge" ]
+               "merge" ]    
 
 def ceil_power_of_10(n):
     exp = log(n, 10)
@@ -347,15 +347,18 @@ def cwl_steps( wfgraph, site, args, glvars ):
         # Jobs have a unique identifier (starting at 1)
         steps += " %%RNDM:%i" % ( args.offset )
 
-        # PanDA will substitute the input files for %IN %IN2 %IN3 etc... 
-        for (i,IN) in enumerate(job.inputs):
-            if i==0: steps += " %IN"
-            else   : steps += " %%IN%i"%(i+1)
-
         # If we specified a pfnList in job parameters, add the %IN tag
         pfnlist = getattr(job.parameters,'pfnList',None)
         if pfnlist != None:
             steps += " %IN"
+
+        # PanDA will substitute the input files for %IN %IN2 %IN3 etc...        
+        for (i,IN) in enumerate(job.inputs):
+            if pfnlist != None:
+                CRITICAL("Job parameters include pfnList AND job specifies an input block")
+                assert(0)
+            if i==0: steps += " %IN"
+            else   : steps += " %%IN%i"%(i+1)
 
 
                 
