@@ -79,9 +79,9 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, glvars, taguuid
     except AttributeError:
         pfnList = None
 
-    print("pfnList = " + str(pfnList) )
-
-        
+    if pfnList and numInputs>0:
+        CRITICAL("Parameter pfnList and InputDataset block cannot coexist")
+        assert(0)
 
     #for outds in job.outputs:
     #    print( outds.filelist )
