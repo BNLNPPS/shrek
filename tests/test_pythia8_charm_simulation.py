@@ -12,7 +12,6 @@ from shrek.scripts.buildCommonWorklow import buildCommonWorkflow
 
 jobDefinitions = glob.glob( "tests/pythia8-charm-simulation/*.yaml" )
 
-
 def commonWorkflow():
     yamls = [
         "tests/more-complicated-chain/combine.yaml",
@@ -54,7 +53,7 @@ def validateAgainstSchema( yaml_ ):
 
 #________________________________________________________________________
 def buildTheJobRuntimeScript( yaml_, tag = 'sP22aa-TEST' ):
-    script = buildJobScript( yaml_, tag, {'user':'none','taguuid':'test'}, {} )
+    script = buildJobScript( yaml_, tag, {'user':'none','taguuid':'test','basename':'None'}, {} )
     assert(script)
 
 #________________________________________________________________________
