@@ -1,0 +1,17 @@
+Parameters:
+  name: bottom
+  comment: "Simple example from panda"
+
+InputDataSets:
+  - name: top/outDS
+    nFilesPerJob: 1
+    match: seed-*.txt
+
+OutputDataSets:
+  - name: bottom/outDS
+    filelist: 
+      - "regex|results-*.txt" 
+
+JobCommands: |-
+  echo ${IN1[@]} > results-`uuidgen`.txt
+
