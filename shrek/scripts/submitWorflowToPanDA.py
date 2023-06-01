@@ -100,7 +100,7 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, glvars, taguuid
         output += ','.join(outds.filelist)
     # strip required ???
     output = output.replace('required:','')
-    output = "--outputs '%s:%s'"%(job.name,output) # Name of the job becomes the prefix
+    output = "--outputs '000_%s:%s'"%(job.name,output) # Name of the job becomes the prefix
     pchain.append(output)        
     
     inputs = []
