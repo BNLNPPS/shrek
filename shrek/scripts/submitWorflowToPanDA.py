@@ -38,9 +38,6 @@ defaults  = readSiteConfig()
 shrekOpts = defaults['Shrek']
 pandaOpts = defaults['PanDA']
 
-
-#pprint.pprint(prodtypes)
-
 def progressbar(it, prefix="", size=60, out=sys.stdout): # Python3.3+
     count = len(it)
     def show(j):
@@ -63,16 +60,6 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, glvars, taguuid
     numOutputs     = job.numOutputs
     numSecondaries = job.numSecondaries
 
-    
-    #print('numInputs = '+str(numInputs))
-    #print('numOutputs = '+str(numOutputs))
-    #print('numSecondaries = '+str(numSecondaries))
-    #print( job.inputs )
-    #print( job.outputs )
-    #print( job.secondaries )
-    #print( job.filename )
-    #print( job.definition )
-    #print( job.name )
     pfnList = None
     try:
         pfnList = job.parameters.pfnList
@@ -82,11 +69,6 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, glvars, taguuid
     if pfnList and numInputs>0:
         CRITICAL("Parameter pfnList and InputDataset block cannot coexist")
         assert(0)
-
-    #for outds in job.outputs:
-    #    print( outds.filelist )
-    # output = '--outputs ' + ','.join(outds.filelist)
-    # pchain.append(output)
 
     pchain = []
     if pandaOpts.get("virtualenv") != None:
@@ -105,8 +87,6 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, glvars, taguuid
     pchain . append( '--workingGroup %s'%args.workingGroup )
     pchain . append( '--prodSourceLabel %s'%args.prodSourceLabel )
 
-    #pchain . append( '--dumpTaskParams %s.task.parameters'%args.name )
-
     # Output data set
     if args.group == "":
         pchain . append('--outDS user.%s.%s'%( args.user, taguuid ) )
@@ -123,14 +103,6 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, glvars, taguuid
     output = "--output '%s'"%output
     pchain.append(output)        
     
-    ## Input data files
-    #inputs = '--inDS'
-    #for inds in job.inputs:
-    #    inputs += ' %s'%inds.datasets
-    #if inputs != '--inDS':
-    #    pchain.append(inputs)
-    # From input (secondary) data sets
-
     inputs = []
     reusableStreams = []
     count = 0
@@ -140,7 +112,6 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, glvars, taguuid
 
         # Name of the dataset
         DSname = 'DS' + str(count)
-        #DSn = '%{DS' + str(count) + '}'
         DSn = inp.datasets
         count += 1
 
@@ -172,7 +143,6 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, glvars, taguuid
     if len(inputs)>0:
         pchain.append( ' --secondaryDSs ' + ','.join(inputs))
 
-    #print('Reusable streams: ' + str(reusableStreams) )
     if len(reusableStreams)>0:
         pchain .append( ' --reusableSecondary ' + ','.join(reusableStreams))
     
