@@ -100,7 +100,7 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, glvars, taguuid
         output += ','.join(outds.filelist)
     # strip required ???
     output = output.replace('required:','')
-    output = "--output '%s'"%output
+    output = "--outputs '%s:%s'"%(job.name,output) # Name of the job becomes the prefix
     pchain.append(output)        
     
     inputs = []
@@ -370,7 +370,6 @@ def main():
             WARN('User specified output dataset: %s'%outputDS )
 
         pchain . append('--outDS %s'%outputDS )
-            
             
         pchain . append('--cwl %s'%cwlfile )
         pchain . append('--yaml %s'%yamlfile )
