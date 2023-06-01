@@ -115,10 +115,12 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, glvars, taguuid
         pchain . append('--official');
 
     # Output data files
-    output = '--outputs '
+    output = ''
     for outds in job.outputs:
         output += ','.join(outds.filelist)
+    # strip required ???
     output = output.replace('required:','')
+    output = "--output '%s'"%output
     pchain.append(output)        
     
     ## Input data files

@@ -5,6 +5,7 @@ import argparse
 import pprint
 import networkx as nx
 import pydot
+import re
 
 from pykwalify.core import Core
 import glob
@@ -239,12 +240,15 @@ def cwl_opt_args( job, glvars ):
     outputs = []
     for output in job.outputs:
         for f in output.filelist:
-            (opt,out) = f.split(':')
+            (opt,out) = re.split( '[:|]', f )
+            # Do not strip out the regex option
+            if 'regex' in opt:
+                out='regex|%s'%out
             out = out.strip()
             outputs.append(out)
 
     if len(outputs)>0:
-        optargs += ' --outputs ' + ','.join(outputs) + ' '
+        optargs += ' --outputs ' + "'" +  ','.join(outputs) + "' "
     else:
         print('SHREK[warning]: '+ job.name+' ill-defined no output files specified')
         print('SHREK[warning]: this will likely cause problems, but continuing ...')
