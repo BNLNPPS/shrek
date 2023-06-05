@@ -1,7 +1,7 @@
 Parameters:
   name: top
   comment: "Simple chain from panda examples"
-  nJobs: 10
+  nJobs: 1
 
 OutputDataSets:
   - name: top/outDS
@@ -10,5 +10,5 @@ OutputDataSets:
 
 JobCommands: |-
   echo $uniqueId > seed.txt
-  cp seed.txt /sphenix/u/sphnxpro/shrek/seed-${uniqueId}.txt
+  #cp seed.txt /sphenix/u/sphnxpro/shrek/seed-${uniqueId}.txt
 
