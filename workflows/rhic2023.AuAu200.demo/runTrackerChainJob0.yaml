@@ -1,8 +1,9 @@
 Parameters:
-  name:         job0
+  name:         TrackerChain0
   comment:      "Top level  tracker chain"
-  nEvents:      100                                     
+  nEvents:      10
   nEventsMax:   400
+  nRepeat:      1
   RunMC:        6
   RunRaw:       329
   OutDir:       . 
@@ -17,9 +18,9 @@ Resources:
   - file: ../MDC2/shrek/rawdata/job0/rundir/Fun4All_Job0.C
 
 OutputDataSets:
-  - name: job0/outDS
+  - name: TrackerChain0/outDS
     filelist:
-      - "required: DST_TRKR_CLUSTER*.root"
+      - "regex|DST_TRKR_CLUSTER*"
 
 JobCommands: |-
 
@@ -77,7 +78,12 @@ JobCommands: |-
   arg5=`echo ${EVrn} | awk '{x=$0+0;print x}'`  # strip leading zeros
   arg6=`echo ${EVsn} | awk '{x=$0+0;print x}'`  # strip leading zeros
 
-  arg2=$( printf "DST_TRKR_CLUSTER_sHijing_0_20fm_50kHz_bkg_0_20fm-%010d-%05d.root" $arg5 $arg6 )
+  arg2=""
+  if [ -z ${filetag+x} ]; then
+     arg2=$( printf "DST_TRKR_CLUSTER_sHijing_0_20fm_50kHz_bkg_0_20fm-%010d-%05d.root" $arg5 $arg6 )
+  else
+     arg2=$( printf "DST_TRKR_CLUSTER_sHijing_0_20fm_50kHz_bkg_0_20fm_%s-%010d-%05d.root" $filetag $arg5 $arg6 )
+  fi
   arg3=./                 # output directory
   arg4=trackerinput.txt   # input list
   ls ${tk} > ${arg4}
@@ -92,8 +98,20 @@ JobCommands: |-
   echo arg5 \(runnumber\): $arg5
   echo arg6 \(sequence\): $arg6
   echo arg7 \(input dir\): $arg7
-   
-  root -q -b  ${macro}\($arg1,\"$arg2\",\"$arg4\",\"$arg3\",$arg5,$arg6,\"$arg7\"\)
+
+  if [ -z ${nrepeat+x} ]; then
+     echo nRepeat=$nRepeat
+  else
+     nRepeat=${nrepeat}
+  fi
+
+  for iter in $( seq 1 1 ${nRepeat} )
+  do      
+     echo ...............................
+     echo Running fun4all iteration $iter
+     echo ...............................   
+     root -q -b  ${macro}\($arg1,\"$arg2\",\"$arg4\",\"$arg3\",$arg5,$arg6,\"$arg7\"\)
+  done
 
   echo ... Did we produce the output? ..............................................
   ls -l *.root

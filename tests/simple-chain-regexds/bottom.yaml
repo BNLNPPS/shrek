@@ -1,17 +1,23 @@
 Parameters:
   name: bottom
   comment: "Simple example from panda"
+  maxAttempt: 3
 
 InputDataSets:
   - name: top/outDS
     nFilesPerJob: 1
-    match: seed-*.txt
 
 OutputDataSets:
   - name: bottom/outDS
     filelist: 
-      - "regex|results-*.txt" 
+      - regex|results-*
 
 JobCommands: |-
-  echo ${IN1[@]} > results-`uuidgen`.txt
-
+  echo "IN1[@]"
+  echo ${IN1[@]} 
+  echo "ls $IN1"
+  ls -l ${IN1}
+  echo "readlink -f ..."
+  readlink -f  ${IN1}
+  ls > results-${uniqueId}.txt
+  cp _${name}.log /sphenix/u/sphnxpro/shrek/

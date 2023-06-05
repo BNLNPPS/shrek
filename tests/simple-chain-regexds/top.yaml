@@ -1,14 +1,16 @@
 Parameters:
   name: top
   comment: "Simple chain from panda examples"
-  nJobs: 10
+  nJobs: 5
+  maxAttempt: 3
 
 OutputDataSets:
   - name: top/outDS
     filelist:
-      - "regex|seed-*.txt"
+      - "regex|seed-*"
 
 JobCommands: |-
   echo $uniqueId > seed-`uuidgen`.txt
+  cp seed-*.txt /sphenix/u/sphnxpro/shrek/
 
 
