@@ -1,8 +1,9 @@
 Parameters:
-  name:         runGlobalChain
+  name:         GlobalChain
   comment:      "Top level calorimeter chain"
   nEvents:      100                                     
   nEventsMax:   400
+  nRepeat:      1
   RunMC:        6
   RunRaw:       329
   OutDir:       . 
@@ -19,7 +20,7 @@ Resources:
 OutputDataSets:
   - name: GlobalChain/outDS
     filelist:
-      - "required: DST_MDC2_GLOBAL*.root"
+      - "regex|DST_MDC2_GLOBAL*"
 
 JobCommands: |-
 
@@ -74,7 +75,13 @@ JobCommands: |-
   arg3=`echo ${BBsn} | awk '{x=$0+0;print x}'`  # strip leading zeros
 
   # Output filename
-  arg4=$( printf "DST_MDC2_GLOBAL_sHijing_0_20fm_50kHz_bkg_0_20fm-%010d-%05d.root" $arg2 $arg3 )
+  arg4=""
+  if [ -z ${filetag+x} ]; then
+     arg4=$( printf "DST_MDC2_GLOBAL_sHijing_0_20fm_50kHz_bkg_0_20fm-%010d-%05d.root" $arg2 $arg3 )
+  else
+     arg4=$( printf "DST_MDC2_GLOBAL_sHijing_0_20fm_50kHz_bkg_0_20fm_%s-%010d-%05d.root" $filetag $arg2 $arg3 )
+  fi
+
   arg5=.            # output directory
 
   arg6=globalinput.txt # calorimeter input file
@@ -103,8 +110,20 @@ JobCommands: |-
 
   echo $PATH
   which root.exe
-    
-  root -q -b  Fun4All_GlobalReco.C\($arg1,\"$arg4\",\"$arg5\",\"$arg6\",\"$arg7\",$arg8,$arg9,\"${arg10}\"\)
+
+  if [ -z ${nrepeat+x} ]; then
+     echo nRepeat=$nRepeat
+  else
+     nRepeat=${nrepeat}
+  fi
+
+  for iter in $( seq 1 1 ${nRepeat} )
+  do      
+     echo ...............................
+     echo Running fun4all iteration $iter
+     echo ...............................      
+     root -q -b  Fun4All_GlobalReco.C\($arg1,\"$arg4\",\"$arg5\",\"$arg6\",\"$arg7\",$arg8,$arg9,\"${arg10}\"\)
+  done
 
   cp _${name}.log /sphenix/u/sphnxpro/shrek/${name}-${runNumber}-${uniqueId}.log
 

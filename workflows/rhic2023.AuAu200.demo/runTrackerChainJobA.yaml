@@ -1,8 +1,9 @@
 Parameters:
-  name:         jobA
+  name:         TrackerChainA
   comment:      "Top level  tracker chain"
-  nEvents:      100                                     
+  nEvents:      10
   nEventsMax:   400
+  nRepeat:      1
   RunMC:        6
   RunRaw:       329
   OutDir:       . 
@@ -16,14 +17,14 @@ Resources:
   - file: ../MDC2/shrek/rawdata/jobA/rundir/Fun4All_G4_sPHENIX_jobA.C
 
 InputDataSets:
-  - name: job0/outDS
+  - name: TrackerChain0/outDS
     comment: Tracker chain pass 0 
     nFilesPerJob: 1
 
 OutputDataSets:
-  - name: jobA/outDS
+  - name: TrackerChainA/outDS
     filelist:
-      - "required: DST_JOBA*.root"
+      - "regex|DST_JOBA*"
 
 JobCommands: |-
 
@@ -53,8 +54,20 @@ JobCommands: |-
   echo arg2 \(trkr cluster file\): $arg2
   echo arg3 \(output file\): $arg3
   echo arg4 \(output dir\): $arg4
-   
-  root -q -b  ${macro}\($arg1,0,\"$arg2\",\"$arg3\",\"$arg4\"\)
+
+  if [ -z ${nrepeat+x} ]; then
+     echo nRepeat=$nRepeat
+  else
+     nRepeat=${nrepeat}
+  fi
+
+  for iter in $( seq 1 1 ${nRepeat} )
+  do      
+     echo ...............................
+     echo Running fun4all iteration $iter
+     echo ...............................   
+     root -q -b  ${macro}\($arg1,0,\"$arg2\",\"$arg3\",\"$arg4\"\)
+  done
 
   cp _${name}.log /sphenix/u/sphnxpro/shrek/${name}-${runNumber}-${uniqueId}.log
 

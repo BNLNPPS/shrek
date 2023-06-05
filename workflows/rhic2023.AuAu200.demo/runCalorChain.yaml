@@ -1,8 +1,9 @@
 Parameters:
-  name:         runCalorimeterChain
+  name:         CalorChain
   comment:      "Top level calorimeter chain"
-  nEvents:      100                                     
+  nEvents:      400                                     
   nEventsMax:   400
+  nRepeat:      1
   RunMC:        6
   RunRaw:       329
   OutDir:       . 
@@ -17,9 +18,9 @@ Resources:
   - file: ../MDC2/shrek/rawdata/caloreco/rundir/Fun4All_CaloReco.C
 
 OutputDataSets:
-  - name: CalorimeterChain/outDS
+  - name: CalorChain/outDS
     filelist:
-      - "required: DST_RECO_CLUSTER*.root"
+      - "regex|DST_RECO_CLUSTER*"
 
 JobCommands: |-
 
@@ -74,7 +75,13 @@ JobCommands: |-
   arg3=`echo ${MCsn} | awk '{x=$0+0;print x}'`  # strip leading zeros
 
   # Output filename
-  arg4=$( printf "DST_RECO_CLUSTER_sHijing_0_20fm_50kHz_bkg_0_20fm-%010d-%05d.root" $arg2 $arg3 )
+  arg4=""
+  if [ -z ${filetag+x} ]; then
+    arg4=$( printf "DST_RECO_CLUSTER_sHijing_0_20fm_50kHz_bkg_0_20fm-%010d-%05d.root" $arg2 $arg3 )
+  else
+    arg4=$( printf "DST_RECO_CLUSTER_sHijing_0_20fm_50kHz_bkg_0_20fm_%s-%010d-%05d.root" $filetag $arg2 $arg3 )
+  fi
+
   arg5=.            # output directory
 
   arg6=calorinput.txt # calorimeter input file
@@ -83,8 +90,6 @@ JobCommands: |-
   arg8=`echo ${EVrn} | awk '{x=$0+0;print x}'`  # strip leading zeros
   arg9=`echo ${EVsn} | awk '{x=$0+0;print x}'`  # strip leading zeros
   arg10=${EVdir}       # raw event data directory
-
-
 
   echo arg1 \(events\) : $arg1                                                                                                                                                                                  
   echo arg2 \(runnumber\): $arg2                                                                                                                                                                                
@@ -103,8 +108,20 @@ JobCommands: |-
 
   echo $PATH
   which root.exe
-    
-  root -q -b  Fun4All_CaloReco.C\($arg1,\"$arg4\",\"$arg5\",\"$arg6\",\"$arg7\",$arg8,$arg9,\"${arg10}\"\)
+
+  if [ -z ${nrepeat+x} ]; then
+     echo nRepeat=$nRepeat
+  else
+     nRepeat=${nrepeat}
+  fi
+
+  for iter in $( seq 1 1 ${nRepeat} )
+  do      
+     echo ...............................
+     echo Running fun4all iteration $iter
+     echo ...............................
+     root -q -b  Fun4All_CaloReco.C\($arg1,\"$arg4\",\"$arg5\",\"$arg6\",\"$arg7\",$arg8,$arg9,\"${arg10}\"\)
+  done
 
   cp _${name}.log /sphenix/u/sphnxpro/shrek/${name}-${runNumber}-${uniqueId}.log
 
