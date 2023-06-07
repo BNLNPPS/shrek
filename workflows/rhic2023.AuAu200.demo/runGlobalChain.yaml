@@ -1,9 +1,9 @@
 Parameters:
   name:         GlobalChain
   comment:      "Top level calorimeter chain"
-  nEvents:      100                                     
+  nEvents:      $nevents
   nEventsMax:   400
-  nRepeat:      1
+  nRepeat:      $nrepeat
   RunMC:        6
   RunRaw:       329
   OutDir:       . 

@@ -1,9 +1,9 @@
 Parameters:
   name:         TrackerChain0
   comment:      "Top level  tracker chain"
-  nEvents:      10
+  nEvents:      $nevents
   nEventsMax:   400
-  nRepeat:      1
+  nRepeat:      $nrepeat
   RunMC:        6
   RunRaw:       329
   OutDir:       . 
