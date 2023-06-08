@@ -87,12 +87,20 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, glvars, taguuid
     pchain . append( '--workingGroup %s'%args.workingGroup )
     pchain . append( '--prodSourceLabel %s'%args.prodSourceLabel )
 
-    # Output data set
-    if args.group == "":
-        pchain . append('--outDS user.%s.%s'%( args.user, taguuid ) )
+    outputDS = ""
+    if args.outDS == None:
+        if args.group == "":
+            outputDS = 'user.%s.%s'%( args.user, taguuid )
+            INFO('Output dataset: %s'%outputDS )
+        else:
+            outputDS = 'group.%s.%s'%( args.group, taguuid )
+            INFO('Output dataset: %s'%outputDS )                
+            pchain . append('--official');
     else:
-        pchain . append('--outDS group.%s.%s'%( args.group, taguuid ) )
-        pchain . append('--official');
+        outputDS = args.outDS
+        WARN('User specified output dataset: %s'%outputDS )
+
+    pchain . append('--outDS %s'%outputDS )
 
     # Output data files
     output = ''
