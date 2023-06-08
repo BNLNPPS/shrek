@@ -1,8 +1,8 @@
 #!/usr/bin/bash -f
 
 # 1h @ nrepeat=5
-nevents=400
-nrepeat=5
+nevents=10
+nrepeat=500
 
 # Returns the full list of file replicas for a given dataset.  There is
 # no guarentee of uniqueness.
