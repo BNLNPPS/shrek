@@ -1,8 +1,10 @@
 #!/usr/bin/bash -f
 
 # 1h @ nrepeat=5
-nevents=10
-nrepeat=500
+nevents=400
+nrepeat=1
+scope=rhic2023.auau200.test
+tag=sP22x
 
 # Returns the full list of file replicas for a given dataset.  There is
 # no guarentee of uniqueness.
@@ -168,8 +170,8 @@ echo $(( tagin + 1 )) >> filetag
 
 # 400 x 5 --> 1h run time
 echo submitting workflows .......................
-shrek --nevents=${nevents} --nrepeat=${nrepeat} --no-pause --submit --tag calor-workflow   workflows/rhic2023.AuAu200.demo/runCalorChain.yaml       --filetag=test${tagin}  --runNumber=${runnumber} --filelist=run${runnumber}.filelist --build=ana.352 > calor-workflow.log
-shrek --nevents=${nevents} --nrepeat=${nrepeat} --no-pause --submit --tag global-workflow  workflows/rhic2023.AuAu200.demo/runGlobalChain.yaml      --filetag=test${tagin}  --runNumber=${runnumber} --filelist=run${runnumber}.filelist --build=ana.352 > global-workflow.log
-shrek --nevents=${nevents} --nrepeat=${nrepeat} --no-pause --submit --tag tracker-workflow workflows/rhic2023.AuAu200.demo/runTrackerChainJob*.yaml --filetag=test${tagin}  --runNumber=${runnumber} --filelist=run${runnumber}.filelist --build=ana.352 > tracker-workflow.log
+ shrek --outDS ${scope}.${tag}_test${tagin}_calor --nevents=${nevents} --nrepeat=${nrepeat} --no-pause --submit --tag calor-workflow   workflows/rhic2023.AuAu200.demo/runCalorChain.yaml       --filetag=test${tagin}  --runNumber=${runnumber} --filelist=run${runnumber}.filelist --build=ana.352 > calor-workflow.log
+ shrek --outDS ${scope}.${tag}_test${tagin}_calor --nevents=${nevents} --nrepeat=${nrepeat} --no-pause --submit --tag global-workflow  workflows/rhic2023.AuAu200.demo/runGlobalChain.yaml      --filetag=test${tagin}  --runNumber=${runnumber} --filelist=run${runnumber}.filelist --build=ana.352 > global-workflow.log
+ shrek --outDS ${scope}.${tag}_test${tagin}_calor --nevents=${nevents} --nrepeat=${nrepeat} --no-pause --submit --tag tracker-workflow workflows/rhic2023.AuAu200.demo/runTrackerChainJob*.yaml --filetag=test${tagin}  --runNumber=${runnumber} --filelist=run${runnumber}.filelist --build=ana.352 > tracker-workflow.log
 
 #shrek --no-pause --submit --tag tracker-workflow workflows/rhic2023.AuAu200.demo/runTrackerChainJob0.yaml --filetag=test${tagin}  --runNumber=${runnumber} --filelist=run${runnumber}.filelist --build=ana.352 > tracker-workflow.log
