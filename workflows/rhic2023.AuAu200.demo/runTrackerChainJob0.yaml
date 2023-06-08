@@ -1,9 +1,9 @@
 Parameters:
   name:         TrackerChain0
   comment:      "Top level  tracker chain"
-  nEvents:      10
+  nEvents:      $nevents
   nEventsMax:   400
-  nRepeat:      1
+  nRepeat:      $nrepeat
   RunMC:        6
   RunRaw:       329
   OutDir:       . 
@@ -55,9 +55,9 @@ JobCommands: |-
   vx_file_info=( $(decode_dst_vtx_filename ${vtx}) )
 
   # Get the MC and raw event run number and sequence number from the filenames  
-  TKrn=${mc_file_info[5]}
-  TKsn=${mc_file_info[6]}
-  TKdir=`dirname $mc`
+  TKrn=${tk_file_info[5]}
+  TKsn=${tk_file_info[6]}
+  TKdir=`dirname $tk`
 
   VXrn=${vx_file_info[6]}
   VXsn=${vx_file_info[7]}
@@ -75,8 +75,10 @@ JobCommands: |-
   #arg5=`echo ${TKrn} | awk '{x=$0+0;print x}'`  # strip leading zeros
   #arg6=`echo ${TKsn} | awk '{x=$0+0;print x}'`  # strip leading zeros
   # Raw event run/seq numbers
-  arg5=`echo ${EVrn} | awk '{x=$0+0;print x}'`  # strip leading zeros
-  arg6=`echo ${EVsn} | awk '{x=$0+0;print x}'`  # strip leading zeros
+  arg5=`echo ${TKrn} | awk '{x=$0+0;print x}'`  # strip leading zeros
+  arg6=`echo ${TKsn} | awk '{x=$0+0;print x}'`  # strip leading zeros
+  arg5raw=`echo ${EVrn} | awk '{x=$0+0;print x}'`  # strip leading zeros
+  arg6raw=`echo ${EVsn} | awk '{x=$0+0;print x}'`  # strip leading zeros
 
   arg2=""
   if [ -z ${filetag+x} ]; then
@@ -84,6 +86,9 @@ JobCommands: |-
   else
      arg2=$( printf "DST_TRKR_CLUSTER_sHijing_0_20fm_50kHz_bkg_0_20fm_%s-%010d-%05d.root" $filetag $arg5 $arg6 )
   fi
+  
+  echo $TKrn $TKsn $arg2
+
   arg3=./                 # output directory
   arg4=trackerinput.txt   # input list
   ls ${tk} > ${arg4}
@@ -110,7 +115,7 @@ JobCommands: |-
      echo ...............................
      echo Running fun4all iteration $iter
      echo ...............................   
-     root -q -b  ${macro}\($arg1,\"$arg2\",\"$arg4\",\"$arg3\",$arg5,$arg6,\"$arg7\"\)
+     root -q -b  ${macro}\($arg1,\"$arg2\",\"$arg4\",\"$arg3\",$arg5raw,$arg6raw,\"$arg7\"\)
   done
 
   echo ... Did we produce the output? ..............................................

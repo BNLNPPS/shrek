@@ -1,5 +1,9 @@
 #!/usr/bin/bash -f
 
+# 1h @ nrepeat=5
+nevents=10
+nrepeat=500
+
 # Returns the full list of file replicas for a given dataset.  There is
 # no guarentee of uniqueness.
 function get_file_list() {
@@ -56,10 +60,10 @@ array=$( get_file_list ${dataset} )
 #mcarray=$( get_file_list ${mcdataset} )
 #mcarray=( `ls /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/DST_CALO_G4HIT
 
-mcarray=( `find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/ -type f -name DST_CALO_G4HIT*-001??.root | sort` )
-vxarray=( `find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/ -type f -name DST_VERTEX*-001??.root | sort` )
-bbarray=( `find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/ -type f -name DST_BBC_G4HIT*-001??.root | sort` )
-trarray=( `find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/trkrhit/run0006/ -type f -name DST_TRKR_HIT*-001??.root | sort` )
+mcarray=( `find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/  -type f -name DST_CALO_G4HIT*-0020?.root | sort` )
+vxarray=( `find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/  -type f -name DST_VERTEX*-0020?.root     | sort` )
+bbarray=( `find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/  -type f -name DST_BBC_G4HIT*-0020?.root  | sort` )
+trarray=( `find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/trkrhit/run0006/ -type f -name DST_TRKR_HIT*-0020?.root   | sort` )
 
 #build_dst_list /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/ 'DST_BBC_G4HIT*' 10
 
@@ -162,7 +166,10 @@ tagin=`tail -n 1 filetag`
 echo FILETAG IS ${tagin}
 echo $(( tagin + 1 )) >> filetag
 
+# 400 x 5 --> 1h run time
 echo submitting workflows .......................
-#shrek --no-pause --submit --tag calor-workflow   workflows/rhic2023.AuAu200.demo/runCalorChain.yaml       --filetag=test${tagin}  --runNumber=${runnumber} --filelist=run${runnumber}.filelist --build=ana.352 > calor-workflow.log
-#shrek --no-pause --submit --tag global-workflow  workflows/rhic2023.AuAu200.demo/runGlobalChain.yaml      --filetag=test${tagin}  --runNumber=${runnumber} --filelist=run${runnumber}.filelist --build=ana.352 > global-workflow.log
-shrek --no-pause --submit --tag tracker-workflow workflows/rhic2023.AuAu200.demo/runTrackerChainJob*.yaml --filetag=test${tagin}  --runNumber=${runnumber} --filelist=run${runnumber}.filelist --build=ana.352 > tracker-workflow.log
+shrek --nevents=${nevents} --nrepeat=${nrepeat} --no-pause --submit --tag calor-workflow   workflows/rhic2023.AuAu200.demo/runCalorChain.yaml       --filetag=test${tagin}  --runNumber=${runnumber} --filelist=run${runnumber}.filelist --build=ana.352 > calor-workflow.log
+shrek --nevents=${nevents} --nrepeat=${nrepeat} --no-pause --submit --tag global-workflow  workflows/rhic2023.AuAu200.demo/runGlobalChain.yaml      --filetag=test${tagin}  --runNumber=${runnumber} --filelist=run${runnumber}.filelist --build=ana.352 > global-workflow.log
+shrek --nevents=${nevents} --nrepeat=${nrepeat} --no-pause --submit --tag tracker-workflow workflows/rhic2023.AuAu200.demo/runTrackerChainJob*.yaml --filetag=test${tagin}  --runNumber=${runnumber} --filelist=run${runnumber}.filelist --build=ana.352 > tracker-workflow.log
+
+#shrek --no-pause --submit --tag tracker-workflow workflows/rhic2023.AuAu200.demo/runTrackerChainJob0.yaml --filetag=test${tagin}  --runNumber=${runnumber} --filelist=run${runnumber}.filelist --build=ana.352 > tracker-workflow.log
