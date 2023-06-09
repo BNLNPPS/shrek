@@ -1,10 +1,15 @@
 #!/usr/bin/bash -f
 
 # 1h @ nrepeat=5
-nevents=400
+nevents=10
 nrepeat=1
-scope=rhic2023.auau200.test
+scope=user.jwebb2
 tag=sP22x
+match=000??
+if [[ $1 ]]; then
+   match=$1
+fi
+#echo MATCH=${match}
 
 # Returns the full list of file replicas for a given dataset.  There is
 # no guarentee of uniqueness.
@@ -56,29 +61,41 @@ function build_dst_list() {
 runnumber=329
 dataset=group.sphenix:mdc2.rawdata.junk.rhic2023-03-29.00000329
 mcdataset=group.sphenix:mdc2.shijing_hepmc.fm_0_20.g4hits.run0006
-
-# Get list of files in dataset into an array
-array=$( get_file_list ${dataset} )
-#mcarray=$( get_file_list ${mcdataset} )
-#mcarray=( `ls /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/DST_CALO_G4HIT
-
-mcarray=( `find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/  -type f -name DST_CALO_G4HIT*-0020?.root | sort` )
-vxarray=( `find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/  -type f -name DST_VERTEX*-0020?.root     | sort` )
-bbarray=( `find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/  -type f -name DST_BBC_G4HIT*-0020?.root  | sort` )
-trarray=( `find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/trkrhit/run0006/ -type f -name DST_TRKR_HIT*-0020?.root   | sort` )
-
-#build_dst_list /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/ 'DST_BBC_G4HIT*' 10
-
-# Create temp workspace
-DIRECTORY=/tmp/run${runnumber} 
+DIRECTORY=/tmp/run${runnumber}
 if [ -d "$DIRECTORY" ]; then
   rm -r ${DIRECTORY}
 fi
 mkdir ${DIRECTORY}
 
+
+# Get list of files in dataset into an array
+#array=$( get_file_list ${dataset} )
+#mcarray=$( get_file_list ${mcdataset} )
+#mcarray=( `ls /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/DST_CALO_G4HIT
+
+get_file_list ${dataset} > ${DIRECTORY}/rawevents
+readarray -t array < ${DIRECTORY}/rawevents
+
+#mcarray=( `find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/  -type f -name DST_CALO_G4HIT*-000??.root -printf '%p ' | sort` )
+#vxarray=( `find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/  -type f -name DST_VERTEX*-000??.root -printf '%p ' | sort` )
+#bbarray=( `find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/  -type f -name DST_BBC_G4HIT*-000??.root -printf '%p ' | sort` )
+#trarray=( `find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/trkrhit/run0006/ -type f -name DST_TRKR_HIT*-000??.root -printf '%p ' | sort` )
+
+find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/  -type f -name DST_CALO_G4HIT*-${match}.root  | sort  > ${DIRECTORY}/dstcalo
+find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/  -type f -name DST_VERTEX*-${match}.root      | sort  > ${DIRECTORY}/dstvertex
+find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/pileup/run0006/  -type f -name DST_BBC_G4HIT*-${match}.root   | sort  > ${DIRECTORY}/dstbbc
+find /sphenix/lustre01/sphnxpro/mdc2/shijing_hepmc/fm_0_20/trkrhit/run0006/ -type f -name DST_TRKR_HIT*-${match}.root    | sort  > ${DIRECTORY}/dsttrkr
+
+readarray -t mcarray < ${DIRECTORY}/dstcalo
+readarray -t vxarray < ${DIRECTORY}/dstvertex 
+readarray -t bbarray < ${DIRECTORY}/dstbbc
+readarray -t trarray < ${DIRECTORY}/dsttrkr
+
+#echo Array sizes ${#mcarray[@]} ${#vxarray[@]} ${#bbarray[@]} ${#trarray[@]} ${#array[@]}
+
 echo "Building sequence list"
 
-for f in ${array}; do
+for f in ${array[@]}; do
 
    temp=( $( decode_raw_filename $f ) )
 
@@ -91,6 +108,8 @@ for f in ${array}; do
 
    # fake up a filelist (based on sequences
    echo RAW: $f ${nevt} >> /tmp/run${runnumber}/run${run}-seq${seq}.filelist
+
+   #echo $f $run $seq
 
 done
 echo "... done building"
@@ -131,11 +150,9 @@ for mc in ${mcarray[@]}; do
 
   # Corresponding tracker file (...)
   trfilename=`basename ${trarray[$index]} .root`
-  tr=${trarray[$index]}
+  tr=${trarray[$index]}  
 
   index=$index+1
-
-  #echo $mc $vx $bb
 
   evt_min=$(( 400*count ))
   evt_max=$(( 400*(count+1) ))
@@ -145,10 +162,6 @@ for mc in ${mcarray[@]}; do
   echo VTX:   ${vx} >> /tmp/run${runnumber}/${filename}.filelist
   echo BBC:   ${bb} >> /tmp/run${runnumber}/${filename}.filelist
   echo TRKR:  ${tr} >> /tmp/run${runnumber}/${filename}.filelist
-
-  echo RANGE: $evt_min $evt_max 
-  echo MC:  ${mc} 
-  echo VTX: ${vx} 
 
   rawfiles=`shuf -e -n1 ${rawlists[@]}`
   cat $rawfiles >> /tmp/run${runnumber}/${filename}.filelist   
@@ -170,8 +183,8 @@ echo $(( tagin + 1 )) >> filetag
 
 # 400 x 5 --> 1h run time
 echo submitting workflows .......................
- shrek --outDS ${scope}.${tag}_test${tagin}_calor --nevents=${nevents} --nrepeat=${nrepeat} --no-pause --submit --tag calor-workflow   workflows/rhic2023.AuAu200.demo/runCalorChain.yaml       --filetag=test${tagin}  --runNumber=${runnumber} --filelist=run${runnumber}.filelist --build=ana.352 > calor-workflow.log
- shrek --outDS ${scope}.${tag}_test${tagin}_calor --nevents=${nevents} --nrepeat=${nrepeat} --no-pause --submit --tag global-workflow  workflows/rhic2023.AuAu200.demo/runGlobalChain.yaml      --filetag=test${tagin}  --runNumber=${runnumber} --filelist=run${runnumber}.filelist --build=ana.352 > global-workflow.log
- shrek --outDS ${scope}.${tag}_test${tagin}_calor --nevents=${nevents} --nrepeat=${nrepeat} --no-pause --submit --tag tracker-workflow workflows/rhic2023.AuAu200.demo/runTrackerChainJob*.yaml --filetag=test${tagin}  --runNumber=${runnumber} --filelist=run${runnumber}.filelist --build=ana.352 > tracker-workflow.log
+#shrek --outDS ${scope}.${tag}_test${tagin}_calor --nevents=${nevents} --nrepeat=${nrepeat} --no-pause --submit --tag calor-workflow   workflows/rhic2023.AuAu200.demo/runCalorChain.yaml       --filetag=test${tagin}  --runNumber=${runnumber} --filelist=run${runnumber}.filelist --build=ana.352 > calor-workflow.log
+#shrek --outDS ${scope}.${tag}_test${tagin}_calor --nevents=${nevents} --nrepeat=${nrepeat} --no-pause --submit --tag global-workflow  workflows/rhic2023.AuAu200.demo/runGlobalChain.yaml      --filetag=test${tagin}  --runNumber=${runnumber} --filelist=run${runnumber}.filelist --build=ana.352 > global-workflow.log
+#shrek --outDS ${scope}.${tag}_test${tagin}_calor --nevents=${nevents} --nrepeat=${nrepeat} --no-pause --submit --tag tracker-workflow workflows/rhic2023.AuAu200.demo/runTrackerChainJob*.yaml --filetag=test${tagin}  --runNumber=${runnumber} --filelist=run${runnumber}.filelist --build=ana.352 > tracker-workflow.log
 
-#shrek --no-pause --submit --tag tracker-workflow workflows/rhic2023.AuAu200.demo/runTrackerChainJob0.yaml --filetag=test${tagin}  --runNumber=${runnumber} --filelist=run${runnumber}.filelist --build=ana.352 > tracker-workflow.log
+
