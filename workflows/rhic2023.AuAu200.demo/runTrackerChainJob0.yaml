@@ -122,6 +122,7 @@ JobCommands: |-
   ls -l *.root
   echo .............................................................................
 
-  cp _${name}.log /sphenix/u/sphnxpro/shrek/${name}-${runNumber}-${uniqueId}.log
+  addmetadata ${arg2}_md5sum `md5sum $arg2`
+
 
 

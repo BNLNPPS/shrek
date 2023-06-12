@@ -125,6 +125,7 @@ JobCommands: |-
      root -q -b  Fun4All_GlobalReco.C\($arg1,\"$arg4\",\"$arg5\",\"$arg6\",\"$arg7\",$arg8,$arg9,\"${arg10}\"\)
   done
 
-  cp _${name}.log /sphenix/u/sphnxpro/shrek/${name}-${runNumber}-${uniqueId}.log
+  addmetadata ${arg4}_md5sum `md5sum $arg4`
+
 
 
