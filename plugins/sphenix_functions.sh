@@ -60,3 +60,10 @@ function check_runsequence() {
     fi
 }
 
+function stash_job_log() {
+    target=/sphenix/u/sphnxpro/shrek
+    if [[ $1 ]]; then
+       target=$1
+    fi
+    cp _${name}.log ${target}/${name}-${uniqueId}.log    
+}
