@@ -8,7 +8,7 @@ Parameters:
   RunRaw:       329
   OutDir:       . 
   pfnList:      filelist
-  nFilesPerJob: 1
+  nFilesPerJob: 8
   macro:        Fun4All_CombineListEmcal.C
   memory:       2048
   cpuTimePerEvent: 75000

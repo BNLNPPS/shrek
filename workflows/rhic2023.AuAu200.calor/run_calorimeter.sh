@@ -1,7 +1,7 @@
 #!/usr/bin/bash -f
 
 #   00009451
-nevents=999999999
+nevents=100
 run="00009451"
 dir=/sphenix/lustre01/sphnxpro/commissioning/emcal/beam
 if [[ $1 ]]; then
