@@ -2,7 +2,7 @@
 
 # 1h @ nrepeat=5
 nevents=400
-nrepeat=120
+nrepeat=10
 scope=user.jwebb2
 tag=sP22x
 match=000??
