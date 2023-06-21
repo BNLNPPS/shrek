@@ -1,0 +1,50 @@
+Parameters:
+  name:         EventCombine
+  comment:      "Top level calorimeter chain"
+  nEvents:      $nevents
+  nEventsMax:   400
+  nRepeat:      $nrepeat
+  RunMC:        6
+  RunRaw:       329
+  OutDir:       . 
+  pfnList:      filelist
+  nFilesPerJob: 1
+  macro:        Fun4All_CombineListEmcal.C
+  memory:       2048
+  cpuTimePerEvent: 75000
+
+Resources:
+  - file: ../macros/eventcombine/Fun4All_CombineListEmcal.C
+
+OutputDataSets:
+  - name: EventCombine/outDS
+    filelist:
+      - "regex|XXXcalib*"
+
+JobCommands: |-
+
+  # Initialize environment... using the "build" environment, unless it
+  # was not specified
+  if [ -z ${build+x} ]; then 
+     echo "build is unset [default to latest]"
+     source /opt/sphenix/core/bin/sphenix_setup.sh -n 
+  else 
+     echo "build is set to ${build}"
+     source /opt/sphenix/core/bin/sphenix_setup.sh -n ${build}
+  fi  
+
+  echo ..........................................................................
+  echo Running ${name} ${runNumber} $@
+  echo ..........................................................................
+
+  # Input is a pfnlist... but really, we ignore it.  The sebXX.list files should be
+  # packed and ready to go...
+
+  # Run fun4all
+  root -q -b ${macro}\(${nEvents},\"seb00.list\",\"seb01.list\",\"seb02.list\",\"seb03.list\",\"seb04.list\",\"seb05.list\",\"seb06.list\",\"seb07.list\"\)
+  ls 
+  stash_job_log
+
+
+
+
