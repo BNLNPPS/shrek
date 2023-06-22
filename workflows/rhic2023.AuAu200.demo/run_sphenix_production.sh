@@ -1,11 +1,11 @@
 #!/usr/bin/bash -f
 
 # 1h @ nrepeat=5
-nevents=400
-nrepeat=10
+nevents=10
+nrepeat=1
 scope=user.jwebb2
 tag=sP22x
-match=000??
+match=00005
 if [[ $1 ]]; then
    match=$1
 fi
