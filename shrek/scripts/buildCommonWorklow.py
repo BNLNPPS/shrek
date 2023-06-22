@@ -373,6 +373,11 @@ def cwl_steps( wfgraph, site, args, glvars ):
 
         if args.scouting == False:
             optargs += " --expertOnly_skipScout "
+
+        # If job name is specified, enable debug mode
+        if ( job.name in args.debug ) or ( "all" in args.debug ):
+            optargs += " --debugMode "
+        
         
         if len(optargs.strip()) > 0:
             steps += "\n        opt_args:"

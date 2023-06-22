@@ -60,6 +60,11 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, glvars, taguuid
     numOutputs     = job.numOutputs
     numSecondaries = job.numSecondaries
 
+    # If job name is specified, enable debug mode
+    debugMode = ( job.name in args.debug ) or ( "all" in args.debug )
+    
+    
+
     pfnList = None
     try:
         pfnList = job.parameters.pfnList
@@ -79,6 +84,21 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, glvars, taguuid
     if args.scouting == False:
         pchain . append( '--expertOnly_skipScout' )
 
+    if debugMode == True:
+        pchain . append( '--debugMode' )
+        WARN("""
+        Send the job with the debug mode on. If this option is
+        specified the subjob will send stdout to the panda
+        monitor every 5 min. The number of debug subjobs per
+        user is limited. When this option is used and the
+        quota has already exceeded, the panda server supresses
+        the option so that subjobs will run without the debug
+        mode. If you submit multiple subjobs in a single job,
+        only the first subjob will set the debug mode on. Note
+        that you can turn the debug mode on/off by using pbook
+        after jobs are submitted        
+        """)
+       
     pchain . append( "-v" )
     pchain . append( "--noBuild" )
 
@@ -256,6 +276,8 @@ def main():
     parser.add_argument('--handshake',    dest='handshake', action='store_true', help="Ensure that PanDA credentials are current")
     parser.add_argument('--no-handshake', dest='handshake', action='store_false', help="Skip credential check")
     parser.set_defaults(handshake=True)
+
+    parser.add_argument('--debug', dest="debug", action='append', default=[], help="Enable panda debugMode for the specified job name")
 
     """
     Default to tagging with a timestamp
