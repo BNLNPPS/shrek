@@ -123,6 +123,6 @@ JobCommands: |-
   echo .............................................................................
 
   addmetadata ${arg2}_md5sum `md5sum $arg2`
-
+  stash_job_log
 
 

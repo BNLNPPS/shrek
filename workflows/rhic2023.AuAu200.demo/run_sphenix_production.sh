@@ -1,7 +1,7 @@
 #!/usr/bin/bash -f
 
 # 1h @ nrepeat=5
-nevents=10
+nevents=50
 nrepeat=1
 scope=user.jwebb2
 tag=sP22x
