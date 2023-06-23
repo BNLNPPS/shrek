@@ -42,6 +42,14 @@ JobCommands: |-
   echo Running ${name} ${runNumber} ${uniqueId} $@
   echo ..........................................................................
 
+  echo IN1=${IN1}
+  echo ls -la ${IN1} 
+  ls -la ${IN1} 
+  echo readlink -f ${IN1}
+  readlink -f ${IN1}
+  echo readlink -e ${IN1}
+  readlink -e ${IN1}
+
   # Range (first and last event to process)
   range=( `awk '/RANGE/{ print $2 " " $3 }' $IN1` )
 
@@ -70,6 +78,7 @@ JobCommands: |-
   done
 
   addmetadata ${arg3}_md5sum `md5sum $arg3`
+  stash_job_log
 
 
 
