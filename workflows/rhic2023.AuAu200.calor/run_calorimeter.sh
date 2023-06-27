@@ -2,8 +2,10 @@
 
 #   00009451
 nevents=100
-run="00009451"
+run="00009245"
 dir=/sphenix/lustre01/sphnxpro/commissioning/emcal/beam
+submitopt=" --submit "
+debugopt=" "
 if [[ $1 ]]; then
    run=$( printf "%08d" $1 )
 fi
@@ -13,7 +15,7 @@ fi
 
 scope=user.jwebb2
 tag=sP22x
-submit="--submit"
+
 
 # Clean out / create temp directory for filelists
 if [ -e /tmp/${USER}/$run ]; then
@@ -43,6 +45,6 @@ tagin=`tail -n 1 filetag`
 echo FILETAG IS ${tagin}
 echo $(( tagin + 1 )) >> filetag
 
-shrek ${submit} --outDS ${scope}.${tag}_test${tagin}_calor_calib --nevents=${nevents} --no-pause --tag calor-calib workflows/rhic2023.AuAu200.calor/*.yaml --filetag=test${tagin} --runNumber=${run} --filelist=run-${run}.filelist 
+shrek ${submitopt} ${debugopt} --outDS ${scope}.${tag}_test${tagin}_calor_calib --nevents=${nevents} --no-pause --tag calor-calib workflows/rhic2023.AuAu200.calor/*.yaml --filetag=test${tagin} --runNumber=${run} --filelist=run-${run}.filelist 
 
 
