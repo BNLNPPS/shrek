@@ -44,6 +44,15 @@ function decode_dst_trkr_filename() {
   echo ${temp[@]}
 }
 
+function prepend_task_id() {
+    ls $1 > prepend_task_id_matching_files
+    readarray -t matching < prepend_task_id_matching_files
+    for f in ${matching[@]}; do
+	echo mv $1 ${PanDA_TaskID}.$1
+        mv $1 ${PanDA_TaskID}.$1    
+    done
+}
+
 function sphenix_init() {
     echo [ Initializing sPHENIX environment $@ ]
     source /opt/sphenix/core/bin/sphenix_setup.sh $@

@@ -1,0 +1,52 @@
+Parameters:
+  name:         CalorChain
+  comment:      "Top level calorimeter chain"
+  nEvents:      $nevents
+  nEventsMax:   400
+  nRepeat:      $nrepeat
+  RunMC:        6
+  RunRaw:       329
+  OutDir:       . 
+  nFilesPerJob: 1
+  macro:        Fun4All_CaloProduction.C
+  memory:       2048
+  cpuTimePerEvent: 75000
+
+Resources:
+  - file: ../macros/CaloProduction/Fun4All_CaloProduction.C
+
+InputDataSets:
+  - name: EventCombine/outDS
+    comment: Output of event combinator
+    nFilesPerJob: 1
+
+OutputDataSets:
+  - name: CalorChain/outDS
+    filelist:
+      - "regex|xxxcalib*"
+
+JobCommands: |-
+
+  # Initialize environment... using the "build" environment, unless it
+  # was not specified
+  if [ -z ${build+x} ]; then 
+     echo "build is unset [default to latest]"
+     source /opt/sphenix/core/bin/sphenix_setup.sh -n 
+  else 
+     echo "build is set to ${build}"
+     source /opt/sphenix/core/bin/sphenix_setup.sh -n ${build}
+  fi  
+
+  echo ..........................................................................
+  echo Running ${name} ${runNumber} $@
+  echo ..........................................................................
+
+  output=testfile.root
+  echo root -q -b ${macro}\(\"${IN1}\",\"${output}\"\)
+
+  ls 
+  stash_job_log
+
+
+
+
