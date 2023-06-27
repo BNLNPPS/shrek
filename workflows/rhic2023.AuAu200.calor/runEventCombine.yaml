@@ -19,7 +19,7 @@ Resources:
 OutputDataSets:
   - name: EventCombine/outDS
     filelist:
-      - "regex|XXXcalib*"
+      - "regex|*.beam_emcal*"
 
 JobCommands: |-
 
@@ -42,7 +42,9 @@ JobCommands: |-
 
   # Run fun4all
   root -q -b ${macro}\(${nEvents},\"seb00.list\",\"seb01.list\",\"seb02.list\",\"seb03.list\",\"seb04.list\",\"seb05.list\",\"seb06.list\",\"seb07.list\"\)
-  ls 
+
+  prepend_task_id beam_emcal*.prdf
+
   stash_job_log
 
 
