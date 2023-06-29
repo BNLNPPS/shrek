@@ -15,6 +15,5 @@ OutputDataSets:
 
 JobCommands: |-
   echo ${IN1[@]} > results.root
-  #cat results.root > /sphenix/u/sphnxpro/shrek/bottom-${uniqueId}.log
 
 

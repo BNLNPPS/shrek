@@ -6,9 +6,15 @@ Parameters:
 OutputDataSets:
   - name: top/outDS
     filelist:
-      - "required: seed.txt"
+      - "regex|seed*"
 
 JobCommands: |-
-  echo $uniqueId > seed.txt
-  #cp seed.txt /sphenix/u/sphnxpro/shrek/seed-${uniqueId}.txt
+  echo $uniqueId 1 > seed-`uuidgen`.txt
+  echo $uniqueId 2 > seed-`uuidgen`.txt
+  echo $uniqueId 3 > seed-`uuidgen`.txt
+  echo $uniqueId 4 > seed-`uuidgen`.txt
+  echo $uniqueId 5 > seed-`uuidgen`.txt
+
+
+
 
