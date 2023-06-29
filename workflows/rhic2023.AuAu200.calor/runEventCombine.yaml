@@ -19,7 +19,16 @@ Resources:
 OutputDataSets:
   - name: EventCombine/outDS
     filelist:
-      - "regex|*.beam_emcal*"
+      - "regex|beam_emcal-00009245-0000*"
+      - "regex|beam_emcal-00009245-0001*"
+      - "regex|beam_emcal-00009245-0002*"
+      - "regex|beam_emcal-00009245-0003*"
+      - "regex|beam_emcal-00009245-0004*"
+      - "regex|beam_emcal-00009245-0005*"
+      - "regex|beam_emcal-00009245-0006*"
+      - "regex|beam_emcal-00009245-0007*"
+      - "regex|beam_emcal-00009245-0008*"
+      - "regex|beam_emcal-00009245-0009*"
 
 JobCommands: |-
 
@@ -43,8 +52,11 @@ JobCommands: |-
   # Run fun4all
   root -q -b ${macro}\(${nEvents},\"seb00.list\",\"seb01.list\",\"seb02.list\",\"seb03.list\",\"seb04.list\",\"seb05.list\",\"seb06.list\",\"seb07.list\"\)
 
-  prepend_task_id beam_emcal*.prdf
-
+  # appends the panda task ID to the matching files
+  echo ls before append .......
+  append_task_id "*.prdf" .prdf
+  echo ls after append .......
+  
   stash_job_log
 
 
