@@ -1,11 +1,11 @@
 #!/usr/bin/bash -f
 
 #   00009451
-nevents=100
+nevents=5000
 run="00009245"
 dir=/sphenix/lustre01/sphnxpro/commissioning/emcal/beam
 submitopt=" --submit "
-debugopt=" "
+debugopt=" --debug none "
 if [[ $1 ]]; then
    run=$( printf "%08d" $1 )
 fi
