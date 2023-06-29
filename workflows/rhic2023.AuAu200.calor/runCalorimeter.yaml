@@ -23,7 +23,7 @@ InputDataSets:
 OutputDataSets:
   - name: CalorChain/outDS
     filelist:
-      - "regex|xxxcalib*"
+      - "regex|calor_emcal*"
 
 JobCommands: |-
 
@@ -41,10 +41,22 @@ JobCommands: |-
   echo Running ${name} ${runNumber} $@
   echo ..........................................................................
 
-  output=testfile.root
-  echo root -q -b ${macro}\(\"${IN1}\",\"${output}\"\)
+  # Strip the task ID for the matching file(s)
+  strip_task_id "*.prdf.panda*" .prdf
 
-  ls 
+  # Input file is the input prdr
+  input=`ls *.prdf`
+
+  # Output file replace beam_emcal with calor
+  output=${input/beam/calor}
+  echo root -q -b ${macro}\(\"${input}\",\"${output}\"\)
+  root -q -b ${macro}\(\"${input}\",\"${output}\"\)
+
+  ls
+
+  # And append the task ID
+  append_task_id "calor*.prdf" .prdf
+
   stash_job_log
 
 
