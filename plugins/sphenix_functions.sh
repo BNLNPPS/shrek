@@ -44,12 +44,35 @@ function decode_dst_trkr_filename() {
   echo ${temp[@]}
 }
 
-function prepend_task_id() {
-    ls $1 > prepend_task_id_matching_files
-    readarray -t matching < prepend_task_id_matching_files
+function decode_run_sequence() {
+  local base=`basename $1`  
+  local strip1=${base%%.*}  # remove the trailing suffix(es)
+  local strip2=${strip1#*-}
+  local sn=${strip2#*-}
+  local rn=${strip2%-*}
+  # strip leading zeros so this is not taken as an octal...
+  sn=${sn##+(0)}
+  rn=${rn##+(0)}
+  # ... and print out with leading zeros b/c we want it formatted thay way ...
+  printf "%010d %05d" $rn $sn
+}
+
+function append_task_id() {
+    ls $1 > append_task_id_matching_files
+    readarray -t matching < append_task_id_matching_files
+    for f in ${matching[@]}; do        
+	#echo mv $1 ${PanDA_TaskID}.$1       
+        echo mv $f "`basename $f $2`${2}.panda${PanDA_TaskID}"
+        mv $f "`basename $f $2`${2}.panda${PanDA_TaskID}"
+    done
+}
+
+function strip_task_id() {
+    ls $1 > strip_task_id_matching_files
+    readarray -t matching < strip_task_id_matching_files
     for f in ${matching[@]}; do
-	echo mv $1 ${PanDA_TaskID}.$1
-        mv $1 ${PanDA_TaskID}.$1    
+        echo mv $f ${f%.*} 
+        mv $f ${f%.*}         
     done
 }
 

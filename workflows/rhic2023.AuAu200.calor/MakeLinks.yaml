@@ -1,0 +1,49 @@
+Parameters:
+  name: MakeLinks
+  comment: "Create symbolic links to the rucio managed files"
+  memory: 2048
+  topDir: /sphenix/u/sphnxpro/shrek/
+  
+InputDataSets:
+  - name: CalorChain/outDS
+    comment: "Output of the calorimeter chain"
+
+OutputDataSets:
+  - name: MakeLinks/outDS
+    filelist:
+      - "requried: manifest.dat"
+
+JobCommands: |-
+  # Loop over all input files provided
+  echo ${IN1} >> manifest.dat
+
+  # Remove the trailing suffix and leading prefix
+  for f in ${IN1[@]}; do
+
+    # Physical file location
+    src=`readlink -e $f` 
+
+    # Target name for the link
+    tgt=$( basename ${src%.*} )
+
+    in1=${f%%.*}
+    in1=${in1#*-}
+
+    # Seperate run and sequence
+    rn=${in1%-*}
+    sn=${in1#*-}
+
+    echo ... $src $tgt $rn $sn
+
+    lnkdir=${topDir}/run-${rn}/seq-${sn}
+    mkdir -p ${lnkdir}
+
+    echo src=$src tgt=$tgt
+
+    cd ${lnkdir}
+    ln -s ${src} ${tgt}
+    cd -
+
+  done
+
+  stash_job_log
