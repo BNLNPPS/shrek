@@ -19,19 +19,9 @@ Resources:
 OutputDataSets:
   - name: EventCombine/outDS
     filelist:
-      - "regex|beam_emcal-00009245-0000*"
-      - "regex|beam_emcal-00009245-0001*"
-      - "regex|beam_emcal-00009245-0002*"
-      - "regex|beam_emcal-00009245-0003*"
-      - "regex|beam_emcal-00009245-0004*"
-      - "regex|beam_emcal-00009245-0005*"
-      - "regex|beam_emcal-00009245-0006*"
-      - "regex|beam_emcal-00009245-0007*"
-      - "regex|beam_emcal-00009245-0008*"
-      - "regex|beam_emcal-00009245-0009*"
+      - "regex|beam_emcal*"
 
 JobCommands: |-
-
   # Initialize environment... using the "build" environment, unless it
   # was not specified
   if [ -z ${build+x} ]; then 

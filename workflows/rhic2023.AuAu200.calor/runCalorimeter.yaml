@@ -43,6 +43,12 @@ JobCommands: |-
 
   # Strip the task ID for the matching file(s)
   strip_task_id "*.prdf.panda*" .prdf
+  echo ls -l *.prdf
+  ls -l *.prdf
+  echo  readlink -f *.prdf
+  readlink -f *.prdf
+  echo readlink -e *.prdf
+  readlink -e *.prdf
 
   # Input file is the input prdr
   input=`ls *.prdf`
