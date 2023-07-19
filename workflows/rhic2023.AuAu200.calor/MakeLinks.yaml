@@ -41,6 +41,11 @@ JobCommands: |-
     echo src=$src tgt=$tgt
 
     cd ${lnkdir}
+    if [ -f "$tgt" ]; then
+       echo "$tgt exists, replacing"
+       rm $tgt
+    fi
+
     ln -s ${src} ${tgt}
     cd -
 

@@ -45,6 +45,6 @@ tagin=`tail -n 1 filetag`
 echo FILETAG IS ${tagin}
 echo $(( tagin + 1 )) >> filetag
 
-shrek ${submitopt} ${debugopt} --outDS ${scope}.${tag}_test${tagin}_calor_calib --nevents=${nevents} --no-pause --tag calor-calib workflows/rhic2023.AuAu200.calor/*.yaml --filetag=test${tagin} --runNumber=${run} --filelist=run-${run}.filelist 
+shrek ${submitopt} ${debugopt} --outDS ${scope}.${tag}_${USER}${tagin}_calor_calib --nevents=${nevents} --no-pause --tag calor-calib workflows/rhic2023.AuAu200.calor/*.yaml --filetag=test${tagin} --runNumber=${run} --filelist=run-${run}.filelist 
 
 
