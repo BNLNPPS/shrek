@@ -12,6 +12,9 @@ fi
 if [[ $2 ]]; then
    dir=$2
 fi
+if [[ $3 ]]; then
+   nevents=$3
+fi
 
 scope=user.jwebb2
 tag=sP22x
