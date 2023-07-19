@@ -2,7 +2,7 @@ Parameters:
   name: MakeLinks
   comment: "Create symbolic links to the rucio managed files"
   memory: 2048
-  topDir: /sphenix/u/sphnxpro/shrek/
+  #topDir: /sphenix/u/sphnxpro/shrek/
   
 InputDataSets:
   - name: CalorChain/outDS
@@ -35,7 +35,7 @@ JobCommands: |-
 
     echo ... $src $tgt $rn $sn
 
-    lnkdir=${topDir}/run-${rn}/seq-${sn}
+    lnkdir=${topDir}/run${rn}/seq${sn}
     mkdir -p ${lnkdir}
 
     echo src=$src tgt=$tgt
