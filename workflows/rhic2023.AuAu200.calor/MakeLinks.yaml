@@ -35,7 +35,7 @@ JobCommands: |-
 
     echo ... $src $tgt $rn $sn
 
-    lnkdir=${topDir}/run${rn}/seq${sn}
+    lnkdir=${topDir}/run${rn}
     mkdir -p ${lnkdir}
 
     echo src=$src tgt=$tgt
