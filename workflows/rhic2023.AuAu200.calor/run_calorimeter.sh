@@ -1,9 +1,22 @@
 #!/usr/bin/bash -f
 
-#   00009451
+# Usage
+#
+# run_calorimeter.sh <run number> <input directory> <out/link directory> <nevents> <debugopt>
+#
+# where 
+#
+# <run number> is the run number to prcess (in quotes)
+# <input directory> is the path to the input files
+# <out/link directory> is the path to the top-level output directory
+# <nevents> number of events to process
+# <debugopt> "--debug taskname" enables realtime logging for taskname
+#
+
 nevents=5000
 run="00009245"
 dir=/sphenix/lustre01/sphnxpro/commissioning/emcal/beam
+topDir=/sphenix/u/sphnxpro/shrek/
 submitopt=" --submit "
 debugopt=" --debug none "
 if [[ $1 ]]; then
@@ -11,6 +24,15 @@ if [[ $1 ]]; then
 fi
 if [[ $2 ]]; then
    dir=$2
+fi
+if [[ $3 ]]; then
+   topDir=$3
+fi
+if [[ $4 ]]; then
+   nevents=$3
+fi
+if [[ $5 ]]; then
+   debugopt=$5
 fi
 
 scope=user.jwebb2
@@ -45,6 +67,6 @@ tagin=`tail -n 1 filetag`
 echo FILETAG IS ${tagin}
 echo $(( tagin + 1 )) >> filetag
 
-shrek ${submitopt} ${debugopt} --outDS ${scope}.${tag}_${USER}${tagin}_calor_calib --nevents=${nevents} --no-pause --tag calor-calib workflows/rhic2023.AuAu200.calor/*.yaml --filetag=test${tagin} --runNumber=${run} --filelist=run-${run}.filelist 
+shrek ${submitopt} ${debugopt} --topDir=${topDir} --outDS ${scope}.${tag}_${USER}${tagin}_calor_calib --nevents=${nevents} --no-pause --tag calor-calib workflows/rhic2023.AuAu200.calor/*.yaml --filetag=test${tagin} --runNumber=${run} --filelist=run-${run}.filelist 
 
 
