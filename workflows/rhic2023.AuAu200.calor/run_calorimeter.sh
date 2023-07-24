@@ -17,7 +17,7 @@ nevents=5000
 run="00009245"
 dir=/sphenix/lustre01/sphnxpro/commissioning/emcal/beam
 topDir=/sphenix/u/sphnxpro/shrek/
-submitopt=" --submit "
+submitopt=" --submit --group sphenix.test "
 debugopt=" --debug none "
 if [[ $1 ]]; then
    run=$( printf "%08d" $1 )
@@ -67,6 +67,7 @@ tagin=`tail -n 1 filetag`
 echo FILETAG IS ${tagin}
 echo $(( tagin + 1 )) >> filetag
 
-shrek ${submitopt} ${debugopt} --topDir=${topDir} --outDS ${scope}.${tag}_${USER}${tagin}_calor_calib --nevents=${nevents} --no-pause --tag calor-calib workflows/rhic2023.AuAu200.calor/*.yaml --filetag=test${tagin} --runNumber=${run} --filelist=run-${run}.filelist 
+#shrek ${submitopt} ${debugopt} --topDir=${topDir} --outDS ${scope}.${tag}_${USER}${tagin}_calor_calib --nevents=${nevents} --no-pause --tag calor-calib workflows/rhic2023.AuAu200.calor/*.yaml --filetag=test${tagin} --runNumber=${run} --filelist=run-${run}.filelist 
+shrek ${submitopt} ${debugopt} --topDir=${topDir} --nevents=${nevents} --no-pause --tag calor-calib workflows/rhic2023.AuAu200.calor/*.yaml --filetag=test${tagin} --runNumber=${run} --filelist=run-${run}.filelist 
 
 
