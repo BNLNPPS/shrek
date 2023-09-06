@@ -6,15 +6,15 @@ Parameters:
   nRepeat:      $nrepeat
   RunMC:        6
   RunRaw:       329
-  OutDir:       . 
+  OutDir:       /sphenix/lustre01/sphnxpro/scratch
   pfnList:      filelist
-  nFilesPerJob: 8
-  macro:        Fun4All_CombineListEmcal.C
+  nFilesPerJob: 12
+  macro:        Fun4All_Combiner.C
   memory:       2048
   cpuTimePerEvent: 75000
 
 Resources:
-  - file: ../macros/eventcombine/Fun4All_CombineListEmcal.C
+  - file: ../macros/eventcombine/Fun4All_Combiner.C
 
 OutputDataSets:
   - name: EventCombine/outDS
@@ -39,15 +39,24 @@ JobCommands: |-
   # Input is a pfnlist... but really, we ignore it.  The sebXX.list files should be
   # packed and ready to go...
 
-  # Run fun4all
-  root -q -b ${macro}\(${nEvents},\"seb00.list\",\"seb01.list\",\"seb02.list\",\"seb03.list\",\"seb04.list\",\"seb05.list\",\"seb06.list\",\"seb07.list\"\)
+  # Make sure we keep each run in its own scratch space on lustre
+  target=${OutDir}/${runNumber}
+  mkdir ${target}
 
-  # appends the panda task ID to the matching files
+  # Run fun4all
+  root -q -b ${macro}\(${nEvents},\"seb00.list\",\"seb01.list\",\"seb02.list\",\"seb03.list\",\"seb04.list\",\"seb05.list\",\"seb06.list\",\"seb07.list\",\"hcaleast.list\",\"hcalwest.list\",\"zdc.list\",\"mbd.list\",\"${target}\"\)
+
+  # Link back all of the output files so that PanDA can find them / and handle
+  # the transfer to rucio
+  ln -s ${target}/*.prdf .
+
+  # appends the panda task ID to the matching files so that we don't run
+  # into namespace issues
   echo ls before append .......
   append_task_id "*.prdf" .prdf
   echo ls after append .......
   
-  stash_job_log
+#  stash_job_log
 
 
 
