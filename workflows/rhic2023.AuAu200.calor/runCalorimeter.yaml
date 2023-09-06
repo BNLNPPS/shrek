@@ -63,7 +63,7 @@ JobCommands: |-
   # And append the task ID
   append_task_id "calor*.prdf" .prdf
 
-  stash_job_log
+#  stash_job_log
 
 
 
