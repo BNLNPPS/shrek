@@ -20,12 +20,15 @@ import json
 import signal
 
 class Listener( stomp.ConnectionListener ):
-    def __init__(self,connection_,events_=[]):
+    def __init__(self,connection_,dbfilename,events_=[]):
         self.connection = connection_
-        self.messages   = collection( "donkey-listener" )
+        self.messages   = collection( dbfilename )
         self.events     = events_
+        # Add lists for each event class (if the list doesn't already
+        # exist in the db file).
         for event in events_:
-            self.messages.addlist( event, 'list of %s events'%event )
+            if not self.messages.db.exists(event):
+                self.messages.addlist( event, 'list of %s events'%event )
 
     def on_error( self, frame ):
         ERROR('recieved %s' % frame.body)
@@ -130,7 +133,7 @@ def readConfig( filename = None ):
     defaults = readSiteConfig()    
     return defaults['Donkey']
 
-def run( sleeps ):
+def run( sleeps, dbfilename ):
     DEBUG("donkey.listener is starting")
     defaults = readConfig()
     pprint.pprint(defaults)
@@ -142,7 +145,7 @@ def run( sleeps ):
     sig_restore = signal.signal(signal.SIGINT, signal.SIG_IGN)
 
     DEBUG("Start listener")
-    listener = Listener( connection, ['create_dts','open','close'] )
+    listener = Listener( connection, dbfilename, ['create_dts','open','close'] )
     connection.set_listener( 'donkey_ears', listener )
 
     #def connectAndSubscribe( args, defaults, connection ):
@@ -163,4 +166,5 @@ def run( sleeps ):
 
         
 if __name__=='__main__':
-    run( [5,4,3,2,1] )
+    #run( [5,4,3,2,1], 'donkey-listener' )
+    run( [1], 'donkey-listener' )

@@ -58,12 +58,32 @@ class dataset_collection:
         ds.adopt( result )
         return ds
 
+    def getall( self, lname ):
+        """
+        
+        """
+        result = self.db.lgetall( lname )
+        return result
+
     def exists( self, name, ds ):
         """
         Check if the dataset exists on the specified list and return true if it does
         """
         result = self.db.lexists(name,ds.__dict__)
         return result
+
+    def find( self, name, dsname ):
+        """
+        Check to see if the named dataset exists, and return it
+        """
+        result = None
+        for x in self.db.lgetall(name):
+            if x['name']==dsname:
+                result=dataset()
+                result.adopt(x)
+                break
+        return result
+            
 
     def rem( self, name, ds ):
         if type(ds) is dict:

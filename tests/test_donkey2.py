@@ -1,7 +1,39 @@
 import pytest
 import datetime
-time0 = "%s" % datetime.datetime.fromtimestamp( 0 )
-print(time0)
+time0  = "%s" % datetime.datetime.fromtimestamp( 0 )
+utcnow = "%s" % datetime.datetime.utcnow()
+#
+
+def skip_test_donkey2_listener_loop():
+
+    from donkey.donkey_listener import run
+    from donkey.dataset import dataset_collection as collection
+    from donkey.dataset import dataset
+    
+    from rucio.client import Client
+    import uuid
+    
+    client = Client()
+
+    uu = str(uuid.uuid4())
+
+    dbfile='test-donkey-listener-%s'%uu
+
+    # create a dataset
+    scope='user.jwebb2'
+    name='test-donkey2-%s'%uu
+
+    client.add_dataset( scope, name )
+
+    # run the listener for 1min
+    run([1],dbfile)
+    coll = collection(dbfile)
+    assert coll.find('create_dts',name), 'dataset %s does not exist after created in rucio'
+
+    # run the listener for 1min
+    run([1],dbfile)    
+    assert coll.find('create_dts',name), 'dataset %s does not exist after a second pass of the listening loop'
+    
 
 def test_donkey2_import_dataset():
     """
@@ -114,14 +146,17 @@ def test_donkey2_add_remove_dataset_collection():
     coll.add('new',d2)
     coll.add('new',d3)
 
-    assert coll.exists('new',d1), 'Dataset 1 exists after addition'
-    assert coll.exists('new',d2), 'Dataset 2 exists after addition'
-    assert coll.exists('new',d3), 'Dataset 3 exists after addition'
+    assert coll.exists('new',d1), 'Dataset 1 must exist after addition'
+    assert coll.exists('new',d2), 'Dataset 2 must exist after addition'
+    assert coll.exists('new',d3), 'Dataset 3 must exist after addition'
 
     coll.rem('new',d1)
     assert not coll.exists('new',d1), 'Dataset 1 does not exist after remove'
-    assert coll.exists('new',d2), 'Dataset 2 still exists after ds1 removal'
-    assert coll.exists('new',d3), 'Dataset 3 still exists after ds1 removal'    
+    assert coll.exists('new',d2), 'Dataset 2 must still exist after ds1 removal'
+    assert coll.exists('new',d3), 'Dataset 3 must still exist after ds1 removal'
+
+    coll.addlist('new', 'addition/removal test')    
+    assert coll.length( 'new' ) == 0, "Adding a list should clear the previously found list"
 
 def test_donkey2_add_to_unkown_list():
 
