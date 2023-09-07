@@ -9,6 +9,7 @@ class dataset:
         self.event      = "none"                                      # last activemq event
         self.created    = time0                                       # time event happened
         self.closed     = time0                                       # time dataset was closed
+        self.reopened   = time0                                       # ... reopened
         self.dispatched = time0                                       # time job dispatched
         self.account    = "none"
         self.scope      = "none"
