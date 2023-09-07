@@ -39,8 +39,6 @@ def test_donkey2_init_dataset_collection():
     
     coll = dataset_collection(f,n,t)
 
-    #assert coll.name == n, "The name must be specified in the constructor %s"%n
-    #assert coll.title == t, "... ditto for the title %s"%t
     assert coll.db.exists( n ), "The db file should contain a named list"
     assert coll.db.exists( n+".meta" ), "The db file should contain a metadata entry for the list"
 
@@ -64,23 +62,23 @@ def test_donkey2_add_pop_dataset_collection():
     ds.created   = str(datetime.datetime.utcnow())
 
     co = collection( "test_donkey2_add_get_remove_dataset_collection", "new", "Newly created datasets" )
-    co = collection(  "test_donkey2_add_get_remove_dataset_collection", "processing", "Data sets in process" )
-    co = collection(  "test_donkey2_add_get_remove_dataset_collection", "done", "Data sets processed" )
+    co = collection( "test_donkey2_add_get_remove_dataset_collection", "processing", "Data sets in process" )
+    co = collection( "test_donkey2_add_get_remove_dataset_collection", "done", "Data sets processed" )
 
     assert len(co.db.getall())==3*2, "There should be three lists and three meta data in the collection"
     assert co.db.exists( "new" ),   "There should be a new"
     assert co.db.exists( "processing" ),   "There should be a processing"
     assert co.db.exists( "done" ),   "There should be a done"
 
-    assert co.db.llen( "new" ) == 0, "The new list should be empty"
-    assert co.db.llen( "processing" ) == 0, "The processing list should be empty"
-    assert co.db.llen( "done" ) == 0, "The done list should be emptry"
+    assert co.length( "new" ) == 0, "The new list should be empty"
+    assert co.length( "processing" ) == 0, "The processing list should be empty"
+    assert co.length( "done" ) == 0, "The done list should be emptry"
 
     for n in ["new","processing","done"]:
         co.add( n, ds )
-        assert co.db.llen( n ) == 1, "After adding a dataset the size of the %s list shoudl be incremented"%n
+        assert co.length( n ) == 1, "After adding a dataset the size of the %s list shoudl be incremented"%n
         co.pop( n )
-        assert co.db.llen( n ) == 0, "The %s list should be empty after a pop"    %n
+        assert co.length( n ) == 0, "The %s list should be empty after a pop"    %n        
 
     for n in ["new","processing","done"]:  # popping an empty list on a collection is a no-no...
         with pytest.raises(IndexError):
@@ -105,5 +103,5 @@ def test_donkey2_multiadd_dataset_collection():
     assert( result ), "The dataset can be found on the list"
 
     co.add( 'new', ds )
-    assert co.db.llen('new')==1 , "Adding multiple copies of a dataset should be ignored"
+    assert co.length('new')==1 , "Adding multiple copies of a dataset should be ignored"
     

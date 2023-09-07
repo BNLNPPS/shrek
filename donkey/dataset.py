@@ -42,6 +42,12 @@ class dataset_collection:
         else:
             self.db.ladd( lname, ds.__dict__ )
 
+    def length( self, lname ):
+        result = 0
+        if self.db.exists( lname ):
+            result = len(self.db.lgetall(lname))
+        return result
+
     def pop( self, lname ):
         """
         Pop a datase from the specified list in the collection
