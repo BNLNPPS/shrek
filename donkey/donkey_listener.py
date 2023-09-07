@@ -125,15 +125,12 @@ def defaultSubscriptionId( configdir ):
         sid = createAndCacheSubscriptionId()
 
     return sid
-
-        
-
-
+       
 def readConfig( filename = None ):    
     defaults = readSiteConfig()    
     return defaults['Donkey']
 
-def main():
+def run( sleeps ):
     DEBUG("donkey.listener is starting")
     defaults = readConfig()
     pprint.pprint(defaults)
@@ -160,12 +157,10 @@ def main():
     connection.connect( user, password, wait=True )
     connection.subscribe( destination=queue, id=sub, ack=ack_ )    
 
-    for i in [5,4,3,2,1]:
+    for i in sleeps:
         DEBUG("Main thread sleeping for %i min"%i)
         time.sleep(60)
 
-    #signal.signal(signal.SIGINT, sig_restore)
-  
         
 if __name__=='__main__':
-    main()
+    run( [5,4,3,2,1] )
