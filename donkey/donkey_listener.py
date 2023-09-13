@@ -26,6 +26,9 @@ class Listener( stomp.ConnectionListener ):
         self.events     = events_
         # Add lists for each event class (if the list doesn't already
         # exist in the db file).
+
+        self.skip_accounts = ['iddsv1','unknown']
+                  
         for event in events_:
             if not self.messages.db.exists(event):
                 self.messages.addlist( event, 'list of %s events'%event )
@@ -47,28 +50,36 @@ class Listener( stomp.ConnectionListener ):
         # Only handle known events
         if event in self.events:
 
-            # Create a new dataset to persist the message
-            ds = dataset()
-            ds.name      = payload['name'] # name of the dataset
-            ds.runnumber = 0               # TODO: should be encoded in the dataset name
-            ds.event     = event           # type of event
-            if event=='create_dts':
-                ds.created = utcnow
-            elif event=='close':
-                ds.closed  = utcnow
-            elif event=='open':
-                ds.reopened = utcnow
+            account_ = "unknown"
             try:
-                ds.account = payload['account']
+                account_ = payload['account']
             except KeyError:
-                ds.account = "unknown"
-            try:
-                ds.scope   = payload['scope']
-            except KeyError:
-                ds.scope   = "unknown"
+                account_ = "unknown"
 
-            # Add the dataset to the appropriate list in the collection
-            self.messages.add( event, ds )
+            if account_ not in self.skip_accounts:
+
+                # Create a new dataset to persist the message
+                ds = dataset()
+                ds.name      = payload['name'] # name of the dataset
+                ds.runnumber = 0               # TODO: should be encoded in the dataset name
+                ds.event     = event           # type of event
+                if event=='create_dts':
+                    ds.created = utcnow
+                elif event=='close':
+                    ds.closed  = utcnow
+                elif event=='open':
+                    ds.reopened = utcnow
+                try:
+                    ds.account = payload['account']
+                except KeyError:
+                    ds.account = "unknown"
+                try:
+                    ds.scope   = payload['scope']
+                except KeyError:
+                    ds.scope   = "unknown"
+
+                # Add the dataset to the appropriate list in the collection
+                self.messages.add( event, ds )
 
         
 def createAndCacheSubscriptionId( idhx=None ):
