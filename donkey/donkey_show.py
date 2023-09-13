@@ -19,13 +19,3 @@ for con in cons:
         header = dataset[0].keys()
         rows   = [ x.values() for x in dataset ]
         print(tabulate.tabulate(rows, header, tablefmt='grid'))
-
-
-for con in cons:
-    dataset = coll.getall( con )
-    print(con)
-    print("---------------------------------------------")
-    if len(dataset):
-        header = dataset[0].keys()
-        rows   = [ x.values() for x in dataset ]
-        print(tabulate.tabulate(rows, header, tablefmt='grid'))
