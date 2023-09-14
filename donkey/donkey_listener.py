@@ -69,17 +69,12 @@ def handle_open( meta, messages, skip ):
         ds.event     = 'opened'
         ds.opened    = utcnow
         messages.add( 'pending', ds )         # add back to pending
-        
-        
-
-    
-
+                  
 message_actors = {
     'create_dts' : handle_create_dts,
     'open'       : handle_open,
     'close'      : handle_close,    
     }
-
 
 class Listener( stomp.ConnectionListener ):
     def __init__(self,connection_,dbfilename,events_=[]):
@@ -114,7 +109,7 @@ class Listener( stomp.ConnectionListener ):
             actor( meta, self.messages, self.skip_accounts )
 
         else:
-            print("Unknown actor for event %s"%event )
+            print("No actor registered for event %s"%event )
 
         
 def createAndCacheSubscriptionId( idhx=None ):
