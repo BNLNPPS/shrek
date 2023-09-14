@@ -19,6 +19,8 @@ import json
 
 import signal
 
+
+
 class Listener( stomp.ConnectionListener ):
     def __init__(self,connection_,dbfilename,events_=[]):
         self.connection = connection_
@@ -31,7 +33,7 @@ class Listener( stomp.ConnectionListener ):
                   
         for event in events_:
             if not self.messages.db.exists(event):
-                self.messages.addlist( event, 'list of %s events'%event )
+                self.messages.addlist( event, 'collections' )
 
     def on_error( self, frame ):
         ERROR('recieved %s' % frame.body)
@@ -48,7 +50,7 @@ class Listener( stomp.ConnectionListener ):
         payload = body["payload"]
 
         # Only handle known events
-        if event in self.events:
+        if True:
 
             account_ = "unknown"
             try:
@@ -79,7 +81,7 @@ class Listener( stomp.ConnectionListener ):
                     ds.scope   = "unknown"
 
                 # Add the dataset to the appropriate list in the collection
-                self.messages.add( event, ds )
+                self.messages.add( 'pending', ds )
 
         
 def createAndCacheSubscriptionId( idhx=None ):
@@ -156,7 +158,7 @@ def run( sleeps, dbfilename ):
     sig_restore = signal.signal(signal.SIGINT, signal.SIG_IGN)
 
     DEBUG("Start listener")
-    listener = Listener( connection, dbfilename, ['create_dts','open','close'] )
+    listener = Listener( connection, dbfilename, ['pending','processed'] )
     connection.set_listener( 'donkey_ears', listener )
 
     #def connectAndSubscribe( args, defaults, connection ):

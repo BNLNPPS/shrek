@@ -4,7 +4,7 @@ time0  = "%s" % datetime.datetime.fromtimestamp( 0 )
 utcnow = "%s" % datetime.datetime.utcnow()
 #
 
-def skip_test_donkey2_listener_loop():
+def test_donkey2_listener_loop():
 
     from donkey.donkey_listener import run
     from donkey.dataset import dataset_collection as collection
@@ -23,16 +23,17 @@ def skip_test_donkey2_listener_loop():
     scope='user.jwebb2'
     name='test-donkey2-%s'%uu
 
+    # Add a dataset to dbfile
     client.add_dataset( scope, name )
 
     # run the listener for 1min
     run([1],dbfile)
     coll = collection(dbfile)
-    assert coll.find('create_dts',name), 'dataset %s does not exist after created in rucio'
+    assert coll.find('pending',name), 'dataset %s must exist in pending collection after created in rucio'
 
     # run the listener for 1min
-    run([1],dbfile)    
-    assert coll.find('create_dts',name), 'dataset %s does not exist after a second pass of the listening loop'
+    run([],dbfile)    
+    assert coll.find('pending',name), 'dataset %s must continue to exist after second call to the listener'
     
 
 def test_donkey2_import_dataset():
