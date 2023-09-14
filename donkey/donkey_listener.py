@@ -19,6 +19,66 @@ import json
 
 import signal
 
+from rucio.client import Client
+client = Client()
+
+def handle_create_dts( meta, messages, skip ):
+    """
+    A new dataset has been created in rucio
+    """
+    utcnow = str(datetime.datetime.utcnow())
+    account = meta.get( 'account', 'unknown' )
+    
+    if account not in skip:
+        ds = dataset()
+        ds.name      = meta.get('name','unknown')
+        ds.runnumber = int( meta.get('run_number','0') )
+        ds.event     = 'created'
+        ds.created   = utcnow
+        ds.account   = account
+        ds.scope     = meta.get('scope',  'unknown')
+        messages.add( 'pending', ds )
+
+def handle_close( meta, messages, skip ):
+    """
+    A dataset has been closed in rucio
+    """
+    utcnow = str(datetime.datetime.utcnow())
+    account = meta.get( 'account', 'unknown' )
+
+    if account not in skip:
+        name = meta['name']
+        ds = messages.find('pending',name)
+        ds.event     = 'closed'
+        ds.closed    = utcnow
+        messages.update( 'pending', ds )
+
+
+def handle_open( meta, messages, skip ):
+    """
+    A dataset has been opened in rucio
+    """
+    utcnow = str(datetime.datetime.utcnow())
+    account = meta.get( 'account', 'unknown' )
+
+    if account not in skip:
+
+        name = meta['name']
+        ds = messages.find('processed',name)
+        messages.rem( 'processed', ds )       # remove from processed collection
+        ds.event     = 'opened'
+        ds.opened    = utcnow
+        messages.add( 'pending', ds )         # add back to pending
+        
+        
+
+    
+
+message_actors = {
+    'create_dts' : handle_create_dts,
+    'open'       : handle_open,
+    'close'      : handle_close,    
+    }
 
 
 class Listener( stomp.ConnectionListener ):
@@ -39,49 +99,22 @@ class Listener( stomp.ConnectionListener ):
         ERROR('recieved %s' % frame.body)
 
     def on_message( self, frame ):
-        utcnow = str(datetime.datetime.utcnow())
 
-        print( str(frame.headers) )            
-        print( str(frame.body) )
-
-        body = json.loads( str(frame.body) )
-
-        event   = body["event_type"]        
+        body    = json.loads( str(frame.body) )
+        event   = body["event_type"]
         payload = body["payload"]
+        name    = payload["name"]
+        scope   = payload["scope"]
+        meta    = client.get_metadata( scope, name )
 
-        # Only handle known events
-        if True:
 
-            account_ = "unknown"
-            try:
-                account_ = payload['account']
-            except KeyError:
-                account_ = "unknown"
+        actor = message_actors.get( event, None )
 
-            if account_ not in self.skip_accounts:
+        if actor:
+            actor( meta, self.messages, self.skip_accounts )
 
-                # Create a new dataset to persist the message
-                ds = dataset()
-                ds.name      = payload['name'] # name of the dataset
-                ds.runnumber = 0               # TODO: should be encoded in the dataset name
-                ds.event     = event           # type of event
-                if event=='create_dts':
-                    ds.created = utcnow
-                elif event=='close':
-                    ds.closed  = utcnow
-                elif event=='open':
-                    ds.reopened = utcnow
-                try:
-                    ds.account = payload['account']
-                except KeyError:
-                    ds.account = "unknown"
-                try:
-                    ds.scope   = payload['scope']
-                except KeyError:
-                    ds.scope   = "unknown"
-
-                # Add the dataset to the appropriate list in the collection
-                self.messages.add( 'pending', ds )
+        else:
+            print("Unknown actor for event %s"%event )
 
         
 def createAndCacheSubscriptionId( idhx=None ):

@@ -26,6 +26,9 @@ def test_donkey2_listener_loop():
     # Add a dataset to dbfile
     client.add_dataset( scope, name )
 
+    # Add a fake run number
+    client.set_metadata( scope, name, 'run_number', '123456789')
+
     # run the listener for 1min
     run([1],dbfile)
     coll = collection(dbfile)
