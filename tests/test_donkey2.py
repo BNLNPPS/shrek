@@ -1,5 +1,7 @@
 import pytest
 import datetime
+import time
+import pprint
 time0  = "%s" % datetime.datetime.fromtimestamp( 0 )
 utcnow = "%s" % datetime.datetime.utcnow()
 #
@@ -32,11 +34,29 @@ def test_donkey2_listener_loop():
     # run the listener for 1min
     run([1],dbfile)
     coll = collection(dbfile)
-    assert coll.find('pending',name), 'dataset %s must exist in pending collection after created in rucio'
+    assert coll.find('pending',name), 'dataset %s must exist in pending collection after created in rucio'%name
 
     # run the listener for 1min
-    run([],dbfile)    
-    assert coll.find('pending',name), 'dataset %s must continue to exist after second call to the listener'
+    run([],dbfile)
+    assert coll.find('pending',name), 'dataset %s must continue to exist after second call to the listener'%name
+
+    # mark the dataset as closed
+    client.close( scope, name )
+
+    # run the listener
+    run([1],dbfile)
+
+    # make sure to reload the db file
+    coll = collection(dbfile)    
+    ds = coll.find('pending',name)
+    pprint.pprint( ds.__dict__ )
+    
+    assert ds!=None, 'dataset %s must continue to exist after a close'%name
+    assert ds.event=='closed', 'dataset %s must be in the closed state after a close got %s '%(name,ds.event)
+    
+    
+
+    
     
 
 def test_donkey2_import_dataset():
@@ -120,6 +140,34 @@ def test_donkey2_add_pop_dataset_collection():
         with pytest.raises(IndexError):
             co.pop( n )
 
+def test_donkey2_update_dataset():
+
+    from donkey.dataset import dataset_collection as collection
+    from donkey.dataset import dataset
+
+    d1 = dataset()
+    d1.name      = "dataset1"
+    d1.runnumber = 12345
+    d1.event     = "test_add"
+    d1.created   = str(datetime.datetime.utcnow())
+
+    coll = collection( "test_donkey2_update_dataset" )
+    coll.addlist('new', 'update test')
+
+    coll.add('new',d1)
+
+    x = coll.find('new','dataset1')
+
+    assert x.runnumber==12345, "initially the dataset should have run number 12345"
+    x.runnumber = 54321
+    coll.update( 'new', x )
+    y = coll.find( 'new', 'dataset1' )
+    #coll.rem( 'new',x )
+    #coll.add('new',x)
+
+    assert y.runnumber==54321, "after update the dataset should have run number 54321"
+    
+
 def test_donkey2_add_remove_dataset_collection():
 
     from donkey.dataset import dataset_collection as collection
@@ -161,6 +209,9 @@ def test_donkey2_add_remove_dataset_collection():
 
     coll.addlist('new', 'addition/removal test')    
     assert coll.length( 'new' ) == 0, "Adding a list should clear the previously found list"
+
+
+    
 
 def test_donkey2_add_to_unkown_list():
 

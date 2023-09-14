@@ -26,7 +26,10 @@ def handle_create_dts( meta, messages, skip ):
     """
     A new dataset has been created in rucio
     """
+
     utcnow = str(datetime.datetime.utcnow())
+    name    = meta.get( 'name' )
+    DEBUG("create_dts %s"%name)
     account = meta.get( 'account', 'unknown' )
     
     if account not in skip:
@@ -43,21 +46,28 @@ def handle_close( meta, messages, skip ):
     """
     A dataset has been closed in rucio
     """
-    utcnow = str(datetime.datetime.utcnow())
+    utcnow = str(datetime.datetime.utcnow()) 
+    name    = meta.get( 'name' )
+    DEBUG("close %s"%name)    
     account = meta.get( 'account', 'unknown' )
+
+    DEBUG("... account %s"%account)
 
     if account not in skip:
         name = meta['name']
         ds = messages.find('pending',name)
+        messages.rem( 'pending', ds )
         ds.event     = 'closed'
         ds.closed    = utcnow
-        messages.update( 'pending', ds )
+        messages.add( 'pending', ds )
 
 
 def handle_open( meta, messages, skip ):
     """
     A dataset has been opened in rucio
     """
+    name    = meta.get( 'name' )
+    DEBUG("open %s"%name)    
     utcnow = str(datetime.datetime.utcnow())
     account = meta.get( 'account', 'unknown' )
 
@@ -94,6 +104,9 @@ class Listener( stomp.ConnectionListener ):
         ERROR('recieved %s' % frame.body)
 
     def on_message( self, frame ):
+
+        DEBUG( str(frame.headers) )
+        DEBUG( str(frame.body) )
 
         body    = json.loads( str(frame.body) )
         event   = body["event_type"]
@@ -204,6 +217,9 @@ def run( sleeps, dbfilename ):
     for i in sleeps:
         DEBUG("Main thread sleeping for %i min"%i)
         time.sleep(60)
+
+    DEBUG("Disconnect")
+    connection.disconnect()
 
         
 if __name__=='__main__':
