@@ -25,9 +25,8 @@ def test_donkey2_dispatch_default_rules():
     assert r.matches( ds ) == None, "An empty rule won't match the dataset"
     
 
-def test_donkey2_dispatch_rules():
-    import re
-    
+def test_donkey2_dispatch_matching_rules():
+    import re    
     from donkey.donkey_dispatch import Rule
     from donkey.donkey_dispatch import Dispatch
     from donkey.dataset import dataset
@@ -66,21 +65,123 @@ def test_donkey2_dispatch_rules():
     ds.name = "blah12345"
     assert r.matches( ds ) == None, "short run number doesn't work..."
 
+def test_donkey_dispatch_class():
+    import re
+    import uuid
 
-    #regex=re.compile( r"(\w)+_EVENTS-(\d{9})" )
-    #result = regex.match(ds.name)
+    from donkey.donkey_dispatch import Rule
+    from donkey.donkey_dispatch import Dispatch
 
-    #assert result
+    from donkey.dataset import dataset_collection as collection
+    from donkey.dataset import dataset
+
+    #
+    # construct db file
+    #
     
-    #assert r.matches_name( ds ), "dataset should match the rule name"
+    fname = 'test-dispatch-%s'%str(uuid.uuid4())
+    coll = collection( fname )
 
-#    ds.event = "opened"
-#    result = r.matches( ds )    
-#    assert result[0] is None, "rule should not match an open dataset"
+    uu = uuid.uuid4()        
+    coll.addlist( 'pending', 'pending datasets' )
+    coll.addlist( 'dispatched', 'dispatched datasets' )
+    coll.addlist( 'dropped', 'dropped datasets' )
+
+    # runs to be processed
+    runs = [ 987654321,
+             987654322,
+             987654323,
+             987654324,
+             987654325,
+             ]
+
+    for r in runs:
+        ds = dataset()            
+        ds.name = "sP23x_EVENTS-%i"%r
+        ds.scope = 'group.sphenix'
+        ds.runnumber = r
+        ds.event = 'closed'
+        ds.created = str(datetime.datetime.utcnow())
+        coll.add( 'pending', ds )
+
+    # and runs not yet ready
+    runs = [ 987654326,
+             987654327,
+             987654328,
+             987654329,
+             987654330,
+             ]
+
+    for r in runs:
+        ds = dataset()            
+        ds.name = "sP23x_EVENTS-%i"%r
+        ds.scope = 'group.sphenix'        
+        ds.runnumber = r
+        ds.event = 'created'
+        ds.created = str(datetime.datetime.utcnow())
+        coll.add( 'pending', ds )
+
+    # and datasets that will not be procssed
+    for r in runs:
+        ds = dataset()            
+        ds.name = "sP23x_NOT_MATCHING-%i"%r
+        ds.scope = 'group.sphenix'        
+        ds.runnumber = r
+        ds.event = 'closed'
+        ds.created = str(datetime.datetime.utcnow())
+        coll.add( 'pending', ds )        
+            
+
+    #
+    # Create dispatch object and setup a matching rule for the datasets
+    #
+        
+    d = Dispatch( fname )
+    r = Rule("Match raw events")
+    r.event = "closed"
+    r.scopes = [ "user.jwebb2", "group.sphenix" ]
+    r.regex  = re.compile( r"(\w)+EVENTS-(\d{9})" )
+    r.actors = "hello.sh"
+    d.rules = [r]
+
+    back_to_pending = []
+
+    while coll.length( 'pending' ) > 0:
+
+        # pop the pending stack
+        ds = coll.pop( 'pending' )
+
+        if r.matches(ds) is not None:
+            # matching rule ds goes to dispatch
+            ds.dispatched = str( datetime.datetime.utcnow() )
+            coll.add('dispatched',ds)
+
+        elif not r.matches_scope(ds) or not r.matches_name(ds):
+            # not in scope or name is not good goes to dropped
+            coll.add('dropped',ds)
+
+        else:           
+            back_to_pending.append(ds)
+
+    for d in back_to_pending:
+        coll.add('pending',d)
+
+
+    assert coll.length('pending')==5, "Five datasets are not ready to be processed (event=created)"
+    assert coll.length('dispatched')==5, "Five datasets should have been dispatched"
+    assert coll.length('dropped')==5, "Five datasets should have been dropped"
+
+                
+
+
+           
+
+           
+
 
     
     
-
+    
 
 
 
