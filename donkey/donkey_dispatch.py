@@ -14,6 +14,7 @@ import uuid
 import re
 import sh
 import os
+import sys
 
 import argparse
 
@@ -64,7 +65,7 @@ class Dispatch:
         self.dispatch = []
         self.dropped  = []
 
-    def addRule( r ):
+    def addRule( self, r ):
         self.rules.append(r)
 
     def run(self):
@@ -119,7 +120,7 @@ class Dispatch:
         
 
                 
-def parse_args():
+def parse_args( args ):
     parser = argparse.ArgumentParser(description='Examines messages DB for workflows to be dispatched according to rules specified on the command line')
     parser.add_argument( '--dbfile', dest='dbfile', help="Specifies the DB file to read")
     parser.add_argument( '--rule',   default=[], dest='rules',  action='append',  help='Name of the next rule' )
@@ -127,28 +128,42 @@ def parse_args():
     parser.add_argument( '--regex',  default=[], dest='regexs', action='append',  help='Regular expression to match' )
     parser.add_argument( '--scope',  default=[], dest='scopes', action='append',  help='Scope(s) to match' )
     parser.add_argument( '--event',  default=[], dest='events', action='append',  help='Event to match' )
-
-    return parser.parse_args()
+    parser.add_argument( '--run',    default=False,dest='run',  action='store_true', help='Run the dispatcher' )
+    return parser.parse_args( args )
     
-            
 # e.g.
 #   donkey dispatch --dbfile messages.db --rule raw-events --actor actors/dispatch.sh --regex 'r"(\w)+EVENTS-(\d+)"' --scope group.sphenix --event close
         
       
-if __name__=='__main__':
+def run(argsin):
+    args = parse_args( argsin )
 
-    args = parse_args()
+    d = Dispatch( args.dbfile )
 
-    if len(args.rules):
-        table_ = zip( args.rules,
+    head_ = [ "rule", "scopes", "event", "regex", "actor" ]
+    rules_ = list( zip( args.rules,
                   args.scopes,
                   args.events,
                   args.regexs,
-                  args.actors )
-        head_ = [ "rule", "scopes", "event", "regex", "actor" ]
+                  args.actors ))
 
-        print( tabulate.tabulate(table_, headers=head_) )
+    # Add dispatch rules
+    for name_,scope_,event_,regex_,actor_ in rules_:
+        r = Rule( name_ )
+        r.scopes = scope_.split(',')
+        r.event  = event_
+        r.regex  = regex_
+        r.actor  = actor_
+        d.addRule(r)
 
+    if len(rules_):
+        print( tabulate.tabulate(rules_, headers=head_) )
+        if args.run:
+            d.run() # run the dispatcher
+
+
+if __name__=='__main__':
+    run(sys.argv[1:])
 
     # setup rules for dispatching work
     #r = Rule("submit run to panda")
