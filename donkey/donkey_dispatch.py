@@ -50,12 +50,6 @@ class Rule:
             result = name_check
         return result
 
-    def execute(self,ds):
-        if self.matches(ds):
-            for a in self.actors:
-                actor = sh.Command(a)
-                actor( ds, _out=captureActorOutput, _err=captureActorError, _env=os.environ.copy() )
-
 
 
 class Dispatch:
@@ -63,10 +57,9 @@ class Dispatch:
         self.rules  = []
         self.dbfile = dbfile
 
-    def run(self):
-        coll = collection( self.dbfile )
-        pend = coll.getall("pending")
-        pprint.pprint(pend)
+    def actors(self):
+        result = []
+        return result
 
 
 
