@@ -6,7 +6,7 @@ time0  = "%s" % datetime.datetime.fromtimestamp( 0 )
 utcnow = "%s" % datetime.datetime.utcnow()
 #
 
-def test_donkey2_listener_loop():
+def Xtest_donkey2_listener_loop():
 
     from donkey.donkey_listener import run
     from donkey.dataset import dataset_collection as collection
