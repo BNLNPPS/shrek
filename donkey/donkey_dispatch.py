@@ -69,7 +69,8 @@ class Dispatch:
         self.rules.append(r)
 
     def run(self):
-        # read in the messages file
+
+        DEBUG("run")
         coll = collection(self.dbfile)
 
         # Clear 
@@ -81,10 +82,13 @@ class Dispatch:
 
             # Pop all pending datasets
             ds = coll.pop( 'pending' )
+            DEBUG("ds name=%s"%ds.name)            
 
             # dispatch work to any and all matching actors
             ismatched = False
             for r in self.rules:
+
+                DEBUG("rule name=%s"%r.name)
 
                 ok_scope = r.matches_scope(ds)
                 ok_name  = r.matches_name(ds)
@@ -152,7 +156,7 @@ def run(argsin):
         r = Rule( name_ )
         r.scopes = scope_.split(',')
         r.event  = event_
-        r.regex  = regex_
+        r.regex  = re.compile(regex_)
         r.actor  = actor_
         d.addRule(r)
 
