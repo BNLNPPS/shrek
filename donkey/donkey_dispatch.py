@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from shrek.scripts.simpleLogger import DEBUG, INFO, WARN, ERROR, CRITICAL
 
 import tabulate
@@ -12,6 +14,8 @@ import uuid
 import re
 import sh
 import os
+
+import argparse
 
 def captureActorOutput( out ):
     INFO('| '+ out)
@@ -115,29 +119,46 @@ class Dispatch:
         
 
                 
+def parse_args():
+    parser = argparse.ArgumentParser(description='Examines messages DB for workflows to be dispatched according to rules specified on the command line')
+    parser.add_argument( '--dbfile', dest='dbfile', help="Specifies the DB file to read")
+    parser.add_argument( '--rule',   default=[], dest='rules',  action='append',  help='Name of the next rule' )
+    parser.add_argument( '--actor',  default=[], dest='actors', action='append',  help='Actor script' )
+    parser.add_argument( '--regex',  default=[], dest='regexs', action='append',  help='Regular expression to match' )
+    parser.add_argument( '--scope',  default=[], dest='scopes', action='append',  help='Scope(s) to match' )
+    parser.add_argument( '--event',  default=[], dest='events', action='append',  help='Event to match' )
 
+    return parser.parse_args()
+    
             
-
+# e.g.
+#   donkey dispatch --dbfile messages.db --rule raw-events --actor actors/dispatch.sh --regex 'r"(\w)+EVENTS-(\d+)"' --scope group.sphenix --event close
         
-
-        
-
-
-
-
-
       
 if __name__=='__main__':
 
+    args = parse_args()
+
+    if len(args.rules):
+        table_ = zip( args.rules,
+                  args.scopes,
+                  args.events,
+                  args.regexs,
+                  args.actors )
+        head_ = [ "rule", "scopes", "event", "regex", "actor" ]
+
+        print( tabulate.tabulate(table_, headers=head_) )
+
+
     # setup rules for dispatching work
-    r = Rule("submit run to panda")
-    r.event = "closed"
-    r.scope = [ "user.jwebb2", "group.sphenix" ]
-    r.match = re.compile( r"(\w)+CALOR-(\d+)" )
+    #r = Rule("submit run to panda")
+    #r.event = "closed"
+    #r.scope = [ "user.jwebb2", "group.sphenix" ]
+    #r.match = re.compile( r"(\w)+CALOR-(\d+)" )
 
-    dispatch = Dispatch("donkey-listener")
+    #dispatch = Dispatch("donkey-listener")
 
-    dispatch.rules  = [ r ]
-    dispatch.actors = [ "donkey/dispatch.sh" ]
+    #dispatch.rules  = [ r ]
+    #dispatch.actors = [ "donkey/dispatch.sh" ]
     
-    dispatch.run()
+    #dispatch.run()
