@@ -70,7 +70,6 @@ class Dispatch:
 
     def run(self):
 
-        DEBUG("run")
         coll = collection(self.dbfile)
 
         # Clear 
@@ -82,13 +81,10 @@ class Dispatch:
 
             # Pop all pending datasets
             ds = coll.pop( 'pending' )
-            DEBUG("ds name=%s"%ds.name)            
 
             # dispatch work to any and all matching actors
             ismatched = False
             for r in self.rules:
-
-                DEBUG("rule name=%s"%r.name)
 
                 ok_scope = r.matches_scope(ds)
                 ok_name  = r.matches_name(ds)
@@ -137,12 +133,15 @@ def parse_args( args ):
     
 # e.g.
 #   donkey dispatch --dbfile messages.db --rule raw-events --actor actors/dispatch.sh --regex 'r"(\w)+EVENTS-(\d+)"' --scope group.sphenix --event close
-        
+
+dispatch = None
       
 def run(argsin):
-    args = parse_args( argsin )
+    global dispatch
 
-    d = Dispatch( args.dbfile )
+    args = parse_args( argsin )
+    dispatch = Dispatch( args.dbfile )
+    d=dispatch
 
     head_ = [ "rule", "scopes", "event", "regex", "actor" ]
     rules_ = list( zip( args.rules,
@@ -156,28 +155,16 @@ def run(argsin):
         r = Rule( name_ )
         r.scopes = scope_.split(',')
         r.event  = event_
-        r.regex  = re.compile(regex_)
+        r.regex  = re.compile( r"%s"%regex_ )                
         r.actor  = actor_
         d.addRule(r)
 
     if len(rules_):
         print( tabulate.tabulate(rules_, headers=head_) )
-        if args.run:
-            d.run() # run the dispatcher
+    if args.run:
+        d.run() # run the dispatcher
 
 
 if __name__=='__main__':
     run(sys.argv[1:])
 
-    # setup rules for dispatching work
-    #r = Rule("submit run to panda")
-    #r.event = "closed"
-    #r.scope = [ "user.jwebb2", "group.sphenix" ]
-    #r.match = re.compile( r"(\w)+CALOR-(\d+)" )
-
-    #dispatch = Dispatch("donkey-listener")
-
-    #dispatch.rules  = [ r ]
-    #dispatch.actors = [ "donkey/dispatch.sh" ]
-    
-    #dispatch.run()
