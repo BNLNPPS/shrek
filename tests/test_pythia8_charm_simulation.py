@@ -27,6 +27,7 @@ def commonWorkflow():
         site = "BNL_OSG_SPHENIX"
         tag  = "sP-PYTHIA8-TEST"
         scouting = True
+        debug = "all"        
     args = Args()        
 
     return buildCommonWorkflow( yamls, args.tag, args.site, args, {} )
