@@ -27,7 +27,10 @@ class dataset_collection:
         self.pickle = pickle_
         self.db     = pickledb.load( self.pickle + '.db', True )
         if name_:
-            self.addlist(name_,title_)               
+            self.addlist(name_,title_)
+
+    def dump(self):
+        self.db.dump()
 
     def addlist(self,name_,title_):
         self.db.lcreate(name_)
