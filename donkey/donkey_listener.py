@@ -22,6 +22,8 @@ import signal
 from rucio.client import Client
 client = Client()
 
+from collections import deque
+
 def handle_create_dts( meta, messages, skip ):
     """
     A new dataset has been created in rucio
@@ -91,6 +93,8 @@ class Listener( stomp.ConnectionListener ):
         self.connection = connection_
         self.messages   = collection( dbfilename )
         self.events     = events_
+        self.gotmsg     = False
+        self.recent     = deque( maxlen=20 )
         # Add lists for each event class (if the list doesn't already
         # exist in the db file).
 
@@ -105,6 +109,8 @@ class Listener( stomp.ConnectionListener ):
 
     def on_message( self, frame ):
 
+        self.gotmsg = True
+
         DEBUG( str(frame.headers) )
         DEBUG( str(frame.body) )
 
@@ -115,6 +121,7 @@ class Listener( stomp.ConnectionListener ):
         scope   = payload["scope"]
         meta    = client.get_metadata( scope, name )
 
+        self.recent.append( { 'name':name, 'scope':scope, 'event':event } )
 
         actor = message_actors.get( event, None )
 
@@ -214,9 +221,13 @@ def run( sleeps, dbfilename, lists=['pending','processed'] ):
     connection.connect( user, password, wait=True )
     connection.subscribe( destination=queue, id=sub, ack=ack_ )    
 
-    for i in sleeps:
-        DEBUG("Main thread sleeping for %i min"%i)
-        time.sleep(60)
+
+    if len(sleeps)>0:
+        for i in sleeps:
+            DEBUG("Main thread sleeping for %i min"%i)
+            time.sleep(60)
+
+    time.sleep(30)
 
     DEBUG("Disconnect")
     connection.disconnect()
