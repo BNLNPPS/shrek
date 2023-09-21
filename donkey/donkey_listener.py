@@ -187,7 +187,7 @@ def readConfig( filename = None ):
     defaults = readSiteConfig()    
     return defaults['Donkey']
 
-def run( sleeps, dbfilename ):
+def run( sleeps, dbfilename, lists=['pending','processed'] ):
     DEBUG("donkey.listener is starting")
     defaults = readConfig()
     pprint.pprint(defaults)
@@ -199,7 +199,7 @@ def run( sleeps, dbfilename ):
     sig_restore = signal.signal(signal.SIGINT, signal.SIG_IGN)
 
     DEBUG("Start listener")
-    listener = Listener( connection, dbfilename, ['pending','processed'] )
+    listener = Listener( connection, dbfilename, lists )
     connection.set_listener( 'donkey_ears', listener )
 
     #def connectAndSubscribe( args, defaults, connection ):
@@ -220,6 +220,10 @@ def run( sleeps, dbfilename ):
 
     DEBUG("Disconnect")
     connection.disconnect()
+
+    listener.messages.dump()
+
+    
 
         
 if __name__=='__main__':
