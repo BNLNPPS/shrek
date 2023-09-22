@@ -18,6 +18,8 @@ import sys
 
 import argparse
 
+from collections import deque
+
 def captureActorOutput( out ):
     INFO('| '+ out)
 
@@ -64,6 +66,7 @@ class Dispatch:
         self.pending  = []
         self.dispatch = []
         self.dropped  = []
+        self.recent   = deque(maxlen=50)
 
     def addRule( self, r ):
         self.rules.append(r)
@@ -106,6 +109,10 @@ class Dispatch:
                 # Otherwise return to the pending queue
                 else:
                     self.pending.append( ds )
+
+            self.recent.append( {'name':ds.name, 'matched':ismatched } )
+
+                    
 
         # Return pending datasets to pending collection
         for ds in self.pending:
