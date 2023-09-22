@@ -30,7 +30,6 @@ def handle_create_dts( meta, messages, skip ):
     """
     utcnow = str(datetime.datetime.utcnow())
     name    = meta.get( 'name' )
-    DEBUG("create_dts %s"%name)
     account = meta.get( 'account', 'unknown' )
     
     if account not in skip:
@@ -47,23 +46,23 @@ def handle_create_dts( meta, messages, skip ):
 
 def handle_close( meta, messages, skip ):
     """
-    A dataset has been closed in rucio
+    A dataset has been closed in rucio.  
     """
     utcnow = str(datetime.datetime.utcnow()) 
     name    = meta.get( 'name' )
-    DEBUG("close %s"%name)    
     account = meta.get( 'account', 'unknown' )
-
-    DEBUG("... account %s"%account)
-
     if account not in skip:
         name = meta['name']
         ds = messages.find('pending',name)
+        # If we missed the creation, go ahead and create it now. 
+        if ds is None:
+            WARN("Recieved a close on missing dataset %s"%name)            
+            handle_create_dts( meta, messages, skip )
+            ds = messages.find('pending',name)
         messages.rem( 'pending', ds )
         ds.event     = 'closed'
         ds.closed    = utcnow
-        messages.add( 'pending', ds )
-
+        messages.add( 'pending', ds )            
 
 def handle_open( meta, messages, skip ):
     """
@@ -75,10 +74,9 @@ def handle_open( meta, messages, skip ):
     account = meta.get( 'account', 'unknown' )
 
     if account not in skip:
-
         name = meta['name']
-        ds = messages.find('processed',name)
-        messages.rem( 'processed', ds )       # remove from processed collection
+        ds = messages.find('dispatched',name)
+        messages.rem( 'dispatched', ds )       # remove from processed collection
         ds.event     = 'opened'
         ds.opened    = utcnow
         messages.add( 'pending', ds )         # add back to pending
@@ -119,15 +117,20 @@ class Listener( stomp.ConnectionListener ):
         payload = body["payload"]
         name    = payload["name"]
         scope   = payload["scope"]
-        meta    = client.get_metadata( scope, name )
 
+        
         self.recent.append( { 'name':name, 'scope':scope, 'event':event } )
-        #pprint.pprint(self.recent)
+
 
         actor = message_actors.get( event, None )
 
         if actor:
+            meta    = client.get_metadata( scope, name )            
             actor( meta, self.messages, self.skip_accounts )
+
+        elif event=='erase':
+            # TODO cleanup DB when dataset is ereased
+            pass
 
         else:
             WARN("No actor registered for event %s"%event )
