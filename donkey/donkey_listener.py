@@ -28,7 +28,6 @@ def handle_create_dts( meta, messages, skip ):
     """
     A new dataset has been created in rucio
     """
-
     utcnow = str(datetime.datetime.utcnow())
     name    = meta.get( 'name' )
     DEBUG("create_dts %s"%name)
@@ -43,6 +42,8 @@ def handle_create_dts( meta, messages, skip ):
         ds.account   = account
         ds.scope     = meta.get('scope',  'unknown')
         messages.add( 'pending', ds )
+    else:
+        DEBUG("create_dts account=%s"%account)
 
 def handle_close( meta, messages, skip ):
     """
@@ -110,7 +111,6 @@ class Listener( stomp.ConnectionListener ):
     def on_message( self, frame ):
 
         self.gotmsg = True
-
         DEBUG( str(frame.headers) )
         DEBUG( str(frame.body) )
 
@@ -122,6 +122,7 @@ class Listener( stomp.ConnectionListener ):
         meta    = client.get_metadata( scope, name )
 
         self.recent.append( { 'name':name, 'scope':scope, 'event':event } )
+        #pprint.pprint(self.recent)
 
         actor = message_actors.get( event, None )
 
@@ -129,7 +130,7 @@ class Listener( stomp.ConnectionListener ):
             actor( meta, self.messages, self.skip_accounts )
 
         else:
-            print("No actor registered for event %s"%event )
+            WARN("No actor registered for event %s"%event )
 
         
 def createAndCacheSubscriptionId( idhx=None ):
@@ -233,6 +234,8 @@ def run( sleeps, dbfilename, lists=['pending','processed'] ):
     connection.disconnect()
 
     listener.messages.dump()
+
+    return listener.recent
 
     
 
