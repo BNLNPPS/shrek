@@ -2,6 +2,7 @@ import pytest
 import datetime
 import time
 import pprint
+import warnings
 
 time0  = "%s" % datetime.datetime.fromtimestamp( 0 )
 utcnow = "%s" % datetime.datetime.utcnow()
@@ -37,6 +38,7 @@ def test_001_donkey2_add_dataset_to_rucio():
     pytest.donkey_runnumber = rn
     pytest.donkey_scope     = scope
     pytest.donkey_dsname    = dsname
+    pytest.donkey_event     = 'create_dts'
 
     client.add_dataset( scope, dsname )
     client.set_metadata( scope, dsname, 'run_number', str(rn) )
@@ -71,8 +73,10 @@ def test_002_donkey2_run_listener():
         for msg in result:
             name  = msg['name']
             event = msg['event']
-            if name==pytest.donkey_dsname and event=='create_dts':
+            if name==pytest.donkey_dsname and event==pytest.donkey_event:
                 recieved = True
+            else:
+                warnings.warn("Listener has not recieved a message after %i min"%count)
 
     assert recieved==pytest.donkey_listen_expect, "The listener should have recieved a create_dts event for the dataset." 
 
@@ -111,29 +115,42 @@ def test_006_donkey2_setup_and_run_dispatch():
         '--dbfile', '%s'%pytest.donkey_dbfile,
         '--rule',   'raw-events',
         '--event',  'closed',
-        '--scope',  'group.sphenix',
-        '--actor',  'tests/hello.sh',
-        '--regex',  r'(\w)+EVENTS-(\d{9})',
-        '--rule',   'raw-events',
-        '--event',  'closed',
         '--scope',  'user.jwebb2',
         '--actor',  'tests/hello.sh',
         '--regex',  r'(\w)+EVENTS-(\d{9})',
         '--run'
         ])
 
-def test_007_donkey2_dsname_must_be_in_pending():
+def test_007_donkey2_run_listener():
+    """
+    Run the listener loop... should still be in pending..."
+    """
+    pytest.donkey_listen_nloop  = 1
+    pytest.donkey_listen_expect = False # nothing expected from active mq
+    test_002_donkey2_run_listener()
+
+def test_008_donkey2_dsname_must_be_in_pending():
     """
     Dataset must still be pending b/c dataset was not closed
     """
     test_003_donkey2_dsname_must_be_in_pending()
 
-def test_008_donkey2_close_dataset():
+def test_009_donkey2_close_dataset():
     from rucio.client import Client
     client = Client()
     client.close( pytest.donkey_scope, pytest.donkey_dsname )
+    
+def test_010_donkey2_run_listener():
+    """
+    Run the listener loop... to catch the close event
+    """
+    pytest.donkey_listen_nloop  = 5
+    pytest.donkey_listen_expect = True
+    pytest.donkey_event     = 'close'
+    
+    test_002_donkey2_run_listener()    
 
-def test_009_donkey2_setup_and_run_dispatch():
+def test_011_donkey2_setup_and_run_dispatch():
     from donkey.donkey_dispatch import run as run_dispatch
 
     # Setup and run dispatch
@@ -153,7 +170,7 @@ def test_009_donkey2_setup_and_run_dispatch():
         ])
 
 
-def test_010_donkey2_dsname_must_be_in_dispatched():
+def test_012_donkey2_dsname_must_be_in_dispatched():
     """
     The dataset should be available in the dispatched
     """
@@ -164,6 +181,14 @@ def test_010_donkey2_dsname_must_be_in_dispatched():
     assert coll.find('dispatched',pytest.donkey_dsname), 'dataset %s must exist in dispatched collection after dispatch called'%pytest.donkey_dsname    
 
     
+
+
+#____________________________________________________________
+def test_900_cleanup():
+    from rucio.client import Client
+    client = Client()
+    #client.erase( pytest.donkey_scope, pytest.donkey_dsname )
+    client.set_metadata( pytest.donkey_scope, pytest.donkey_dsname, 'lifetime',   str(1800) )   # dataset should expire after the test is done    
 
 
 def Xtest_donkey2_loop():
