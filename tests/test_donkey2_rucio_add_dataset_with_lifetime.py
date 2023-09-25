@@ -37,21 +37,40 @@ def test_003_the_dataset_should_be_removed_from_rucio_in_a_reasonable_time_frame
         did = None
         try:
             did = client.get_did( pytest.scope, pytest.dsname )           
-            pprint.pprint(did)
             time.sleep(60)            
         except DataIdentifierNotFound:
             removed = True
-            print("Removed after %i min"%i)
             break
 
     assert(removed), "The dataset was not removed int the requested time limit %i min"%pytest.limit
 
 def test_004_we_should_be_able_to_crete_the_dataset_again_after_it_was_erased():
+    """
+    ... set time limit of 5min here
+    """
     from rucio.client import Client
     client = Client()    
 
     client.add_dataset( pytest.scope, pytest.dsname )
-    client.set_metadata( pytest.scope, pytest.dsname, 'lifetime',   str(60) )  
+    client.set_metadata( pytest.scope, pytest.dsname, 'lifetime',   str(300) )  
 
     did = client.get_did( pytest.scope, pytest.dsname )    
-    assert did, "The dataset should have been added to rucio with a 60s lifetime"
+    assert did, "The dataset should have been added to rucio with a 300s lifetime"
+
+def test_005_the_dataset_should_be_removed_from_rucio_in_a_reasonable_time_frame():
+    from rucio.client import Client
+    client = Client()
+
+    from rucio.common.exception import DataIdentifierNotFound    
+
+    removed=False
+    for i in range(0, pytest.limit):
+        did = None
+        try:
+            did = client.get_did( pytest.scope, pytest.dsname )           
+            time.sleep(60)            
+        except DataIdentifierNotFound:
+            removed = True
+            break
+
+    assert(removed), "The dataset was not removed int the requested time limit %i min"%pytest.limit
