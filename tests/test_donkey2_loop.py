@@ -8,7 +8,7 @@ time0  = "%s" % datetime.datetime.fromtimestamp( 0 )
 utcnow = "%s" % datetime.datetime.utcnow()
 
 
-def test_001_donkey2_add_dataset_to_rucio():
+def test_0010_donkey2_add_dataset_to_rucio():
 
     """
     Test will
@@ -55,7 +55,7 @@ def test_001_donkey2_add_dataset_to_rucio():
     pytest.donkey_listen_expect = True       
 
 
-def test_002_donkey2_run_listener():
+def test_0020_donkey2_run_listener():
     """
     Run the listener.  1min loop.  Run up to 10 iterations.
     """
@@ -80,7 +80,7 @@ def test_002_donkey2_run_listener():
     assert recieved==pytest.donkey_listen_expect, "The listener should have recieved a create_dts event for the dataset." 
 
 
-def test_003_donkey2_dsname_must_be_in_pending():
+def test_0030_donkey2_dsname_must_be_in_pending():
     """
     The dataset should be available in the pending list
     """
@@ -91,22 +91,22 @@ def test_003_donkey2_dsname_must_be_in_pending():
     assert coll.find('pending',pytest.donkey_dsname), 'dataset %s must exist in pending collection after created in rucio'%pytest.donkey_dsname
     
 
-def test_004_donkey2_run_listener():
+def test_0040_donkey2_run_listener():
     """
     Rerun the listener for one more iteration
     """
     pytest.donkey_listen_nloop  = 1
     pytest.donkey_listen_expect = False
         
-    test_002_donkey2_run_listener()
+    test_0020_donkey2_run_listener()
 
-def test_005_donkey2_dsname_must_be_in_pending():
+def test_0050_donkey2_dsname_must_be_in_pending():
     """
     Dataset must still be pending after one more llop iteration
     """
-    test_003_donkey2_dsname_must_be_in_pending()
+    test_0030_donkey2_dsname_must_be_in_pending()
 
-def test_006_donkey2_setup_and_run_dispatch():
+def test_0060_donkey2_setup_and_run_dispatch():
     from donkey.donkey_dispatch import run as run_dispatch
 
     # Setup and run dispatch
@@ -120,26 +120,26 @@ def test_006_donkey2_setup_and_run_dispatch():
         '--run'
         ])
 
-def test_007_donkey2_run_listener():
+def test_0070_donkey2_run_listener():
     """
     Run the listener loop... should still be in pending..."
     """
     pytest.donkey_listen_nloop  = 1
     pytest.donkey_listen_expect = False # nothing expected from active mq
-    test_002_donkey2_run_listener()
+    test_0020_donkey2_run_listener()
 
-def test_008_donkey2_dsname_must_be_in_pending():
+def test_0080_donkey2_dsname_must_be_in_pending():
     """
     Dataset must still be pending b/c dataset was not closed
     """
-    test_003_donkey2_dsname_must_be_in_pending()
+    test_0030_donkey2_dsname_must_be_in_pending()
 
-def test_009_donkey2_close_dataset():
+def test_0090_donkey2_close_dataset():
     from rucio.client import Client
     client = Client()
     client.close( pytest.donkey_scope, pytest.donkey_dsname )
     
-def test_010_donkey2_run_listener():
+def test_0100_donkey2_run_listener():
     """
     Run the listener loop... to catch the close event
     """
@@ -147,9 +147,9 @@ def test_010_donkey2_run_listener():
     pytest.donkey_listen_expect = True
     pytest.donkey_event     = 'close'
     
-    test_002_donkey2_run_listener()    
+    test_0020_donkey2_run_listener()    
 
-def test_011_donkey2_setup_and_run_dispatch():
+def test_0110_donkey2_setup_and_run_dispatch():
     from donkey.donkey_dispatch import run as run_dispatch
 
     # Setup and run dispatch
@@ -169,7 +169,7 @@ def test_011_donkey2_setup_and_run_dispatch():
         ])
 
 
-def test_012_donkey2_dsname_must_be_in_dispatched():
+def test_0120_donkey2_dsname_must_be_in_dispatched():
     """
     The dataset should be available in the dispatched
     """
@@ -184,7 +184,7 @@ def test_012_donkey2_dsname_must_be_in_dispatched():
 
 #____________________________________________________________
 
-def test_013_donkey2_cleanup_the_dataset_and_verify_it_was_removed_from_rucio():
+def test_0130_donkey2_cleanup_the_dataset_and_verify_it_was_removed_from_rucio():
     from rucio.client import Client
     from rucio.common.exception import DataIdentifierNotFound
     
@@ -205,7 +205,7 @@ def test_013_donkey2_cleanup_the_dataset_and_verify_it_was_removed_from_rucio():
 
     
 
-def test_014_donkey2_listener_should_see_the_erase_message():
+def test_0140_donkey2_listener_should_see_the_erase_message():
     from donkey.donkey_listener import run as run_listener    
     from collections import deque
 
@@ -224,8 +224,7 @@ def test_014_donkey2_listener_should_see_the_erase_message():
 
     assert recieved, "Did not see an erase event in %i min"%count
 
-
-def test_015_donkey2_dataset_should_be_removed_from_dbfile_after_an_erase():
+def test_0150_donkey2_dataset_should_be_removed_from_dbfile_after_an_erase():
     from donkey.dataset import dataset_collection as collection
     coll = collection(pytest.donkey_dbfile)
     assert coll.find('pending',pytest.donkey_dsname)==None, 'dataset %s must not exist in pending collection after erase'%pytest.donkey_dsname
