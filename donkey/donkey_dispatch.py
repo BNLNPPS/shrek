@@ -18,6 +18,8 @@ import sys
 
 import argparse
 
+from collections import deque
+
 def captureActorOutput( out ):
     INFO('| '+ out)
 
@@ -64,6 +66,7 @@ class Dispatch:
         self.pending  = []
         self.dispatch = []
         self.dropped  = []
+        self.recent   = deque(maxlen=50)
 
     def addRule( self, r ):
         self.rules.append(r)
@@ -88,12 +91,25 @@ class Dispatch:
 
                 ok_scope = r.matches_scope(ds)
                 ok_name  = r.matches_name(ds)
+                ok_event = r.matches_event(ds)
 
                 if r.matches(ds) is not None:
                     ismatched = True
                     ds.dispatched = str( datetime.datetime.utcnow() )
                     action = "%s %s %s %s" %( r.actor, ds.name, ds.runnumber, ds.created )
                     self.dispatch.append( action )
+
+                rec = { 'rule': r.name,
+                        'name': ds.name,
+                        'ok_name' : ok_name,
+                        'scope': ds.scope,
+                        'ok_scope' : ok_scope,
+                        'event': ds.event,
+                        'ok_event' : ok_event,
+                        'matches' : ismatched }
+
+                self.recent.append( rec )
+
 
                 # Matched one or more rules, goes to dispatched
                 if ismatched:
@@ -106,6 +122,10 @@ class Dispatch:
                 # Otherwise return to the pending queue
                 else:
                     self.pending.append( ds )
+
+
+
+                    
 
         # Return pending datasets to pending collection
         for ds in self.pending:
