@@ -46,9 +46,8 @@ def test_001_donkey2_add_dataset_to_rucio():
     did = client.get_did( scope, dsname )    
     assert did, "The dataset must be created in rucio"
 
-    client.set_metadata( scope, dsname, 'lifetime',   str(1800) )   # dataset should expire after the test is done
-
-    print("Pausing for 30s...")   
+    client.set_metadata( scope, dsname, 'lifetime',   str(7200) )   # dataset should expire in 2h even if test crashses
+    
     time.sleep(30)
 
     # For test 02, loop up to 10 times expect to find event
@@ -184,77 +183,52 @@ def test_012_donkey2_dsname_must_be_in_dispatched():
 
 
 #____________________________________________________________
-def test_900_cleanup():
+
+def test_013_donkey2_cleanup_the_dataset_and_verify_it_was_removed_from_rucio():
     from rucio.client import Client
+    from rucio.common.exception import DataIdentifierNotFound
+    
     client = Client()
-    #client.erase( pytest.donkey_scope, pytest.donkey_dsname )
-    client.set_metadata( pytest.donkey_scope, pytest.donkey_dsname, 'lifetime',   str(1800) )   # dataset should expire after the test is done    
+    client.set_metadata( pytest.donkey_scope, pytest.donkey_dsname, 'lifetime',   str(15) )   # dataset should expire after the test is done
+
+    removed=False
+    for i in range(0, 10): # 5 min wait period
+        did = None
+        try:
+            did = client.get_did( pytest.donkey_scope, pytest.donkey_dsname )           
+            time.sleep(30)            
+        except DataIdentifierNotFound:
+            removed = True
+            break
+
+    assert(removed), "The dataset was not removed int the requested time limit %i min"%pytest.limit    
+
+    
+
+def test_014_donkey2_listener_should_see_the_erase_message():
+    from donkey.donkey_listener import run as run_listener    
+    from collections import deque
+
+    duration = 30 # minutes
+    
+    recieved = False
+    count = 0
+    while recieved == False and count < duration:
+        result = run_listener( [1], pytest.donkey_dbfile, ['pending','dispatched','dropped'] )
+        count = count + 1
+        for msg in result:
+            name  = msg['name']
+            event = msg['event']
+            if name==pytest.donkey_dsname and event=='erase':
+                recieved = True
+
+    assert recieved, "Did not see an erase event in %i min"%count
 
 
-def Xtest_donkey2_loop():
-    """
-    """
-    from rucio.client import Client
-    client = Client()
-
-    import uuid
-
-    from donkey.donkey_listener import run as run_listener
-    from donkey.donkey_dispatch import run as run_dispatch
-
+def test_015_donkey2_dataset_should_be_removed_from_dbfile_after_an_erase():
     from donkey.dataset import dataset_collection as collection
+    coll = collection(pytest.donkey_dbfile)
+    assert coll.find('pending',pytest.donkey_dsname)==None, 'dataset %s must not exist in pending collection after erase'%pytest.donkey_dsname
+    assert coll.find('dispatched',pytest.donkey_dsname)==None, 'dataset %s must not exist in dispatched collection after erase'%pytest.donkey_dsname
+    assert coll.find('dropped',pytest.donkey_dsname)==None, 'dataset %s must not exist in dispatched collection after erase'%pytest.donkey_dsname            
 
-    uu = str( uuid.uuid4() ).replace('-','_')    
-    dbfile = 'test-donkey-loop-%s'%uu
-    rn=1883
-
-    scope  = 'user.jwebb2'
-    dsname = 'test_donkey2_%s_EVENTS-%09i'%(uu,rn)
-
-    client.add_dataset( scope, dsname )
-    client.set_metadata( scope, dsname, 'run_number', str(rn) )
-
-    did = client.get_did( scope, dsname )    
-    assert did, "The dataset must be created in rucio"    
-    client.set_metadata( scope, dsname, 'lifetime',   str(1800) )   # dataset should expire after the test is done
-
-    
-    # Run the listener and pull the messages into the file
-    run_listener( [5,4,3,2,1], dbfile, ['pending','dispatched','dropped'] )
-
-    coll = collection(dbfile)
-    assert coll.find('pending',dsname), 'dataset %s must exist in pending collection after created in rucio'%dsname
-
-    # Setup and run dispatch
-    run_dispatch([
-        '--dbfile', '%s'%dbfile,
-        '--rule',   'raw-events',
-        '--event',  'closed',
-        '--scope',  'group.sphenix',
-        '--actor',  'tests/hello.sh',
-        '--regex',  r'(\w)+EVENTS-(\d{9})',
-        '--rule',   'raw-events',
-        '--event',  'closed',
-        '--scope',  'user.jwebb2',
-        '--actor',  'tests/hello.sh',
-        '--regex',  r'(\w)+EVENTS-(\d{9})',
-        '--run'
-        ])
-
-    #coll = collection(dbfile)
-    assert coll.find('pending',dsname), 'dataset %s must still exist in pending collection after dispatcher looks for closed datasets'%dsname
-
-    # Close the dataset
-    client.close( scope, dsname )
-
-    meta_ = client.get_metadata( scope, dsname )
-    
-    assert( meta_['is_open'] == False ), "dataset %s should have been closed"%dsname
-
-    # Run the listener for 1 min and pull the messages into the file
-    run_listener( [5,4,3,2,1], dbfile, ['pending','dispatched','dropped'] )
-
-    coll = collection(dbfile)
-    assert coll.find('dispatched',dsname), 'dataset %s should have been dispatched'%dsname    
-    
-    
