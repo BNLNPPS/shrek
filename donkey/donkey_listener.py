@@ -69,7 +69,6 @@ def handle_open( meta, messages, skip ):
     A dataset has been opened in rucio
     """
     name    = meta.get( 'name' )
-    DEBUG("open %s"%name)    
     utcnow = str(datetime.datetime.utcnow())
     account = meta.get( 'account', 'unknown' )
 
@@ -80,6 +79,8 @@ def handle_open( meta, messages, skip ):
         ds.event     = 'opened'
         ds.opened    = utcnow
         messages.add( 'pending', ds )         # add back to pending
+
+    
                   
 message_actors = {
     'create_dts' : handle_create_dts,
@@ -129,8 +130,12 @@ class Listener( stomp.ConnectionListener ):
             actor( meta, self.messages, self.skip_accounts )
 
         elif event=='erase':
-            # TODO cleanup DB when dataset is ereased
-            pass
+            for event in self.events:  # not really events... thse are the collection names
+                ds = self.messages.find( event, name )
+                if ds:
+                    DEBUG("Erase on dataset="+name+" in "+event)                    
+                    self.messages.rem( event, ds )
+                    self.messages.dump()
 
         else:
             WARN("No actor registered for event %s"%event )
