@@ -317,6 +317,9 @@ def main():
     parser.add_argument('--outDS',type=str,            default=None)
     parser.add_argument('--branch', type=str,          default=shrekOpts['defaultBranch'])
 
+    parser.add_argument('--pack', action='append', help='Add file to the list of files packaged with the submission directory.')
+    parser.set_defaults( pack=[] )
+
     #
     parser.add_argument('--dump-file', dest="dumpfile", type=str, default=None )
 
