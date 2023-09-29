@@ -69,6 +69,7 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
                 
         subdir = s            
         os.mkdir( subdir )
+        os.mkdir( subdir + '/__pack' )
         INFO('PanDA submission directory %s'%s)            
         break
 
@@ -83,8 +84,10 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
 
     # Copy command line "pack" parameters
     for p in args.pack:
-        INFO('Copy %s to submission directory %s'%(p,subdir))
-        sh.cp( p, subdir )
+        mydir = subdir + '/__pack/'
+        INFO('Copy %s to submission directory %s'%(p,mydir))
+        sh.cp( p, mydir )
+
 
     # Build job scripts and stage into directory
     input_jobs = []
