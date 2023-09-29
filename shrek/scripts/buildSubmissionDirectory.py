@@ -81,6 +81,11 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
         INFO('Copy %s to submission directory %s'%(j,subdir))                    
         sh.cp( j, subdir )
 
+    # Copy command line "pack" parameters
+    for p in args.pack:
+        INFO('Copy %s to submission directory %s'%(p,subdir))
+        sh.cp( p, subdir )
+
     # Build job scripts and stage into directory
     input_jobs = []
     job_scripts = []
