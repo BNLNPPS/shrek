@@ -45,18 +45,18 @@ export PANDA_USE_NATIVE_HTTPLIB=1
 export PANDA_BEHIND_REAL_LB=1
 
 
-export PYTHONPATH=${PYTHONPATH}:.
-
 echo "Sourcing rucio setup script"
 source /cvmfs/sphenix.sdcc.bnl.gov/rucio-clients/setup.sh
 
 export PATH=~/bin:${PATH}
-
 export EDITOR='vim'
 
-alias shrek='shrek/scripts/submitWorflowToPanDA.py'
-alias donkey='shrek/scripts/DonkeyApplication.py --user donkey --password donkey' 
-alias farquaad='shrek/scripts/FarquaadApplication.py'
+export SHREKSYS="${SHREK_INSTALL:-${HOME}/shreksys/}"
+
+export PYTHONPATH=${PYTHONPATH}:${SHREKSYS}:.
+
+alias shrek='${SHREKSYS}/shrek/scripts/submitWorflowToPanDA.py'
+alias donkey='${SHREKSYS}/shrek/scripts/DonkeyApplication.py --user donkey --password donkey' 
 
 
 
