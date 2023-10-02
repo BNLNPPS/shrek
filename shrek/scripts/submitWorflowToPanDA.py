@@ -340,7 +340,8 @@ def main():
    
     if args.handshake == True:
         WARN("Poking the bear you may be prompted for a new token.")
-        hello = sh.Command("shrek/scripts/pokeThePanda.py")
+        shreksys = os.environ.get( 'SHREKSYS', '.' )      # shrek system installation (defaults to pwd)        
+        hello = sh.Command("%s/shrek/scripts/pokeThePanda.py"%shreksys)
         hello(_fg=True, _env=pandaEnv)
 
 

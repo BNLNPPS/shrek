@@ -6,10 +6,10 @@ from shrek.scripts.simpleLogger import DEBUG, INFO, WARN, ERROR, CRITICAL
 
 def readProductionTypes(default='shrek/config/prod.yaml'):
 
-    shreksys = os.environ.get( 'SHREK_SYS', '.' )      # shrek system installation (defaults to pwd)
+    shreksys = os.environ.get( 'SHREKSYS', '.' )      # shrek system installation (defaults to pwd)
 
     result = {}
-    with open(default,"r") as stream:
+    with open(shreksys + '/' + default,"r") as stream:
         try:
             result = yaml.safe_load(stream)
         except yaml.YAMLError as exc:
@@ -19,7 +19,7 @@ def readProductionTypes(default='shrek/config/prod.yaml'):
 
 def readSiteConfig(default='site.yaml'):
 
-    shreksys = os.environ.get( 'SHREK_SYS', '.' )      # shrek system installation (defaults to pwd)
+    shreksys = os.environ.get( 'SHREKSYS', '.' )      # shrek system installation (defaults to pwd)
     
     configs = [ '%s'%default,                             # first try local file
                 'shrek/config/site.yaml',                 # next local install
