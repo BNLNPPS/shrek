@@ -155,7 +155,11 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, glvars, taguuid
         # Handle principle (input) data set
         if count==1:
             hasInput = True
-            pchain .append( ' --inDS %s'%(inp.datasets))
+            dataset = inp.datasets
+            if '$' in dataset:
+                dataset=dataset.replace('$','')
+                dataset=glvars.get( dataset, None )
+            pchain .append( ' --inDS %s'%(dataset))
             if nfpj:
                 pchain.append( ' --nFilesPerJob='+str(nfpj) )
             if nepf:
