@@ -163,6 +163,8 @@ def yml_inputs( wfgraph, glvars_ ):
             #inputs += "\n  %s: string"%inp.name
             if inp.datasets:
                 dataset = inp.datasets
+                if '$' in dataset:
+                    dataset=dataset.replace('$','')
                 for k,v in glvars_.items():
                     if k in dataset:
                         dataset = dataset.replace(k,v)
