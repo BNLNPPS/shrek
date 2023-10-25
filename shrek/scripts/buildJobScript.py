@@ -76,6 +76,7 @@ def buildJobScript( yaml_, tag_, opts_, glvars_ ):
     output += "lscpu | grep \^CPU\n"    
     output += "free -h --giga\n"
     output += "\n"
+    output += "shrek_status_code=0\n"
 
     # Export global variables
     # TODO: require pattern match of VAR=VAL
@@ -213,6 +214,8 @@ addmetadata shrek_start_time \"`date`\"
     
  echo \\\"shrek_end_metafile\\\" : 1  >> userJobMetadata.json
  echo '}' >> userJobMetadata.json
+
+    exit $shrek_status_code
     """
 
     return ( job, output )
