@@ -368,7 +368,7 @@ def cwl_steps( wfgraph, site, args, glvars ):
 
 
                 
-        steps += ' >& _%s.log' % ( job.name ) 
+        steps += ' tee _%s.log' % ( job.name ) 
         steps += ' "'
 
         optargs = cwl_opt_args(job, glvars)

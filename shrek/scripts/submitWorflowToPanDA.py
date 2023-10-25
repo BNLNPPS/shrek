@@ -195,7 +195,7 @@ def buildPrunCommand( submissionDirectory, jobDefinitions, args, glvars, taguuid
         CRITICAL("Cannot specify pfnList in parameter block if inputdata is defined.")
         assert(0)
 
-    shargs += ' >& _%s.log' % ( job.name ) 
+    shargs += ' tee _%s.log' % ( job.name ) 
     pchain . append("--exec '%s'"% (shargs) )
 
     params = job.parameters
