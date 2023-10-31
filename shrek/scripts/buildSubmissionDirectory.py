@@ -49,12 +49,29 @@ def jobDirectoryName( tag, opts ):
     yield subdir
 
 def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
+    softResourceLimit=opts.get('softResourceLimit',512 )  
+    hardResourceLimit=opts.get('hardResourceLimit',1024)
+    resourceTotal=0
 
     # Make certain we have absolute path to job definition files
     jdfs = []
     for jdf in jdfs_:
         jdfs.append( os.path.abspath( jdf ) )
 
+    # Compute total size of (potentially large) resources to be copied into submission area
+    resourceTotal += sum(os.path.getsize(f) for f in os.listdir('./plugins/') if os.path.isfile(f))  # plugins
+    resourceTotal += sum(os.path.getsize(f) for f in jdfs)                                           # job description files
+    resourceTotal += sum(os.path.getsize(f) for f in args.pack)                                      # command line pack files
+          
+    if resourceTotal/1000 > hardResourceLimit:
+        ERROR("Plugins, job descriptions and/or pack files exceed %i kb [%i kb]"%(int(softResourceLimit),resourceTotal/1000) )
+        assert(False)
+    elif resourceTotal/1000 > softResourceLimit:
+        WARN("Plugins, job descriptions and/or pack files exceed %i kb [%i kb]"%(int(softResourceLimit),resourceTotal/1000) )        
+
+    # The submission area will also contain generated shell scripts, cwl files, pfnlists and symbolic links to user resources
+    
+    
     # 
     subdir = ""
     for s in jobDirectoryName( tag, opts ):
@@ -73,9 +90,10 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
         INFO('PanDA submission directory %s'%s)            
         break
 
+
     # Copy plugins
     if os.path.exists( './plugins/' ):
-        sh.cp( '-r', './plugins', subdir )        
+        sh.cp( '-r', './plugins', subdir )
 
     # Copy job description files to staging area
     for j in jdfs:
@@ -119,6 +137,10 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
             f.write(script)
             f.write("# ... end of the user script   ................................................\n")
 
+        resourceTotal += os.path.getsize( subdir + '/' + name + '.sh' )
+        if resourceTotal/1000 > softResourceLimit:
+            WARN("Plugins, job descriptions and/or pack files exceed %i kb [%i kb]"%(int(softResourceLimit),resourceTotal/1000) )
+            
         # Make script executable
         chmod_plus_x(subdir + '/' + name + '.sh') 
 
@@ -140,6 +162,10 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
                         os.symlink( os.path.abspath(f), jobdir + '/' + tail )
                         job_resources.append( os.path.abspath(f) )
 
+                        resourceTotal += os.path.getsize( os.path.abspath(f) )
+                        if resourceTotal/1000 > softResourceLimit:
+                            WARN("Plugins, job descriptions and/or pack files exceed %i kb [%i kb]"%(int(softResourceLimit),resourceTotal/1000) )                                
+
     # Copy pfnLists to submission directory (if any)
     for job in jobs:
 
@@ -158,8 +184,10 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
                     pfnOut+=os.path.basename(pfn)
             with open( subdir+'/'+os.path.basename(pfnList),'w' ) as of:
                 of.write(pfnOut)
-                
 
+            resourceTotal += os.path.getsize( subdir+'/'+os.path.basename(pfnList) )
+            if resourceTotal/1000 > softResourceLimit:
+                WARN("Plugins, job descriptions and/or pack files exceed %i kb [%i kb]"%(int(softResourceLimit),resourceTotal/1000) ) 
                 
 
     # Build CWL for PanDA submission
@@ -177,6 +205,12 @@ def buildSubmissionDirectory( tag, jdfs_, site, args, opts, glvars ):
             for inp in job.inputs:
                 f.write('# %s %s %s\n'%(job.name,inp.name,inp.datasets))
                 f.write('%s: %s\n'%(inp.name,inp.datasets))
+
+    resourceTotal += os.path.getsize( subdir + '/' + ymlfile )
+    resourceTotal += os.path.getsize( subdir + '/' + cwlfile )    
+    if resourceTotal/1000 > softResourceLimit:
+        WARN("Plugins, job descriptions and/or pack files exceed %i kb [%i kb]"%(int(softResourceLimit),resourceTotal/1000) ) 
+                
 
 
     # Create PNG from the digraph and store in the staging area along

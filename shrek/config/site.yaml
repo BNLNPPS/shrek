@@ -1,7 +1,11 @@
 Shrek:
-  maxSubmit: 1000
+  maxSubmit: 1000                    
   submissionPrefix: ../submit/
   defaultBranch: master
+  # Soft limit (warning) on total size of resource files [kb]
+  softResourceLimit: 400
+  # Hard limit (error) on total size of resource files [kb]
+  hardResourceLimit: 800
 
 Donkey:
   period: 900
