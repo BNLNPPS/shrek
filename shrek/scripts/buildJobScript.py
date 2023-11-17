@@ -107,11 +107,14 @@ def buildJobScript( yaml_, tag_, opts_, glvars_ ):
         output += 'export uniqueId=$%i\n'%arg
         arg = arg + 1
 
+        tovalidate=[]
+
         # Successive arguements will accept inputs
         for (i,ds) in enumerate(job.inputs):
             output += "export IN%i_name=%s\n"%(i+1,ds.name) 
             output += "export IN%i_task=%s\n"%(i+1,ds.name.replace("/outDS","") )           
             output += 'export IN%i=(`echo $%i | tr "," " "`)\n'%(i+1,arg)
+            tovalidate.append( "IN%i"%(i+1) )
             arg = arg + 1
 
         #
@@ -123,7 +126,8 @@ def buildJobScript( yaml_, tag_, opts_, glvars_ ):
             output += "export IN1_name=pfnlist_%s\n"%pfnlist
             output += "export IN1_task=%s\n"%pfnlist
             output += 'export IN1=(`echo $2 | tr "," " "`)\n'
-
+            tovalidate.append( "IN1" )
+            
         except AttributeError:
             pass
 
@@ -143,6 +147,13 @@ for f in plugins/*.sh; do
   source "$f"
 done
         """
+
+        # 
+        # Perform dataset validation
+        #
+        for check in tovalidate:
+            output += "echo Checking input files on dataset %s:\n"%check
+            output += "check_input_files ${%s[@]}\n"%check
         
 
 
